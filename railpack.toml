@@ -1,0 +1,6 @@
+[options]
+buildCmd = "npm run build"
+startCmd = "node .next/standalone/server.js"
+
+[options.environment]
+NODE_VERSION = "20"
