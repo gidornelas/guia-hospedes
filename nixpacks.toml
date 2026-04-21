@@ -11,4 +11,4 @@ cmds = [
 nixPkgs = ["nodejs_20"]
 
 [start]
-cmd = "npm run start"
+cmd = "node .next/standalone/server.js"
