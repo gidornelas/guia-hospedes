@@ -1,3 +1,4 @@
+import '@/lib/url-patch'
 import type { Metadata } from 'next'
 import { DM_Sans, DM_Serif_Display } from 'next/font/google'
 import './globals.css'
