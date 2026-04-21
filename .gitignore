@@ -30,6 +30,8 @@ yarn-error.log*
 .pnpm-debug.log*
 dev.out
 dev.err
+.login-debug.*
+.standalone-debug.*
 
 # ============================================
 # Environment files — NEVER commit secrets

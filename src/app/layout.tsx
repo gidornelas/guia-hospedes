@@ -3,6 +3,7 @@ import { DM_Sans, DM_Serif_Display } from 'next/font/google'
 import './globals.css'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { env } from '@/lib/env'
 
 const dmSans = DM_Sans({
   variable: '--font-sans',
@@ -17,6 +18,7 @@ const dmSerif = DM_Serif_Display({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(env.appUrl),
   title: {
     default: 'GuiaHóspedes — Guias Digitais para Imóveis de Hospedagem',
     template: '%s | GuiaHóspedes',
