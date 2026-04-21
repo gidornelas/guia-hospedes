@@ -3,6 +3,18 @@ import Credentials from 'next-auth/providers/credentials'
 import { z } from 'zod'
 import bcrypt from 'bcryptjs'
 
+// Fix Railway proxy URLs that may come without protocol
+const RAILWAY_DOMAIN = 'guia-hospedes-production.up.railway.app'
+if (!process.env.NEXTAUTH_URL || !process.env.NEXTAUTH_URL.startsWith('http')) {
+  process.env.NEXTAUTH_URL = `https://${RAILWAY_DOMAIN}`
+}
+if (!process.env.AUTH_URL || !process.env.AUTH_URL.startsWith('http')) {
+  process.env.AUTH_URL = `https://${RAILWAY_DOMAIN}`
+}
+if (!process.env.NEXT_PUBLIC_APP_URL || !process.env.NEXT_PUBLIC_APP_URL.startsWith('http')) {
+  process.env.NEXT_PUBLIC_APP_URL = `https://${RAILWAY_DOMAIN}`
+}
+
 const credentialsSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
