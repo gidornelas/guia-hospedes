@@ -1,9 +1,3 @@
-import { NextResponse } from 'next/server'
+import { handlers } from '@/lib/auth'
 
-export async function GET() {
-  return NextResponse.json({ status: 'auth endpoint - NextAuth temporarily disabled for debugging' })
-}
-
-export async function POST() {
-  return NextResponse.json({ status: 'auth endpoint - NextAuth temporarily disabled for debugging' })
-}
+export const { GET, POST } = handlers

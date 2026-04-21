@@ -15,10 +15,6 @@ if (!process.env.NEXT_PUBLIC_APP_URL || !process.env.NEXT_PUBLIC_APP_URL.startsW
   process.env.NEXT_PUBLIC_APP_URL = `https://${RAILWAY_DOMAIN}`
 }
 
-console.log('[AUTH CONFIG] NEXTAUTH_URL:', process.env.NEXTAUTH_URL)
-console.log('[AUTH CONFIG] AUTH_URL:', process.env.AUTH_URL)
-console.log('[AUTH CONFIG] AUTH_TRUST_HOST:', process.env.AUTH_TRUST_HOST)
-
 const credentialsSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
@@ -68,7 +64,6 @@ export const {
   signOut,
 } = NextAuth({
   trustHost: true,
-  skipCSRFCheck: true,
   secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
   basePath: '/api/auth',
   useSecureCookies: process.env.NODE_ENV === 'production',
