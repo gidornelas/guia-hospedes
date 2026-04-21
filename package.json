@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "npx prisma db push --accept-data-loss && next start",
+    "start": "sh start.sh",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "format": "prettier --write .",
