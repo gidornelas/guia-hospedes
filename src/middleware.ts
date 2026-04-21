@@ -6,12 +6,6 @@ import { ensureValidUrl } from '@/lib/utils'
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // DEBUG: logar URL recebida para diagnosticar problema no Railway
-  if (process.env.NODE_ENV === 'production') {
-    console.error('[MIDDLEWARE DEBUG] request.url:', request.url)
-    console.error('[MIDDLEWARE DEBUG] request.nextUrl:', request.nextUrl.toString())
-  }
-
   // Rotas públicas
   const publicRoutes = ['/', '/precos', '/contato', '/login']
   const isPublicRoute = publicRoutes.includes(pathname) || pathname.startsWith('/g/')
