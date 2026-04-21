@@ -53,6 +53,8 @@ export const {
 } = NextAuth({
   trustHost: true,
   secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
+  basePath: '/api/auth',
+  useSecureCookies: process.env.NODE_ENV === 'production',
   providers: [
     Credentials({
       name: 'credentials',
