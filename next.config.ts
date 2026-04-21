@@ -1,3 +1,5 @@
+require('./global-error-handler.js');
+
 // Early URL patch for Railway proxy compatibility
 const OriginalURL = globalThis.URL;
 (globalThis as any).URL = class extends OriginalURL {
