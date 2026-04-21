@@ -29,7 +29,14 @@ export function middleware(request: NextRequest) {
 
   // Se não estiver autenticado e tentar acessar rota protegida
   if (!hasSession && !isPublicRoute) {
-    const loginUrl = new URL('/login', request.url)
+    // Garante URL absoluta com protocolo (necessário atrás de proxies como Railway)
+    let baseUrl = request.url
+    if (!baseUrl.startsWith('http')) {
+      const host = request.headers.get('host') || 'localhost'
+      const protocol = request.headers.get('x-forwarded-proto') || 'https'
+      baseUrl = `${protocol}://${host}${pathname}`
+    }
+    const loginUrl = new URL('/login', baseUrl)
     loginUrl.searchParams.set('callbackUrl', pathname)
     return NextResponse.redirect(loginUrl)
   }
