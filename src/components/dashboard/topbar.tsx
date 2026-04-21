@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Search, Bell, User, Menu } from 'lucide-react'
+import { Search, Bell, User, Menu, BookOpen } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import {
@@ -15,12 +15,18 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { useEffect, useState } from 'react'
+import {
+  NavLink,
+  LogoutButton,
+  sidebarIcons,
+  navItemBase,
+  navItemActive,
+  navItemInactive,
+  actionBtnBase,
+} from '@/components/dashboard/sidebar'
+import { DASHBOARD_NAV } from '@/lib/constants'
 
 function getBreadcrumbs(pathname: string) {
   const parts = pathname.split('/').filter(Boolean)
@@ -51,10 +57,13 @@ function getBreadcrumbs(pathname: string) {
 }
 
 function useUser() {
-  const [user, setUser] = useState<{ name: string | null; email: string | null; image: string | null } | null>(null)
+  const [user, setUser] = useState<{
+    name: string | null
+    email: string | null
+    image: string | null
+  } | null>(null)
 
   useEffect(() => {
-    // Busca dados da sessão via API
     fetch('/api/auth/session')
       .then((res) => res.json())
       .then((data) => {
@@ -71,6 +80,9 @@ async function logout() {
   window.location.href = '/'
 }
 
+/* ------------------------------------------------------------------ */
+/*  Topbar                                                            */
+/* ------------------------------------------------------------------ */
 export function Topbar() {
   const pathname = usePathname()
   const user = useUser()
@@ -78,15 +90,8 @@ export function Topbar() {
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-background/80 px-4 sm:px-6 backdrop-blur-md">
-      {/* Mobile Menu Button */}
-      <Sheet>
-        <SheetTrigger>
-          <Button variant="ghost" size="icon" className="lg:hidden shrink-0" aria-label="Abrir menu de navegação">
-            <Menu className="h-5 w-5" aria-hidden="true" />
-          </Button>
-        </SheetTrigger>
-        <MobileNavSheet />
-      </Sheet>
+      {/* Mobile Menu */}
+      <MobileMenu />
 
       {/* Breadcrumbs */}
       <nav className="flex flex-1 items-center gap-2 text-sm text-muted-foreground overflow-hidden">
@@ -94,11 +99,16 @@ export function Topbar() {
           <div key={index} className="flex items-center gap-2 shrink-0">
             {index > 0 && <span className="text-border">/</span>}
             {crumb.href ? (
-              <Link href={crumb.href} className="hover:text-foreground transition-colors truncate">
+              <Link
+                href={crumb.href}
+                className="hover:text-foreground transition-colors duration-200 rounded px-1 py-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+              >
                 {crumb.label}
               </Link>
             ) : (
-              <span className="font-medium text-foreground truncate">{crumb.label}</span>
+              <span className="font-medium text-foreground truncate">
+                {crumb.label}
+              </span>
             )}
           </div>
         ))}
@@ -106,24 +116,38 @@ export function Topbar() {
 
       {/* Search */}
       <div className="relative hidden w-64 lg:w-80 md:block">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+        <Search
+          className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+          aria-hidden="true"
+        />
         <Input
           placeholder="Buscar imóveis, guias..."
-          className="pl-9 bg-muted/50 border-none focus:bg-background"
+          className="pl-9 bg-muted/50 border-none focus:bg-background transition-colors duration-200"
           aria-label="Buscar imóveis e guias"
         />
       </div>
 
       {/* Notifications */}
-      <Button variant="ghost" size="icon" className="relative hidden sm:flex" aria-label="Notificações">
-        <Bell className="h-5 w-5" />
-        <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary" aria-hidden="true" />
+      <Button
+        variant="ghost"
+        size="icon"
+        className="relative hidden sm:flex transition-all duration-200 ease-in-out active:scale-95 focus-visible:ring-2 focus-visible:ring-ring/50"
+        aria-label="Notificações"
+      >
+        <Bell className="h-5 w-5" aria-hidden="true" />
+        <span
+          className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary"
+          aria-hidden="true"
+        />
       </Button>
 
       {/* User Menu */}
       <DropdownMenu>
-        <DropdownMenuTrigger className="relative h-9 w-9 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0" aria-label={`Menu do usuário: ${user?.name || 'Usuário'}`}>
-          <Avatar className="h-9 w-9">
+        <DropdownMenuTrigger
+          className="relative h-9 w-9 rounded-full outline-none transition-all duration-200 ease-in-out active:scale-95 focus-visible:ring-2 focus-visible:ring-ring/50 shrink-0"
+          aria-label={`Menu do usuário: ${user?.name || 'Usuário'}`}
+        >
+          <Avatar className="h-9 w-9 transition-opacity duration-200">
             <AvatarImage src={user?.image || undefined} alt="" />
             <AvatarFallback className="bg-primary/10 text-primary">
               <User className="h-4 w-4" aria-hidden="true" />
@@ -138,98 +162,69 @@ export function Topbar() {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <Link href="/app/configuracoes">Configurações</Link>
+          <DropdownMenuItem onClick={() => window.location.href = '/app/configuracoes'}>
+            Configurações
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={logout}>
-            Sair
-          </DropdownMenuItem>
+          <DropdownMenuItem onClick={logout}>Sair</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </header>
   )
 }
 
-function MobileNavSheet() {
-  const pathname = usePathname()
-
-  const navItems = [
-    { href: '/app', label: 'Visão Geral', icon: 'LayoutDashboard' },
-    { href: '/app/imoveis', label: 'Imóveis', icon: 'Building2' },
-    { href: '/app/guias', label: 'Guias', icon: 'BookOpen' },
-    { href: '/app/compartilhamento', label: 'Compartilhamento', icon: 'Share2' },
-    { href: '/app/modelos-mensagem', label: 'Modelos', icon: 'MessageSquare' },
-    { href: '/app/integracoes', label: 'Integrações', icon: 'Plug' },
-    { href: '/app/analytics', label: 'Analytics', icon: 'BarChart3' },
-    { href: '/app/configuracoes', label: 'Configurações', icon: 'Settings' },
-  ]
+/* ------------------------------------------------------------------ */
+/*  Mobile Menu (Sheet)                                               */
+/* ------------------------------------------------------------------ */
+function MobileMenu() {
+  const [open, setOpen] = useState(false)
 
   return (
-    <SheetContent side="left" className="w-72 bg-sidebar p-0 border-r-0">
-      <div className="flex h-full flex-col">
-        <div className="flex h-16 items-center border-b border-sidebar-border px-4">
-          <Link href="/app" className="flex items-center gap-3">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-              <BookOpen className="h-4 w-4" />
-            </div>
-            <span className="font-heading text-lg font-semibold tracking-tight text-sidebar-foreground">
-              GuiaHóspedes
-            </span>
-          </Link>
-        </div>
-        <nav className="flex-1 space-y-1 px-2 py-4">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-sidebar-primary',
-                  isActive
-                    ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                    : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-                )}
-                aria-current={isActive ? 'page' : undefined}
-              >
-                <span className={cn('shrink-0', isActive && 'text-sidebar-primary')} aria-hidden="true">
-                  {item.icon === 'LayoutDashboard' && <LayoutDashboard className="h-5 w-5" />}
-                  {item.icon === 'Building2' && <Building2 className="h-5 w-5" />}
-                  {item.icon === 'BookOpen' && <BookOpen className="h-5 w-5" />}
-                  {item.icon === 'Share2' && <Share2 className="h-5 w-5" />}
-                  {item.icon === 'MessageSquare' && <MessageSquare className="h-5 w-5" />}
-                  {item.icon === 'Plug' && <Plug className="h-5 w-5" />}
-                  {item.icon === 'BarChart3' && <BarChart3 className="h-5 w-5" />}
-                  {item.icon === 'Settings' && <Settings className="h-5 w-5" />}
-                </span>
-                <span>{item.label}</span>
-              </Link>
-            )
-          })}
-        </nav>
-        <div className="border-t border-sidebar-border p-2">
-          <button
-            onClick={logout}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+      <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden shrink-0 transition-all duration-200 ease-in-out active:scale-95 focus-visible:ring-2 focus-visible:ring-ring/50"
+            aria-label="Abrir menu de navegação"
           >
-            <LogOut className="h-5 w-5 shrink-0" />
-            <span>Sair</span>
-          </button>
+            <Menu className="h-5 w-5" aria-hidden="true" />
+          </Button>
+        }
+      />
+      <SheetContent side="left" className="w-72 bg-sidebar p-0 border-r-0">
+        <div className="flex h-full flex-col">
+          {/* Logo */}
+          <div className="flex h-16 items-center border-b border-sidebar-border px-4">
+            <Link
+              href="/app"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 transition-opacity duration-200 hover:opacity-80 active:scale-[0.98]"
+            >
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                <BookOpen className="h-4 w-4" />
+              </div>
+              <span className="font-heading text-lg font-semibold tracking-tight text-sidebar-foreground">
+                GuiaHóspedes
+              </span>
+            </Link>
+          </div>
+
+          {/* Nav */}
+          <nav className="flex-1 space-y-1 px-2 py-4">
+            {DASHBOARD_NAV.map((item) => (
+              <div key={item.href} onClick={() => setOpen(false)}>
+                <NavLink item={item} />
+              </div>
+            ))}
+          </nav>
+
+          {/* Bottom */}
+          <div className="border-t border-sidebar-border p-2">
+            <LogoutButton />
+          </div>
         </div>
-      </div>
-    </SheetContent>
+      </SheetContent>
+    </Sheet>
   )
 }
-
-// Icons for mobile nav
-import {
-  LayoutDashboard,
-  Building2,
-  BookOpen,
-  Share2,
-  MessageSquare,
-  Plug,
-  BarChart3,
-  Settings,
-  LogOut,
-} from 'lucide-react'

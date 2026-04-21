@@ -41,11 +41,16 @@ interface CreatePropertyInput {
 
 export async function createProperty(input: CreatePropertyInput) {
   try {
-    // Busca a primeira organização (fallback para dev)
-    const organization = await db.organization.findFirst()
+    // Busca a primeira organização ou cria uma padrão
+    let organization = await db.organization.findFirst()
     
     if (!organization) {
-      throw new Error('Nenhuma organização encontrada. Execute o seed primeiro.')
+      organization = await db.organization.create({
+        data: {
+          name: 'Minha Organização',
+          slug: 'minha-organizacao',
+        },
+      })
     }
 
     const slug = generateSlug(input.name)

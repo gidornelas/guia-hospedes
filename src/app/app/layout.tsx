@@ -1,4 +1,4 @@
-import { Sidebar, MobileMenuButton } from '@/components/dashboard/sidebar'
+import { Sidebar } from '@/components/dashboard/sidebar'
 import { Topbar } from '@/components/dashboard/topbar'
 import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
