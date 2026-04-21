@@ -1,0 +1,442 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum UserRole {
+  ADMIN
+  MANAGER
+  HOST
+}
+
+enum PropertyType {
+  APARTMENT
+  HOUSE
+  CHALET
+  STUDIO
+  LOFT
+  FARM
+  PENTHOUSE
+}
+
+enum PropertyStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum GuideStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  UNPUBLISHED
+}
+
+enum ShareChannel {
+  WHATSAPP
+  EMAIL
+  LINK
+  QR
+}
+
+enum ShareStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum TemplateType {
+  WELCOME
+  PRE_CHECKIN
+  DURING_STAY
+  POST_CHECKOUT
+  CUSTOM
+}
+
+enum IntegrationProvider {
+  AIRBNB
+  WHATSAPP
+  EMAIL
+  STORAGE
+}
+
+enum IntegrationStatus {
+  CONNECTED
+  DISCONNECTED
+  ERROR
+}
+
+enum AirbnbSyncStatus {
+  SYNCED
+  PENDING
+  ERROR
+}
+
+enum SyncType {
+  ICAL_IMPORT
+  LISTING_SYNC
+  RESERVATION_SYNC
+  MANUAL
+}
+
+enum SyncStatus {
+  SUCCESS
+  PARTIAL
+  FAILED
+}
+
+enum DeviceType {
+  AC
+  TV
+  STOVE
+  SHOWER
+  INTERNET
+  LOCK
+  OTHER
+}
+
+enum ContactRole {
+  HOST
+  SUPPORT
+  MAINTENANCE
+  CONCIERGE
+  EMERGENCY
+}
+
+enum RecommendationCategory {
+  RESTAURANT
+  CAFE
+  MARKET
+  PHARMACY
+  ATTRACTION
+  TRANSPORT
+}
+
+enum LinkType {
+  GOOGLE_MAPS
+  WHATSAPP
+  INSTAGRAM
+  LISTING
+  MANUAL
+  VIDEO
+  OTHER
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+// Models
+model User {
+  id             String   @id @default(uuid())
+  name           String
+  email          String   @unique
+  password       String
+  role           UserRole @default(HOST)
+  organizationId String
+  image          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@map("users")
+}
+
+model Organization {
+  id            String   @id @default(uuid())
+  name          String
+  slug          String   @unique
+  domain        String?
+  brandSettings Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  users             User[]
+  properties        Property[]
+  messageTemplates  MessageTemplate[]
+  integrations      Integration[]
+
+  @@map("organizations")
+}
+
+model Property {
+  id               String         @id @default(uuid())
+  name             String
+  internalCode     String?
+  type             PropertyType   @default(APARTMENT)
+  address          String?
+  city             String?
+  state            String?
+  country          String         @default("Brasil")
+  welcomeMessage   String?
+  shortDescription String?
+  organizationId   String
+  slug             String         @unique
+  status           PropertyStatus @default(DRAFT)
+  coverImage       String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  organization    Organization           @relation(fields: [organizationId], references: [id])
+  checkIn         PropertyCheckIn?
+  checkOut        PropertyCheckOut?
+  wifi            PropertyWiFi?
+  rules           PropertyRules?
+  devices         PropertyDevice[]
+  contacts        PropertyContact[]
+  recommendations LocalRecommendation[]
+  links           PropertyLink[]
+  media           PropertyMedia[]
+  guide           Guide?
+  airbnbMappings  AirbnbPropertyMapping[]
+
+  @@map("properties")
+}
+
+model PropertyCheckIn {
+  id            String    @id @default(uuid())
+  propertyId    String    @unique
+  time          String?
+  instructions  String?
+  accessMethod  String?
+  notes         String?
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("property_checkin")
+}
+
+model PropertyCheckOut {
+  id             String  @id @default(uuid())
+  propertyId     String  @unique
+  time           String?
+  instructions   String?
+  exitChecklist  String?
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("property_checkout")
+}
+
+model PropertyWiFi {
+  id           String  @id @default(uuid())
+  propertyId   String  @unique
+  networkName  String
+  password     String
+  notes        String?
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("property_wifi")
+}
+
+model PropertyRules {
+  id             String  @id @default(uuid())
+  propertyId     String  @unique
+  silence        String?
+  visits         String?
+  pets           Boolean @default(false)
+  smoking        Boolean @default(false)
+  parties        Boolean @default(false)
+  trash          String?
+  equipmentUse   String?
+  notes          String?
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("property_rules")
+}
+
+model PropertyDevice {
+  id           String     @id @default(uuid())
+  propertyId   String
+  name         String
+  type         DeviceType @default(OTHER)
+  instructions String?
+  brand        String?
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("property_devices")
+}
+
+model PropertyContact {
+  id        String      @id @default(uuid())
+  propertyId String
+  name      String
+  role      ContactRole @default(HOST)
+  phone     String?
+  email     String?
+  whatsapp  String?
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("property_contacts")
+}
+
+model LocalRecommendation {
+  id          String                   @id @default(uuid())
+  propertyId  String
+  name        String
+  category    RecommendationCategory
+  description String?
+  link        String?
+  distance    String?
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("local_recommendations")
+}
+
+model PropertyLink {
+  id         String   @id @default(uuid())
+  propertyId String
+  label      String
+  url        String
+  type       LinkType @default(OTHER)
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("property_links")
+}
+
+model PropertyMedia {
+  id         String    @id @default(uuid())
+  propertyId String
+  url        String
+  type       MediaType @default(IMAGE)
+  alt        String?
+  order      Int       @default(0)
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("property_media")
+}
+
+model Guide {
+  id          String      @id @default(uuid())
+  propertyId  String      @unique
+  status      GuideStatus @default(DRAFT)
+  slug        String      @unique
+  version     Int         @default(1)
+  publishedAt DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  property    Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  versions    GuideVersion[]
+  shareLogs   ShareLog[]
+
+  @@map("guides")
+}
+
+model GuideVersion {
+  id        String   @id @default(uuid())
+  guideId   String
+  data      Json
+  version   Int
+  createdAt DateTime @default(now())
+
+  guide Guide @relation(fields: [guideId], references: [id], onDelete: Cascade)
+
+  @@map("guide_versions")
+}
+
+model ShareLog {
+  id        String       @id @default(uuid())
+  guideId   String
+  channel   ShareChannel
+  recipient String?
+  status    ShareStatus  @default(PENDING)
+  message   String?
+  sentAt    DateTime     @default(now())
+
+  guide Guide @relation(fields: [guideId], references: [id], onDelete: Cascade)
+
+  @@map("share_logs")
+}
+
+model MessageTemplate {
+  id             String       @id @default(uuid())
+  organizationId String
+  type           TemplateType @default(CUSTOM)
+  name           String
+  subject        String?
+  body           String
+  variables      String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("message_templates")
+}
+
+model Integration {
+  id             String              @id @default(uuid())
+  organizationId String
+  provider       IntegrationProvider
+  config         Json?
+  status         IntegrationStatus   @default(DISCONNECTED)
+  connectedAt    DateTime?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  organization      Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  airbnbConnections AirbnbConnection[]
+  syncLogs          SyncLog[]
+
+  @@map("integrations")
+}
+
+model AirbnbConnection {
+  id                String           @id @default(uuid())
+  integrationId     String
+  icalUrl           String?
+  listingId         String?
+  listingName       String?
+  lastSyncAt        DateTime?
+  status            AirbnbSyncStatus @default(PENDING)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  integration Integration            @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  mappings    AirbnbPropertyMapping[]
+
+  @@map("airbnb_connections")
+}
+
+model AirbnbPropertyMapping {
+  id                 String   @id @default(uuid())
+  propertyId         String
+  airbnbConnectionId String
+  externalListingId  String?
+  createdAt          DateTime @default(now())
+
+  property         Property         @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  airbnbConnection AirbnbConnection @relation(fields: [airbnbConnectionId], references: [id], onDelete: Cascade)
+
+  @@unique([propertyId, airbnbConnectionId])
+  @@map("airbnb_property_mappings")
+}
+
+model SyncLog {
+  id            String       @id @default(uuid())
+  integrationId String
+  type          SyncType
+  status        SyncStatus
+  details       Json?
+  startedAt     DateTime     @default(now())
+  completedAt   DateTime?
+
+  integration Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+
+  @@map("sync_logs")
+}
