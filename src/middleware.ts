@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { verifySessionToken } from '@/lib/session'
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Rotas públicas
@@ -18,25 +19,13 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Verificar cookie de sessão (Auth.js v5)
-  const hasSession =
-    request.cookies.has('authjs.session-token') ||
-    request.cookies.has('__Host-authjs.session-token') ||
-    request.cookies.has('__Secure-authjs.session-token') ||
-    // Fallback para cookie legado (NextAuth v4)
-    request.cookies.has('next-auth.session-token') ||
-    request.cookies.has('__Secure-next-auth.session-token')
+  // Verificar cookie de sessão manual
+  const token = request.cookies.get('session-token')?.value
+  const session = token ? await verifySessionToken(token) : null
 
   // Se não estiver autenticado e tentar acessar rota protegida
-  if (!hasSession && !isPublicRoute) {
-    // Garante URL absoluta com protocolo (necessário atrás de proxies como Railway)
-    let baseUrl = request.url
-    if (!baseUrl.startsWith('http')) {
-      const host = request.headers.get('host') || 'localhost'
-      const protocol = request.headers.get('x-forwarded-proto') || 'https'
-      baseUrl = `${protocol}://${host}${pathname}`
-    }
-    const loginUrl = new URL('/login', baseUrl)
+  if (!session && !isPublicRoute) {
+    const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('callbackUrl', pathname)
     return NextResponse.redirect(loginUrl)
   }

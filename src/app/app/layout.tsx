@@ -1,6 +1,6 @@
 import { Sidebar, MobileMenuButton } from '@/components/dashboard/sidebar'
 import { Topbar } from '@/components/dashboard/topbar'
-import { auth } from '@/lib/auth'
+import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
 
 export default async function AppLayout({
@@ -8,7 +8,7 @@ export default async function AppLayout({
 }: {
   children: React.ReactNode
 }) {
-  const session = await auth()
+  const session = await getSession()
 
   if (!session) {
     redirect('/login')

@@ -3,7 +3,6 @@
 import { useState, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { signIn } from 'next-auth/react'
 import { BookOpen, Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,18 +22,26 @@ function LoginForm() {
     setIsLoading(true)
     setError('')
 
-    const result = await signIn('credentials', {
-      email,
-      password,
-      redirect: false,
-      callbackUrl,
-    })
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
 
-    if (result?.error) {
-      setError('E-mail ou senha incorretos')
-      setIsLoading(false)
-    } else if (result?.ok) {
+      const data = await response.json()
+
+      if (!response.ok) {
+        setError(data.error || 'E-mail ou senha incorretos')
+        setIsLoading(false)
+        return
+      }
+
+      // Login bem-sucedido, redireciona
       window.location.href = callbackUrl
+    } catch {
+      setError('Erro ao conectar com o servidor')
+      setIsLoading(false)
     }
   }
 

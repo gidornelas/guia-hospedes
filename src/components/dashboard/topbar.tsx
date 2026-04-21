@@ -14,13 +14,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { signOut, useSession } from 'next-auth/react'
 import { cn } from '@/lib/utils'
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
 } from '@/components/ui/sheet'
+import { useEffect, useState } from 'react'
 
 function getBreadcrumbs(pathname: string) {
   const parts = pathname.split('/').filter(Boolean)
@@ -50,9 +50,30 @@ function getBreadcrumbs(pathname: string) {
   return breadcrumbs
 }
 
+function useUser() {
+  const [user, setUser] = useState<{ name: string | null; email: string | null; image: string | null } | null>(null)
+
+  useEffect(() => {
+    // Busca dados da sessão via API
+    fetch('/api/auth/session')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.user) setUser(data.user)
+      })
+      .catch(() => setUser(null))
+  }, [])
+
+  return user
+}
+
+async function logout() {
+  await fetch('/api/auth/logout', { method: 'POST' })
+  window.location.href = '/'
+}
+
 export function Topbar() {
   const pathname = usePathname()
-  const { data: session } = useSession()
+  const user = useUser()
   const breadcrumbs = getBreadcrumbs(pathname)
 
   return (
@@ -101,9 +122,9 @@ export function Topbar() {
 
       {/* User Menu */}
       <DropdownMenu>
-        <DropdownMenuTrigger className="relative h-9 w-9 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0" aria-label={`Menu do usuário: ${session?.user?.name || 'Usuário'}`}>
+        <DropdownMenuTrigger className="relative h-9 w-9 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0" aria-label={`Menu do usuário: ${user?.name || 'Usuário'}`}>
           <Avatar className="h-9 w-9">
-            <AvatarImage src={session?.user?.image || undefined} alt="" />
+            <AvatarImage src={user?.image || undefined} alt="" />
             <AvatarFallback className="bg-primary/10 text-primary">
               <User className="h-4 w-4" aria-hidden="true" />
             </AvatarFallback>
@@ -112,15 +133,15 @@ export function Topbar() {
         <DropdownMenuContent className="w-56" align="end">
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium">{session?.user?.name}</p>
-              <p className="text-xs text-muted-foreground">{session?.user?.email}</p>
+              <p className="text-sm font-medium">{user?.name}</p>
+              <p className="text-xs text-muted-foreground">{user?.email}</p>
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem>
             <Link href="/app/configuracoes">Configurações</Link>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })}>
+          <DropdownMenuItem onClick={logout}>
             Sair
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -188,7 +209,7 @@ function MobileNavSheet() {
         </nav>
         <div className="border-t border-sidebar-border p-2">
           <button
-            onClick={() => signOut({ callbackUrl: '/' })}
+            onClick={logout}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
           >
             <LogOut className="h-5 w-5 shrink-0" />

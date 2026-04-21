@@ -3,7 +3,6 @@ import { DM_Sans, DM_Serif_Display } from 'next/font/google'
 import './globals.css'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
-import { SessionProvider } from 'next-auth/react'
 
 const dmSans = DM_Sans({
   variable: '--font-sans',
@@ -45,9 +44,7 @@ export default function RootLayout({
       className={`${dmSans.variable} ${dmSerif.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
-        <SessionProvider>
-          <TooltipProvider>{children}</TooltipProvider>
-        </SessionProvider>
+        <TooltipProvider>{children}</TooltipProvider>
         <Toaster
           position="top-right"
           toastOptions={{
