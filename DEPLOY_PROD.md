@@ -105,10 +105,14 @@ postgresql://guia-hospedes_owner:senha_aleatoria@ep-nome-da-branch.us-east-1.aws
 
 #### 3.3 Testar conexão local (opcional mas recomendado)
 
-Crie um arquivo `.env.production.local` temporário:
+Crie um arquivo `.env` temporário com a URL do Neon:
 
-```env
-DATABASE_URL="postgresql://..."
+```bash
+# Windows PowerShell
+Set-Content -Path ".env" -Value 'DATABASE_URL="postgresql://..."'
+
+# Windows CMD
+echo DATABASE_URL="postgresql://..." > .env
 ```
 
 Teste a conexão:
@@ -118,7 +122,7 @@ npx prisma migrate deploy
 npx prisma db seed
 ```
 
-Se funcionar, o banco está pronto. Delete `.env.production.local` depois.
+Se funcionar, o banco está pronto. Restaure seu `.env` de desenvolvimento depois.
 
 ---
 
