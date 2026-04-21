@@ -1,20 +1,7 @@
-require('./global-error-handler.js');
-
-// Early URL patch for Railway proxy compatibility
-const OriginalURL = globalThis.URL;
-(globalThis as any).URL = class extends OriginalURL {
-  constructor(input: string | URL, base?: string | URL) {
-    if (typeof base === 'string' && base && !base.startsWith('http') && !base.startsWith('file')) {
-      base = `https://${base}`;
-    }
-    if (typeof input === 'string' && input && !input.startsWith('http') && !input.startsWith('/') && !input.startsWith('file') && !input.startsWith('data:')) {
-      if (input.includes('.') && !input.includes(' ')) {
-        input = `https://${input}`;
-      }
-    }
-    super(input, base);
-  }
-};
+// Prevent NextAuth from reading Railway domain variables without protocol
+process.env.VERCEL_URL = '';
+process.env.RAILWAY_PUBLIC_DOMAIN = '';
+process.env.RAILWAY_STATIC_URL = '';
 
 import type { NextConfig } from 'next'
 
