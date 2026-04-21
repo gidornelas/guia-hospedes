@@ -68,6 +68,7 @@ export const {
   signOut,
 } = NextAuth({
   trustHost: true,
+  skipCSRFCheck: true,
   secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
   basePath: '/api/auth',
   useSecureCookies: process.env.NODE_ENV === 'production',
