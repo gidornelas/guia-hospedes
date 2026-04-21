@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { verifySessionToken } from '@/lib/session'
+import { ensureValidUrl } from '@/lib/utils'
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -25,7 +26,8 @@ export async function middleware(request: NextRequest) {
 
   // Se não estiver autenticado e tentar acessar rota protegida
   if (!session && !isPublicRoute) {
-    const loginUrl = new URL('/login', request.url)
+    const baseUrl = ensureValidUrl(request.url)
+    const loginUrl = new URL('/login', baseUrl)
     loginUrl.searchParams.set('callbackUrl', pathname)
     return NextResponse.redirect(loginUrl)
   }

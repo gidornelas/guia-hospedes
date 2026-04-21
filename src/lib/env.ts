@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Configuração de ambiente — leitura direta de process.env
  *
  * Desenvolvimento: variáveis do arquivo .env local (gitignored)
@@ -26,17 +26,23 @@ interface EnvConfig {
   redisUrl: string
 }
 
+function ensureUrlProtocol(url: string): string {
+  if (!url) return url
+  if (/^https?:\/\//i.test(url)) return url
+  return `https://${url}`
+}
+
 function loadEnv(): EnvConfig {
   return {
     databaseUrl: process.env.DATABASE_URL || 'file:./dev.db',
-    nextauthUrl: process.env.NEXTAUTH_URL || 'http://localhost:3000',
+    nextauthUrl: ensureUrlProtocol(process.env.NEXTAUTH_URL || 'http://localhost:3000'),
     nextauthSecret: process.env.NEXTAUTH_SECRET || 'dev-secret-change-in-production',
     smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
     smtpPort: process.env.SMTP_PORT || '587',
     smtpUser: process.env.SMTP_USER || '',
     smtpPass: process.env.SMTP_PASS || '',
     emailFrom: process.env.EMAIL_FROM || 'noreply@guiahospedes.com',
-    appUrl: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+    appUrl: ensureUrlProtocol(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
     appName: process.env.NEXT_PUBLIC_APP_NAME || 'GuiaHóspedes',
     storageProvider: process.env.STORAGE_PROVIDER || 'local',
     airbnbIcalEnabled: process.env.AIRBNB_ICAL_ENABLED || 'true',

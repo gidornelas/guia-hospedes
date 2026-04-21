@@ -1,4 +1,5 @@
 import { db } from '@/lib/db'
+import { env } from '@/lib/env'
 import SharingClient from './sharing-client'
 
 async function getPropertiesWithGuides() {
@@ -50,7 +51,7 @@ export default async function SharingPage() {
     getShareHistory(),
   ])
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const appUrl = env.appUrl
 
   return (
     <SharingClient

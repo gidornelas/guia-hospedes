@@ -1,4 +1,5 @@
 import { db } from '@/lib/db'
+import { env } from '@/lib/env'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -36,7 +37,7 @@ export default async function PreviewPage({ params }: { params: Promise<{ id: st
     : null
 
   const publicUrl = property.guide?.slug
-    ? `${process.env.NEXT_PUBLIC_APP_URL}/g/${property.guide.slug.replace('guia-', '')}`
+    ? `${env.appUrl}/g/${property.guide.slug.replace('guia-', '')}`
     : null
 
   return (
