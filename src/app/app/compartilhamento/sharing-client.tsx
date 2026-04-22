@@ -267,9 +267,9 @@ export default function SharingClient({ properties, templates, initialLogs, appU
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
+      <div className="min-w-0 space-y-1">
         <h1 className="font-heading text-2xl font-bold tracking-tight">Compartilhamento</h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="max-w-2xl text-muted-foreground">
           Envie guias aos hóspedes pelo canal ideal para cada situação
         </p>
       </div>
@@ -277,7 +277,7 @@ export default function SharingClient({ properties, templates, initialLogs, appU
       {/* Property Selector */}
       <Card className="shadow-card">
         <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex-1">
               <label className="text-sm font-medium mb-1.5 block">Imóvel</label>
               <Select value={selectedPropertyId} onValueChange={(v) => setSelectedPropertyId(v || '')}>
@@ -294,7 +294,7 @@ export default function SharingClient({ properties, templates, initialLogs, appU
               </Select>
             </div>
             {selectedProperty && (
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
                 <Badge
                   variant={isPublished ? 'default' : 'destructive'}
                   className={cn(
@@ -339,7 +339,7 @@ export default function SharingClient({ properties, templates, initialLogs, appU
       {selectedProperty && isPublished && (
         <div className="grid xl:grid-cols-3 gap-6">
           {/* Left: Configuration */}
-          <div className="xl:col-span-1 space-y-6">
+          <div className="space-y-6 xl:col-span-1">
             <Card className="shadow-card">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base">Dados do Hóspede</CardTitle>
@@ -389,7 +389,7 @@ export default function SharingClient({ properties, templates, initialLogs, appU
                     value={customMessage}
                     onChange={(e) => setCustomMessage(e.target.value)}
                   />
-                  <div className="flex items-center justify-between mt-1.5">
+                  <div className="mt-1.5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <p className="text-xs text-muted-foreground">
                       Variáveis: {'{{guestName}}'}, {'{{propertyName}}'}, {'{{guideLink}}'}
                     </p>
@@ -410,7 +410,7 @@ export default function SharingClient({ properties, templates, initialLogs, appU
             {/* Channel Cards */}
             <div className="space-y-3">
               <h3 className="text-sm font-medium text-muted-foreground">Escolha o canal</h3>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <button
                   onClick={handleWhatsApp}
                   disabled={isSharing}
@@ -487,7 +487,7 @@ export default function SharingClient({ properties, templates, initialLogs, appU
           <div className="xl:col-span-1 space-y-6">
             <Card className="shadow-card border-primary/20">
               <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <CardTitle className="text-base">Preview da Mensagem</CardTitle>
                     <CardDescription>Veja como o hóspede receberá</CardDescription>
@@ -542,7 +542,7 @@ export default function SharingClient({ properties, templates, initialLogs, appU
             <Card className="shadow-card">
               <CardContent className="p-4 space-y-3">
                 <h3 className="text-sm font-medium">Informações do Guia</h3>
-                <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
                   <div className="rounded-lg bg-muted p-3">
                     <p className="text-xs text-muted-foreground mb-1">Slug</p>
                     <p className="font-mono text-xs truncate">{selectedProperty.guide?.slug || '-'}</p>
@@ -555,7 +555,7 @@ export default function SharingClient({ properties, templates, initialLogs, appU
                     </div>
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row">
                   <Button
                     variant="outline"
                     size="sm"
@@ -588,7 +588,7 @@ export default function SharingClient({ properties, templates, initialLogs, appU
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Filters */}
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row">
                   <Select value={filterChannel} onValueChange={(v) => setFilterChannel(v || '')}>
                     <SelectTrigger className="h-8 text-xs">
                       <SelectValue placeholder="Canal" />

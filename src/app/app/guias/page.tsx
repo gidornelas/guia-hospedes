@@ -1,11 +1,11 @@
-import { db } from '@/lib/db'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Search, BookOpen, Share2, MessageCircle, Mail, Link as LinkIcon, QrCode } from 'lucide-react'
 import Link from 'next/link'
+import { BookOpen, Search, Share2 } from 'lucide-react'
+import { db } from '@/lib/db'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { EmptyState } from '@/components/shared/empty-state'
 import { PageHeader } from '@/components/shared/page-header'
 
 async function getGuides() {
@@ -32,8 +32,8 @@ export default async function GuidesPage() {
 
       <Card className="shadow-card">
         <CardHeader className="pb-4">
-          <div className="flex items-center gap-4">
-            <div className="relative flex-1 max-w-sm">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="relative w-full lg:max-w-sm">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input placeholder="Buscar guias..." className="pl-9" />
             </div>
@@ -42,23 +42,29 @@ export default async function GuidesPage() {
         <CardContent>
           <div className="space-y-3">
             {guides.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <BookOpen className="h-12 w-12 mx-auto mb-4" />
-                <p>Nenhum guia criado ainda</p>
-              </div>
+              <EmptyState
+                icon={BookOpen}
+                title="Nenhum guia criado ainda"
+                description="Assim que você concluir o cadastro de um imóvel, o guia passa a ficar disponível aqui para preview e compartilhamento."
+                hint="Comece criando um imóvel completo"
+                actionLabel="Criar imóvel"
+                actionHref="/app/imoveis/novo"
+                secondaryActionLabel="Ver demo pública"
+                secondaryActionHref="/g/flat-elegance-paulista"
+              />
             ) : (
-              guides.map((guide: { id: string; property: { name: string }; status: string; version: number; _count: { shareLogs: number }; propertyId: string }) => (
+              guides.map((guide) => (
                 <div
                   key={guide.id}
-                  className="flex items-center justify-between rounded-xl border border-border p-4 hover:shadow-card-hover transition-shadow"
+                  className="flex flex-col gap-4 rounded-xl border border-border p-4 transition-shadow hover:shadow-card-hover sm:flex-row sm:items-center sm:justify-between"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <div className="flex min-w-0 items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
                       <BookOpen className="h-6 w-6 text-primary" />
                     </div>
-                    <div>
-                      <p className="font-medium">{guide.property.name}</p>
-                      <div className="flex items-center gap-2 mt-1">
+                    <div className="min-w-0">
+                      <p className="truncate font-medium">{guide.property.name}</p>
+                      <div className="mt-1 flex flex-wrap items-center gap-2">
                         <Badge
                           variant={
                             guide.status === 'PUBLISHED'
@@ -89,14 +95,20 @@ export default async function GuidesPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Link href={`/app/imoveis/${guide.propertyId}/preview`}>
-                      <Button variant="ghost" size="sm">
+                  <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+                    <Link
+                      href={`/app/imoveis/${guide.propertyId}/preview`}
+                      className="w-full sm:w-auto"
+                    >
+                      <Button variant="ghost" size="sm" className="w-full sm:w-auto">
                         Preview
                       </Button>
                     </Link>
-                    <Link href={`/app/compartilhamento?property=${guide.propertyId}`}>
-                      <Button size="sm" className="gap-2">
+                    <Link
+                      href={`/app/compartilhamento?property=${guide.propertyId}`}
+                      className="w-full sm:w-auto"
+                    >
+                      <Button size="sm" className="w-full gap-2 sm:w-auto">
                         <Share2 className="h-3.5 w-3.5" />
                         Compartilhar
                       </Button>

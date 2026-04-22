@@ -1,38 +1,43 @@
-import { db } from '@/lib/db'
-import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { notFound } from 'next/navigation'
 import {
-  Building2,
-  MapPin,
-  Wifi,
-  Clock,
-  Shield,
-  Tv,
-  Phone,
-  Utensils,
-  Link2,
-  Edit,
-  BookOpen,
-  Share2,
+  AlertTriangle,
   ArrowLeft,
-  Eye,
+  BookOpen,
+  Building2,
   CheckCircle2,
   Circle,
-  AlertTriangle,
-  Home,
-  Star,
+  Clock,
+  Edit,
+  Eye,
+  ExternalLink,
+  Link2,
   Mail,
+  MapPin,
   MessageCircle,
+  Phone,
+  Share2,
+  Shield,
+  Star,
+  Tv,
+  Wifi,
 } from 'lucide-react'
-import { PROPERTY_STATUS, GUIDE_STATUS, DEVICE_TYPES, CONTACT_ROLES } from '@/lib/constants'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { EmptyState } from '@/components/shared/empty-state'
+import { ImageUpload } from '@/components/shared/image-upload'
+import {
+  CONTACT_ROLES,
+  DEVICE_TYPES,
+  GUIDE_STATUS,
+  PROPERTY_STATUS,
+} from '@/lib/constants'
+import { db } from '@/lib/db'
+import { env } from '@/lib/env'
 import { cn } from '@/lib/utils'
 import { PropertyActions } from './property-actions'
-import { ImageUpload } from '@/components/shared/image-upload'
-import { EmptyState } from '@/components/shared/empty-state'
 
 async function getProperty(id: string) {
   return db.property.findUnique({
@@ -51,56 +56,87 @@ async function getProperty(id: string) {
   })
 }
 
-export default async function PropertyDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function PropertyDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
   const { id } = await params
   const property = await getProperty(id)
 
-  if (!property) {
-    notFound()
-  }
+  if (!property) notFound()
 
   const statusConfig = PROPERTY_STATUS[property.status as keyof typeof PROPERTY_STATUS]
   const guideStatus = property.guide
     ? GUIDE_STATUS[property.guide.status as keyof typeof GUIDE_STATUS]
     : null
+  const publicPath = property.guide?.slug
+    ? `/g/${property.guide.slug.replace('guia-', '')}`
+    : null
+  const publicUrl = publicPath ? `${env.appUrl}${publicPath}` : null
+
+  const readinessItems = [
+    { label: 'Informações gerais', filled: !!property.name && !!property.type },
+    { label: 'Check-in', filled: !!property.checkIn },
+    { label: 'Check-out', filled: !!property.checkOut },
+    { label: 'Wi-Fi', filled: !!property.wifi },
+    { label: 'Regras', filled: !!property.rules },
+    { label: 'Contatos', filled: property.contacts.length > 0 },
+    { label: 'Equipamentos', filled: property.devices.length > 0 },
+    { label: 'Capa', filled: !!property.coverImage },
+    {
+      label: 'Dicas ou links úteis',
+      filled: property.recommendations.length > 0 || property.links.length > 0,
+    },
+  ]
+
+  const readinessCount = readinessItems.filter((item) => item.filled).length
 
   return (
     <div className="space-y-6">
-      {/* Header / Action Bar */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex min-w-0 items-center gap-4">
           <Link href="/app/imoveis">
             <Button variant="ghost" size="icon">
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
-          <div>
-            <h1 className="font-heading text-2xl font-bold tracking-tight">{property.name}</h1>
-            <div className="flex items-center gap-2 mt-1">
+          <div className="min-w-0">
+            <h1 className="font-heading text-2xl font-bold tracking-tight">
+              {property.name}
+            </h1>
+            <div className="mt-1 flex flex-wrap items-center gap-2">
               <Badge
                 variant={property.status === 'ACTIVE' ? 'default' : 'secondary'}
                 className={cn(
-                  property.status === 'ACTIVE' && 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100'
+                  property.status === 'ACTIVE' &&
+                    'bg-emerald-100 text-emerald-700 hover:bg-emerald-100',
                 )}
               >
                 {statusConfig?.label}
               </Badge>
               {property.internalCode && (
-                <span className="text-sm text-muted-foreground">{property.internalCode}</span>
+                <span className="text-sm text-muted-foreground">
+                  {property.internalCode}
+                </span>
               )}
             </div>
           </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Link href={`/app/imoveis/${property.id}/editar`}>
-            <Button variant="outline" size="sm" className="gap-2">
+
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap">
+          <Link href={`/app/imoveis/${property.id}/editar`} className="w-full sm:w-auto">
+            <Button variant="outline" size="sm" className="w-full gap-2 sm:w-auto">
               <Edit className="h-4 w-4" />
               <span className="hidden sm:inline">Editar</span>
             </Button>
           </Link>
           {property.guide && (
-            <Link href={`/app/imoveis/${property.id}/preview`}>
-              <Button size="sm" className="gap-2">
+            <Link
+              href={`/app/imoveis/${property.id}/preview`}
+              className="w-full sm:w-auto"
+            >
+              <Button size="sm" className="w-full gap-2 sm:w-auto">
                 <BookOpen className="h-4 w-4" />
                 <span className="hidden sm:inline">Preview</span>
               </Button>
@@ -111,7 +147,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
       </div>
 
       <Tabs defaultValue="resumo" className="space-y-6">
-        <TabsList className="bg-muted">
+        <TabsList className="w-full bg-muted lg:w-fit">
           <TabsTrigger value="resumo">Resumo</TabsTrigger>
           <TabsTrigger value="guia">Guia</TabsTrigger>
           <TabsTrigger value="equipamentos">Equipamentos</TabsTrigger>
@@ -119,18 +155,17 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         </TabsList>
 
         <TabsContent value="resumo" className="space-y-6">
-          {/* Completude do Cadastro */}
           <Card className="shadow-card">
             <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-lg">
                 <CheckCircle2 className="h-5 w-5 text-primary" />
                 Completude do Cadastro
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {[
-                  { label: 'Informações Gerais', filled: !!property.name && !!property.type, icon: Building2 },
+                  { label: 'Informações gerais', filled: !!property.name && !!property.type, icon: Building2 },
                   { label: 'Check-in', filled: !!property.checkIn, icon: Clock },
                   { label: 'Check-out', filled: !!property.checkOut, icon: Clock },
                   { label: 'Wi-Fi', filled: !!property.wifi, icon: Wifi },
@@ -145,13 +180,15 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                       'flex items-center gap-3 rounded-lg border p-3',
                       item.filled
                         ? 'border-emerald-200 bg-emerald-50/50'
-                        : 'border-border bg-muted/30'
+                        : 'border-border bg-muted/30',
                     )}
                   >
                     <div
                       className={cn(
                         'flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
-                        item.filled ? 'bg-emerald-100 text-emerald-600' : 'bg-muted text-muted-foreground'
+                        item.filled
+                          ? 'bg-emerald-100 text-emerald-600'
+                          : 'bg-muted text-muted-foreground',
                       )}
                     >
                       {item.filled ? (
@@ -161,7 +198,12 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                       )}
                     </div>
                     <div>
-                      <p className={cn('text-sm font-medium', !item.filled && 'text-muted-foreground')}>
+                      <p
+                        className={cn(
+                          'text-sm font-medium',
+                          !item.filled && 'text-muted-foreground',
+                        )}
+                      >
                         {item.label}
                       </p>
                       <p className="text-xs text-muted-foreground">
@@ -183,16 +225,16 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
             </CardContent>
           </Card>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid gap-6 md:grid-cols-2">
             <Card className="shadow-card">
               <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-lg">
                   <Building2 className="h-5 w-5 text-primary" />
                   Informações Gerais
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
                   <div>
                     <p className="text-muted-foreground">Tipo</p>
                     <p className="font-medium">{property.type}</p>
@@ -212,13 +254,15 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                 </div>
                 {property.address && (
                   <div className="flex items-start gap-2 text-sm">
-                    <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <MapPin className="mt-0.5 h-4 w-4 text-muted-foreground" />
                     <span>{property.address}</span>
                   </div>
                 )}
                 {property.welcomeMessage && (
                   <div className="rounded-lg bg-muted p-3 text-sm">
-                    <p className="text-muted-foreground mb-1">Mensagem de Boas-vindas</p>
+                    <p className="mb-1 text-muted-foreground">
+                      Mensagem de boas-vindas
+                    </p>
                     <p>{property.welcomeMessage}</p>
                   </div>
                 )}
@@ -227,7 +271,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
 
             <Card className="shadow-card">
               <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-lg">
                   <Clock className="h-5 w-5 text-primary" />
                   Check-in & Check-out
                 </CardTitle>
@@ -237,10 +281,14 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">Check-in</span>
-                      <Badge variant="outline">{property.checkIn.time || 'Não definido'}</Badge>
+                      <Badge variant="outline">
+                        {property.checkIn.time || 'Não definido'}
+                      </Badge>
                     </div>
                     {property.checkIn.instructions && (
-                      <p className="text-sm text-muted-foreground">{property.checkIn.instructions}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {property.checkIn.instructions}
+                      </p>
                     )}
                     {property.checkIn.accessMethod && (
                       <p className="text-sm text-muted-foreground">
@@ -253,10 +301,14 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                   <div className="space-y-2 border-t pt-4">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">Check-out</span>
-                      <Badge variant="outline">{property.checkOut.time || 'Não definido'}</Badge>
+                      <Badge variant="outline">
+                        {property.checkOut.time || 'Não definido'}
+                      </Badge>
                     </div>
                     {property.checkOut.instructions && (
-                      <p className="text-sm text-muted-foreground">{property.checkOut.instructions}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {property.checkOut.instructions}
+                      </p>
                     )}
                   </div>
                 )}
@@ -266,13 +318,13 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
             {property.wifi && (
               <Card className="shadow-card">
                 <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-lg">
                     <Wifi className="h-5 w-5 text-primary" />
                     Wi-Fi
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
                     <div>
                       <p className="text-muted-foreground">Rede</p>
                       <p className="font-medium">{property.wifi.networkName}</p>
@@ -289,7 +341,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
             {property.guide && (
               <Card className="shadow-card">
                 <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-lg">
                     <BookOpen className="h-5 w-5 text-primary" />
                     Status do Guia
                   </CardTitle>
@@ -300,7 +352,8 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     <Badge
                       variant={guideStatus?.color === 'success' ? 'default' : 'secondary'}
                       className={cn(
-                        guideStatus?.color === 'success' && 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100'
+                        guideStatus?.color === 'success' &&
+                          'bg-emerald-100 text-emerald-700 hover:bg-emerald-100',
                       )}
                     >
                       {guideStatus?.label}
@@ -318,14 +371,20 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                       </span>
                     </div>
                   )}
-                  <div className="flex gap-2 pt-2">
-                    <Link href={`/app/imoveis/${property.id}/preview`} className="flex-1">
+                  <div className="flex flex-col gap-2 pt-2 sm:flex-row">
+                    <Link
+                      href={`/app/imoveis/${property.id}/preview`}
+                      className="flex-1"
+                    >
                       <Button variant="outline" className="w-full gap-2">
                         <Eye className="h-4 w-4" />
                         Preview
                       </Button>
                     </Link>
-                    <Link href={`/app/compartilhamento?property=${property.id}`} className="flex-1">
+                    <Link
+                      href={`/app/compartilhamento?property=${property.id}`}
+                      className="flex-1"
+                    >
                       <Button className="w-full gap-2">
                         <Share2 className="h-4 w-4" />
                         Compartilhar
@@ -340,41 +399,273 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
 
         <TabsContent value="guia" className="space-y-6">
           {property.guide ? (
-            <Card className="shadow-card">
-              <CardContent className="p-6">
-                <p>Guia criado em {property.guide.createdAt.toLocaleDateString('pt-BR')}</p>
-                <div className="mt-4 flex gap-2">
-                  <Link href={`/app/imoveis/${property.id}/preview`}>
-                    <Button>Visualizar Preview</Button>
-                  </Link>
+            <>
+              <div className="grid gap-4 md:grid-cols-3">
+                <Card className="shadow-card">
+                  <CardContent className="space-y-2 p-5">
+                    <p className="text-sm text-muted-foreground">Status atual</p>
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant={
+                          guideStatus?.color === 'success' ? 'default' : 'secondary'
+                        }
+                        className={cn(
+                          guideStatus?.color === 'success' &&
+                            'bg-emerald-100 text-emerald-700 hover:bg-emerald-100',
+                        )}
+                      >
+                        {guideStatus?.label}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {property.guide.status === 'PUBLISHED'
+                        ? 'O guia já pode ser acessado e compartilhado.'
+                        : 'Ainda vale revisar e publicar antes de enviar ao hóspede.'}
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-card">
+                  <CardContent className="space-y-2 p-5">
+                    <p className="text-sm text-muted-foreground">Publicação</p>
+                    <p className="text-lg font-semibold">
+                      {property.guide.publishedAt
+                        ? property.guide.publishedAt.toLocaleDateString('pt-BR')
+                        : 'Ainda não publicado'}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Criado em {property.guide.createdAt.toLocaleDateString('pt-BR')}
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-card">
+                  <CardContent className="space-y-2 p-5">
+                    <p className="text-sm text-muted-foreground">URL pública</p>
+                    <p className="break-all text-sm font-medium text-foreground">
+                      {publicUrl ?? 'Disponível após gerar slug do guia'}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Versão atual: v{property.guide.version}
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {property.guide.status !== 'PUBLISHED' && (
+                <Card className="border-amber-200 bg-amber-50 shadow-card">
+                  <CardContent className="flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                        <AlertTriangle className="h-4 w-4" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="font-medium text-amber-900">
+                          Próximo melhor passo
+                        </p>
+                        <p className="text-sm text-amber-800">
+                          Revise o preview e publique o guia para liberar o link
+                          público e o compartilhamento completo.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+                      <Link href={`/app/imoveis/${property.id}/preview`}>
+                        <Button variant="outline" className="w-full sm:w-auto">
+                          Ver preview
+                        </Button>
+                      </Link>
+                      <PropertyActions
+                        propertyId={property.id}
+                        guideStatus={property.guide.status}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+                <Card className="shadow-card">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <CheckCircle2 className="h-5 w-5 text-primary" />
+                      Prontidão para publicação
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between rounded-lg bg-muted/40 px-4 py-3">
+                      <div>
+                        <p className="text-sm font-medium">
+                          {readinessCount} de {readinessItems.length} blocos preenchidos
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Quanto mais completo, melhor a experiência do hóspede.
+                        </p>
+                      </div>
+                      <Badge variant="outline">{Math.round((readinessCount / readinessItems.length) * 100)}%</Badge>
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {readinessItems.map((item) => (
+                        <div
+                          key={item.label}
+                          className={cn(
+                            'flex items-center gap-3 rounded-lg border p-3',
+                            item.filled
+                              ? 'border-emerald-200 bg-emerald-50/60'
+                              : 'border-border bg-background',
+                          )}
+                        >
+                          {item.filled ? (
+                            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                          ) : (
+                            <Circle className="h-4 w-4 shrink-0 text-muted-foreground" />
+                          )}
+                          <span className="text-sm font-medium">{item.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <div className="space-y-6">
+                  <Card className="shadow-card">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <Share2 className="h-5 w-5 text-primary" />
+                        Ações rápidas
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <Link href={`/app/imoveis/${property.id}/preview`}>
+                        <Button variant="outline" className="w-full justify-start gap-2">
+                          <Eye className="h-4 w-4" />
+                          Abrir preview completo
+                        </Button>
+                      </Link>
+                      <Link href={`/app/compartilhamento?property=${property.id}`}>
+                        <Button className="w-full justify-start gap-2">
+                          <Share2 className="h-4 w-4" />
+                          Ir para compartilhamento
+                        </Button>
+                      </Link>
+                      <Link href={`/app/imoveis/${property.id}/editar`}>
+                        <Button variant="outline" className="w-full justify-start gap-2">
+                          <Edit className="h-4 w-4" />
+                          Editar conteúdo do guia
+                        </Button>
+                      </Link>
+                      {publicUrl && property.guide.status === 'PUBLISHED' && (
+                        <Link href={publicUrl} target="_blank">
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start gap-2"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                            Abrir guia público
+                          </Button>
+                        </Link>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  <Card className="shadow-card">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <Link2 className="h-5 w-5 text-primary" />
+                        Canais recomendados
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {[
+                        {
+                          icon: MessageCircle,
+                          title: 'WhatsApp',
+                          desc: 'Ideal para envio imediato no pré-check-in.',
+                        },
+                        {
+                          icon: Mail,
+                          title: 'E-mail',
+                          desc: 'Bom para confirmações e mensagens mais completas.',
+                        },
+                        {
+                          icon: Link2,
+                          title: 'Link direto',
+                          desc: 'Útil para copiar, testar e incluir em outros fluxos.',
+                        },
+                      ].map((item) => (
+                        <div
+                          key={item.title}
+                          className="rounded-lg border border-border bg-background p-3"
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                              <item.icon className="h-4 w-4" />
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-sm font-medium">{item.title}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {item.desc}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </>
           ) : (
-            <Card className="shadow-card">
-              <CardContent className="p-12 text-center">
-                <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="font-semibold text-lg">Nenhum guia criado</h3>
-                <p className="text-muted-foreground mt-2">
-                  O guia será gerado automaticamente quando você completar o cadastro do imóvel.
-                </p>
-              </CardContent>
-            </Card>
+            <div className="space-y-6">
+              <EmptyState
+                icon={BookOpen}
+                title="Nenhum guia criado"
+                description="O guia será gerado automaticamente quando você completar o cadastro do imóvel."
+                actionLabel="Editar imóvel"
+                actionHref={`/app/imoveis/${property.id}/editar`}
+              />
+
+              <Card className="shadow-card">
+                <CardHeader>
+                  <CardTitle className="text-lg">O que ajuda a publicar bem</CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {[
+                    'Definir horários de check-in e check-out',
+                    'Cadastrar Wi-Fi com rede e senha',
+                    'Adicionar contatos principais do hóspede',
+                    'Revisar regras importantes da estadia',
+                    'Subir uma boa imagem de capa',
+                    'Adicionar dicas locais ou links úteis',
+                  ].map((item) => (
+                    <div
+                      key={item}
+                      className="rounded-lg border border-border bg-muted/30 p-4 text-sm"
+                    >
+                      {item}
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
           )}
         </TabsContent>
 
         <TabsContent value="equipamentos" className="space-y-6">
           {property.devices.length > 0 ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {property.devices.map((device: { id: string; name: string; type: string; instructions: string | null; brand: string | null }) => (
-                <Card key={device.id} className="shadow-card hover:shadow-card-hover transition-shadow">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {property.devices.map((device) => (
+                <Card
+                  key={device.id}
+                  className="shadow-card transition-shadow hover:shadow-card-hover"
+                >
                   <CardContent className="p-5">
                     <div className="flex items-start gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-brand-100 flex items-center justify-center shrink-0">
-                        <Tv className="h-5 w-5 text-brand-600" />
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-100 text-brand-600">
+                        <Tv className="h-5 w-5" />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold truncate">{device.name}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-semibold">{device.name}</p>
                         <Badge variant="secondary" className="mt-1 text-xs">
                           {DEVICE_TYPES[device.type as keyof typeof DEVICE_TYPES]}
                         </Badge>
@@ -382,12 +673,17 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     </div>
                     {device.brand && (
                       <p className="mt-3 text-xs text-muted-foreground">
-                        Marca/Modelo: <span className="font-medium text-foreground">{device.brand}</span>
+                        Marca/Modelo:{' '}
+                        <span className="font-medium text-foreground">
+                          {device.brand}
+                        </span>
                       </p>
                     )}
                     {device.instructions && (
                       <div className="mt-3 rounded-lg bg-muted p-3">
-                        <p className="text-xs text-muted-foreground uppercase font-medium mb-1">Instruções</p>
+                        <p className="mb-1 text-xs font-medium uppercase text-muted-foreground">
+                          Instruções
+                        </p>
                         <p className="text-sm">{device.instructions}</p>
                       </div>
                     )}
@@ -400,7 +696,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
               icon={Tv}
               title="Nenhum equipamento cadastrado"
               description="Adicione equipamentos e instruções de uso para seus hóspedes."
-              actionLabel="Editar Imóvel"
+              actionLabel="Editar imóvel"
               actionHref={`/app/imoveis/${property.id}/editar`}
             />
           )}
@@ -408,23 +704,38 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
 
         <TabsContent value="contatos" className="space-y-6">
           {property.contacts.length > 0 ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {property.contacts.map((contact: { id: string; name: string; role: string; phone: string | null; email: string | null; whatsapp: string | null }) => {
-                const roleColor = contact.role === 'HOST' ? 'bg-brand-100 text-brand-600' :
-                  contact.role === 'EMERGENCY' ? 'bg-rose-100 text-rose-600' :
-                  'bg-muted text-muted-foreground'
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {property.contacts.map((contact) => {
+                const roleColor =
+                  contact.role === 'HOST'
+                    ? 'bg-brand-100 text-brand-600'
+                    : contact.role === 'EMERGENCY'
+                      ? 'bg-rose-100 text-rose-600'
+                      : 'bg-muted text-muted-foreground'
 
                 return (
-                  <Card key={contact.id} className="shadow-card hover:shadow-card-hover transition-shadow">
+                  <Card
+                    key={contact.id}
+                    className="shadow-card transition-shadow hover:shadow-card-hover"
+                  >
                     <CardContent className="p-5">
                       <div className="flex items-start gap-3">
-                        <div className={cn("h-10 w-10 rounded-lg flex items-center justify-center shrink-0", roleColor)}>
+                        <div
+                          className={cn(
+                            'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg',
+                            roleColor,
+                          )}
+                        >
                           <Phone className="h-5 w-5" />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold truncate">{contact.name}</p>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate font-semibold">{contact.name}</p>
                           <Badge variant="outline" className="mt-1 text-xs">
-                            {CONTACT_ROLES[contact.role as keyof typeof CONTACT_ROLES]}
+                            {
+                              CONTACT_ROLES[
+                                contact.role as keyof typeof CONTACT_ROLES
+                              ]
+                            }
                           </Badge>
                         </div>
                       </div>
@@ -438,7 +749,9 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         {contact.email && (
                           <div className="flex items-center gap-2 text-sm">
                             <Mail className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span className="text-muted-foreground">{contact.email}</span>
+                            <span className="text-muted-foreground">
+                              {contact.email}
+                            </span>
                           </div>
                         )}
                         {contact.whatsapp && (
@@ -458,7 +771,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
               icon={Phone}
               title="Nenhum contato cadastrado"
               description="Adicione contatos importantes para seus hóspedes."
-              actionLabel="Editar Imóvel"
+              actionLabel="Editar imóvel"
               actionHref={`/app/imoveis/${property.id}/editar`}
             />
           )}

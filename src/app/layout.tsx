@@ -25,7 +25,14 @@ export const metadata: Metadata = {
   },
   description:
     'Crie guias digitais automáticos para seus imóveis de hospedagem. Compartilhe por WhatsApp e e-mail em um clique. Padronize a experiência do seu hóspede.',
-  keywords: ['guia digital', 'hospedagem', 'airbnb', 'hóspede', 'anfitrião', 'gestão de imóveis'],
+  keywords: [
+    'guia digital',
+    'hospedagem',
+    'airbnb',
+    'hóspede',
+    'anfitrião',
+    'gestão de imóveis',
+  ],
   authors: [{ name: 'GuiaHóspedes' }],
   openGraph: {
     title: 'GuiaHóspedes',

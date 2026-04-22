@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
+import { Loader2, Power, Trash2 } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Trash2, Power, Loader2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { deleteProperty } from '@/app/actions/delete-property'
 import { toggleGuideStatus } from '@/app/actions/toggle-guide-status'
 import { toast } from 'sonner'
@@ -22,7 +22,10 @@ interface PropertyActionsProps {
   guideStatus?: string
 }
 
-export function PropertyActions({ propertyId, guideStatus }: PropertyActionsProps) {
+export function PropertyActions({
+  propertyId,
+  guideStatus,
+}: PropertyActionsProps) {
   const router = useRouter()
   const [isDeleting, setIsDeleting] = useState(false)
   const [isToggling, setIsToggling] = useState(false)
@@ -51,8 +54,11 @@ export function PropertyActions({ propertyId, guideStatus }: PropertyActionsProp
     try {
       const result = await toggleGuideStatus(propertyId)
       if (result.success) {
-        const msg = result.status === 'PUBLISHED' ? 'Guia publicado!' : 'Guia despublicado!'
-        toast.success(msg)
+        const message =
+          result.status === 'PUBLISHED'
+            ? 'Guia publicado!'
+            : 'Guia despublicado!'
+        toast.success(message)
         router.refresh()
       } else {
         toast.error(result.error || 'Erro ao alterar status')
@@ -67,11 +73,11 @@ export function PropertyActions({ propertyId, guideStatus }: PropertyActionsProp
   const isPublished = guideStatus === 'PUBLISHED'
 
   return (
-    <div className="flex gap-2">
+    <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap">
       {guideStatus && (
         <Button
           variant={isPublished ? 'secondary' : 'default'}
-          className="gap-2"
+          className="w-full gap-2 sm:w-auto"
           onClick={handleToggle}
           disabled={isToggling}
         >
@@ -86,7 +92,10 @@ export function PropertyActions({ propertyId, guideStatus }: PropertyActionsProp
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger>
-          <Button variant="outline" className="gap-2 text-destructive hover:text-destructive">
+          <Button
+            variant="outline"
+            className="w-full gap-2 text-destructive hover:text-destructive sm:w-auto"
+          >
             <Trash2 className="h-4 w-4" />
             Excluir
           </Button>
@@ -95,15 +104,24 @@ export function PropertyActions({ propertyId, guideStatus }: PropertyActionsProp
           <DialogHeader>
             <DialogTitle>Excluir imóvel</DialogTitle>
             <DialogDescription>
-              Tem certeza que deseja excluir este imóvel? Esta ação não pode ser desfeita.
+              Tem certeza que deseja excluir este imóvel? Esta ação não pode ser
+              desfeita.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>
               Cancelar
             </Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
-              {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Excluir'}
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                'Excluir'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

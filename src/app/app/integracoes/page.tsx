@@ -123,12 +123,30 @@ function StatusBadge({ status }: { status: IntegrationStatus['status'] }) {
 }
 
 export default function IntegrationsPage() {
+  const completedChecklist = checklistItems.filter((item) => item.done).length
+
   return (
     <div className="space-y-6">
       <PageHeader
+        eyebrow="Conectividade"
         title="Integrações"
         description="Conecte sua operação com outras plataformas"
-      />
+        meta={
+          <>
+            <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
+              3 integrações ativas
+            </Badge>
+            <Badge variant="outline" className="bg-background">
+              Próxima revisão: hoje
+            </Badge>
+          </>
+        }
+      >
+        <Button variant="outline" className="gap-2">
+          <RefreshCw className="h-4 w-4" />
+          Atualizar status
+        </Button>
+      </PageHeader>
 
       {/* Overview Cards */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -158,7 +176,7 @@ export default function IntegrationsPage() {
       </div>
 
       <Tabs defaultValue="airbnb" className="space-y-6">
-        <TabsList className="bg-muted">
+        <TabsList className="w-full bg-muted lg:w-fit">
           <TabsTrigger value="airbnb">Airbnb</TabsTrigger>
           <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
           <TabsTrigger value="email">E-mail</TabsTrigger>
@@ -170,7 +188,7 @@ export default function IntegrationsPage() {
             <div className="lg:col-span-2 space-y-6">
               <Card className="shadow-card">
                 <CardHeader>
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-lg bg-[#FF5A5F] text-white flex items-center justify-center font-bold text-sm">
                         air
@@ -180,7 +198,9 @@ export default function IntegrationsPage() {
                         <CardDescription>Sincronização de calendário e listings</CardDescription>
                       </div>
                     </div>
-                    <StatusBadge status="connected" />
+                    <div className="sm:self-start">
+                      <StatusBadge status="connected" />
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -189,13 +209,13 @@ export default function IntegrationsPage() {
                     <div className="space-y-3">
                       <div>
                         <Label className="text-sm">URL do Calendário iCal</Label>
-                        <div className="flex gap-2 mt-1.5">
+                        <div className="mt-1.5 flex flex-col gap-2 sm:flex-row">
                           <Input
                             readOnly
                             value="https://www.airbnb.com/calendar/ical/123456.ics"
                             className="bg-background text-sm"
                           />
-                          <Button variant="outline" size="icon">
+                          <Button variant="outline" size="icon" className="shrink-0 self-start">
                             <RefreshCw className="h-4 w-4" />
                           </Button>
                         </div>
@@ -212,16 +232,44 @@ export default function IntegrationsPage() {
 
                   <div>
                     <h4 className="font-medium text-sm mb-3">Mapeamento de Imóveis</h4>
-                    <div className="rounded-lg border overflow-hidden">
-                      <div className="grid grid-cols-3 gap-4 p-3 text-xs font-medium border-b bg-muted/50">
+                    <div className="space-y-3 md:hidden">
+                      <div className="rounded-lg border p-4">
+                        <div className="space-y-3">
+                          <div>
+                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                              Imóvel interno
+                            </p>
+                            <p className="text-sm font-medium">Flat Elegance Paulista</p>
+                          </div>
+                          <div>
+                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                              Listing Airbnb
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              Flat Elegance Paulista - Airbnb
+                            </p>
+                          </div>
+                          <Badge className="w-fit bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
+                            Sincronizado
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="hidden overflow-hidden rounded-lg border md:block">
+                      <div className="grid grid-cols-3 gap-4 border-b bg-muted/50 p-3 text-xs font-medium">
                         <span>Imóvel Interno</span>
                         <span>Listing Airbnb</span>
                         <span>Status</span>
                       </div>
-                      <div className="grid grid-cols-3 gap-4 p-3 text-sm items-center">
+                      <div className="grid grid-cols-3 items-center gap-4 p-3 text-sm">
                         <span>Flat Elegance Paulista</span>
-                        <span className="text-muted-foreground">Flat Elegance Paulista - Airbnb</span>
-                        <Badge className="bg-emerald-100 text-emerald-700 w-fit text-xs">Sincronizado</Badge>
+                        <span className="text-muted-foreground">
+                          Flat Elegance Paulista - Airbnb
+                        </span>
+                        <Badge className="w-fit bg-emerald-100 text-emerald-700 text-xs hover:bg-emerald-100">
+                          Sincronizado
+                        </Badge>
                       </div>
                     </div>
                   </div>
@@ -272,7 +320,26 @@ export default function IntegrationsPage() {
                     </div>
                   ))}
                   <Progress value={75} className="h-1.5 mt-2" />
-                  <p className="text-xs text-muted-foreground text-center">3 de 4 concluídos</p>
+                  <p className="text-xs text-muted-foreground text-center">
+                    {completedChecklist} de {checklistItems.length} concluídos
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-card border-brand-200 bg-brand-50/40">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="h-5 w-5 shrink-0 text-brand-700" />
+                    <div>
+                      <p className="text-sm font-medium text-brand-900">
+                        Próximo melhor passo
+                      </p>
+                      <p className="mt-1 text-xs text-brand-800">
+                        Faça um teste de importação iCal agora para validar o fluxo
+                        completo antes de confiar na sincronização automática.
+                      </p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 

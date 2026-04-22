@@ -25,6 +25,7 @@ import {
   Eye,
 } from 'lucide-react'
 import { updateOrganization } from '@/app/actions/update-organization'
+import { PageHeader } from '@/components/shared/page-header'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
@@ -96,18 +97,109 @@ export default function SettingsClient({ organization }: SettingsClientProps) {
   const hasDomain = !!formData.domain
   const hasEmail = !!formData.email
   const hasWhatsApp = !!formData.whatsapp
+  const brandConfigured = !!formData.name && !!formData.primaryColor
+
+  const settingsSummary = [
+    {
+      label: 'Domínio',
+      value: hasDomain ? 'Configurado' : 'Pendente',
+      hint: hasDomain ? formData.domain : 'Use um domínio próprio para mais confiança',
+      tone: hasDomain ? 'emerald' : 'amber',
+      icon: Globe,
+    },
+    {
+      label: 'E-mail',
+      value: hasEmail ? 'Ativo' : 'Pendente',
+      hint: hasEmail ? formData.email : 'Necessário para envio por e-mail',
+      tone: hasEmail ? 'emerald' : 'amber',
+      icon: Mail,
+    },
+    {
+      label: 'WhatsApp',
+      value: hasWhatsApp ? 'Ativo' : 'Pendente',
+      hint: hasWhatsApp ? formData.whatsapp : 'Necessário para contato rápido',
+      tone: hasWhatsApp ? 'emerald' : 'amber',
+      icon: Smartphone,
+    },
+    {
+      label: 'Marca',
+      value: brandConfigured ? 'Pronta' : 'Em ajuste',
+      hint: brandConfigured ? formData.primaryColor : 'Defina cor e nome da operação',
+      tone: brandConfigured ? 'brand' : 'slate',
+      icon: Palette,
+    },
+  ]
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-heading text-2xl font-bold tracking-tight">Configurações</h1>
-        <p className="text-muted-foreground mt-1">
-          Gerencie as configurações da sua conta e operação
-        </p>
+      <PageHeader
+        eyebrow="Operação"
+        title="Configurações"
+        description="Gerencie identidade, domínio, mensagens e canais críticos da sua operação em um só lugar."
+        meta={
+          <>
+            <Badge variant="outline" className="bg-background">
+              {organization.slug}
+            </Badge>
+            <Badge
+              variant="outline"
+              className={cn(
+                hasDomain
+                  ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                  : 'border-amber-200 bg-amber-50 text-amber-700',
+              )}
+            >
+              {hasDomain ? 'Domínio configurado' : 'Domínio pendente'}
+            </Badge>
+          </>
+        }
+        children={
+          <Button className="gap-2" onClick={handleSave} disabled={isSaving}>
+            {isSaving ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="h-4 w-4" />
+            )}
+            Salvar alterações
+          </Button>
+        }
+      />
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {settingsSummary.map((item) => {
+          const toneClasses =
+            item.tone === 'emerald'
+              ? 'bg-emerald-100 text-emerald-700'
+              : item.tone === 'amber'
+                ? 'bg-amber-100 text-amber-700'
+                : item.tone === 'brand'
+                  ? 'bg-brand-100 text-brand-700'
+                  : 'bg-slate-100 text-slate-700'
+
+          return (
+            <Card key={item.label} className="shadow-card">
+              <CardContent className="flex items-start gap-3 p-5">
+                <div
+                  className={cn(
+                    'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl',
+                    toneClasses,
+                  )}
+                >
+                  <item.icon className="h-5 w-5" />
+                </div>
+                <div className="min-w-0 space-y-1">
+                  <p className="text-sm text-muted-foreground">{item.label}</p>
+                  <p className="font-semibold">{item.value}</p>
+                  <p className="truncate text-xs text-muted-foreground">{item.hint}</p>
+                </div>
+              </CardContent>
+            </Card>
+          )
+        })}
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="bg-muted">
+        <TabsList className="w-full bg-muted lg:w-fit">
           <TabsTrigger value="perfil">
             <Shield className="h-3.5 w-3.5 mr-1.5" />
             Perfil

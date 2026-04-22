@@ -1,8 +1,17 @@
-import { db } from '@/lib/db'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Building2, BookOpen, Share2, Clock, TrendingUp, Plus } from 'lucide-react'
 import Link from 'next/link'
+import {
+  BookOpen,
+  Building2,
+  Clock,
+  Plus,
+  Share2,
+  TrendingUp,
+} from 'lucide-react'
+import { db } from '@/lib/db'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { EmptyState } from '@/components/shared/empty-state'
+import { PageHeader } from '@/components/shared/page-header'
 import { cn } from '@/lib/utils'
 
 async function getDashboardData() {
@@ -27,66 +36,72 @@ export default async function DashboardPage() {
 
   const stats = [
     {
-      title: 'Total de Imóveis',
+      title: 'Total de imóveis',
       value: data.totalProperties,
       icon: Building2,
       color: 'text-blue-600',
       bg: 'bg-blue-50',
+      hint: 'Base cadastrada',
     },
     {
-      title: 'Guias Publicados',
+      title: 'Guias publicados',
       value: data.publishedGuides,
       icon: BookOpen,
       color: 'text-emerald-600',
       bg: 'bg-emerald-50',
+      hint: 'Prontos para compartilhar',
     },
     {
-      title: 'Guias em Rascunho',
+      title: 'Guias em rascunho',
       value: data.draftGuides,
       icon: Clock,
       color: 'text-amber-600',
       bg: 'bg-amber-50',
+      hint: 'Precisam de revisão',
     },
     {
-      title: 'Total de Guias',
+      title: 'Total de guias',
       value: data.totalGuides,
       icon: TrendingUp,
       color: 'text-slate-600',
       bg: 'bg-slate-50',
+      hint: 'Todos os status',
     },
   ]
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-heading text-2xl font-bold tracking-tight">Visão Geral</h1>
-          <p className="text-muted-foreground mt-1">
-            Acompanhe o status dos seus imóveis e guias
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <Link href="/app/imoveis/novo">
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              Novo Imóvel
-            </Button>
-          </Link>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Painel"
+        title="Visão Geral"
+        description="Acompanhe o status dos seus imóveis, identifique o que ainda falta publicar e acione os próximos passos sem sair da home."
+      >
+        <Link href="/app/imoveis/novo">
+          <Button className="gap-2">
+            <Plus className="h-4 w-4" />
+            Novo imóvel
+          </Button>
+        </Link>
+      </PageHeader>
 
-      {/* Stats Grid */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat, i) => (
-          <Card key={i} className="shadow-card">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {stats.map((stat) => (
+          <Card key={stat.title} className="shadow-card">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                  <p className="text-3xl font-bold mt-2">{stat.value}</p>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-muted-foreground">
+                    {stat.title}
+                  </p>
+                  <p className="text-3xl font-bold">{stat.value}</p>
+                  <p className="text-xs text-muted-foreground">{stat.hint}</p>
                 </div>
-                <div className={cn('h-12 w-12 rounded-lg flex items-center justify-center', stat.bg)}>
+                <div
+                  className={cn(
+                    'flex h-12 w-12 items-center justify-center rounded-xl',
+                    stat.bg,
+                  )}
+                >
                   <stat.icon className={cn('h-6 w-6', stat.color)} />
                 </div>
               </div>
@@ -95,11 +110,10 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
         <Card className="shadow-card">
           <CardHeader>
-            <CardTitle className="text-lg">Atalhos Rápidos</CardTitle>
+            <CardTitle className="text-lg">Atalhos rápidos</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <Link href="/app/imoveis/novo">
@@ -125,20 +139,30 @@ export default async function DashboardPage() {
 
         <Card className="shadow-card">
           <CardHeader>
-            <CardTitle className="text-lg">Compartilhamentos Recentes</CardTitle>
+            <CardTitle className="text-lg">Compartilhamentos recentes</CardTitle>
           </CardHeader>
           <CardContent>
             {data.recentShares.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Nenhum compartilhamento ainda</p>
+              <EmptyState
+                icon={Share2}
+                title="Nenhum compartilhamento ainda"
+                description="Assim que você publicar um guia e enviá-lo por WhatsApp, e-mail ou link, os últimos envios aparecerão aqui."
+                hint="Publique um guia e faça o primeiro envio"
+                actionLabel="Ir para compartilhamento"
+                actionHref="/app/compartilhamento"
+                secondaryActionLabel="Ver imóveis"
+                secondaryActionHref="/app/imoveis"
+                className="border-none bg-transparent p-0 shadow-none sm:p-2"
+              />
             ) : (
               <div className="space-y-3">
-                {data.recentShares.map((share: { id: string; channel: string; sentAt: Date; status: string; guide: { property: { name: string } | null } | null }) => (
+                {data.recentShares.map((share) => (
                   <div
                     key={share.id}
-                    className="flex items-center justify-between rounded-lg border border-border p-3"
+                    className="flex flex-col gap-2 rounded-lg border border-border p-3 sm:flex-row sm:items-center sm:justify-between"
                   >
-                    <div>
-                      <p className="text-sm font-medium">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">
                         {share.guide?.property?.name || 'Imóvel'}
                       </p>
                       <p className="text-xs text-muted-foreground">
@@ -153,12 +177,17 @@ export default async function DashboardPage() {
                         {share.sentAt.toLocaleDateString('pt-BR')}
                       </p>
                     </div>
-                    <div
-                      className={cn(
-                        'h-2 w-2 rounded-full',
-                        share.status === 'SENT' ? 'bg-emerald-500' : 'bg-amber-500'
-                      )}
-                    />
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">
+                        {share.status === 'SENT' ? 'Enviado' : 'Pendente'}
+                      </span>
+                      <div
+                        className={cn(
+                          'h-2.5 w-2.5 rounded-full',
+                          share.status === 'SENT' ? 'bg-emerald-500' : 'bg-amber-500',
+                        )}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
