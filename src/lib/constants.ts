@@ -73,9 +73,17 @@ export const CONTACT_ROLES = {
 export const RECOMMENDATION_CATEGORIES = {
   RESTAURANT: 'Restaurante',
   CAFE: 'Café',
+  BAR: 'Bar',
+  BAKERY: 'Padaria',
   MARKET: 'Mercado',
   PHARMACY: 'Farmácia',
+  SHOPPING: 'Shopping',
+  NIGHTCLUB: 'Boate / Casa de Shows',
   ATTRACTION: 'Atração',
+  BEACH: 'Praia',
+  PARK: 'Parque',
+  GYM: 'Academia',
+  HOSPITAL: 'Hospital',
   TRANSPORT: 'Transporte',
 } as const
 

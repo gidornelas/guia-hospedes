@@ -38,6 +38,7 @@ import { db } from '@/lib/db'
 import { env } from '@/lib/env'
 import { cn } from '@/lib/utils'
 import { PropertyActions } from './property-actions'
+import RecommendationsManager from '@/components/dashboard/recommendations-manager'
 
 async function getProperty(id: string) {
   return db.property.findUnique({
@@ -152,6 +153,7 @@ export default async function PropertyDetailPage({
           <TabsTrigger value="guia">Guia</TabsTrigger>
           <TabsTrigger value="equipamentos">Equipamentos</TabsTrigger>
           <TabsTrigger value="contatos">Contatos</TabsTrigger>
+          <TabsTrigger value="regiao">Região</TabsTrigger>
         </TabsList>
 
         <TabsContent value="resumo" className="space-y-6">
@@ -775,6 +777,13 @@ export default async function PropertyDetailPage({
               actionHref={`/app/imoveis/${property.id}/editar`}
             />
           )}
+        </TabsContent>
+
+        <TabsContent value="regiao" className="space-y-6">
+          <RecommendationsManager
+            propertyId={property.id}
+            recommendations={property.recommendations}
+          />
         </TabsContent>
       </Tabs>
     </div>

@@ -111,9 +111,17 @@ enum ContactRole {
 enum RecommendationCategory {
   RESTAURANT
   CAFE
+  BAR
+  BAKERY
   MARKET
   PHARMACY
+  SHOPPING
+  NIGHTCLUB
   ATTRACTION
+  BEACH
+  PARK
+  GYM
+  HOSPITAL
   TRANSPORT
 }
 
@@ -287,6 +295,10 @@ model LocalRecommendation {
   name        String
   category    RecommendationCategory
   description String?
+  address     String?
+  mapUrl      String?
+  instagram   String?
+  image       String?
   link        String?
   distance    String?
 
