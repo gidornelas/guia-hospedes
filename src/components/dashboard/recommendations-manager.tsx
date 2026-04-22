@@ -196,6 +196,11 @@ export default function RecommendationsManager({
             Adicione restaurantes, bares, cafeterias, shoppings e outros lugares próximos
           </p>
         </div>
+        <Button className="gap-2" onClick={() => { resetForm(); setOpen(true) }}>
+          <Plus className="h-4 w-4" />
+          Adicionar
+        </Button>
+
         <Dialog
           open={open}
           onOpenChange={(v) => {
@@ -203,14 +208,6 @@ export default function RecommendationsManager({
             if (!v) resetForm()
           }}
         >
-          <DialogTrigger
-            render={
-              <Button className="gap-2">
-                <Plus className="h-4 w-4" />
-                Adicionar
-              </Button>
-            }
-          />
           <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
