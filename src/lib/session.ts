@@ -2,7 +2,8 @@ import { SignJWT, jwtVerify } from 'jose'
 import { cookies } from 'next/headers'
 
 const COOKIE_NAME = 'session-token'
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 30 // 30 dias
+const LONG_COOKIE_MAX_AGE = 60 * 60 * 24 * 30
+const SHORT_COOKIE_MAX_AGE = 60 * 60 * 24
 
 function getSecret() {
   const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET
@@ -22,11 +23,16 @@ export interface SessionPayload {
   image: string | null
 }
 
-export async function createSessionToken(payload: SessionPayload): Promise<string> {
+export async function createSessionToken(
+  payload: SessionPayload,
+  options?: { rememberMe?: boolean }
+): Promise<string> {
+  const rememberMe = options?.rememberMe ?? true
+
   return new SignJWT(payload as unknown as Record<string, unknown>)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
-    .setExpirationTime('30d')
+    .setExpirationTime(rememberMe ? '30d' : '1d')
     .sign(getSecret())
 }
 
@@ -48,13 +54,17 @@ export async function getSession(): Promise<SessionPayload | null> {
   return verifySessionToken(token)
 }
 
-export async function setSessionCookie(token: string) {
+export async function setSessionCookie(
+  token: string,
+  options?: { rememberMe?: boolean }
+) {
   const cookieStore = await cookies()
+  const rememberMe = options?.rememberMe ?? true
   cookieStore.set(COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    maxAge: COOKIE_MAX_AGE,
+    maxAge: rememberMe ? LONG_COOKIE_MAX_AGE : SHORT_COOKIE_MAX_AGE,
     path: '/',
   })
 }

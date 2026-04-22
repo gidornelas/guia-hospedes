@@ -1,41 +1,35 @@
-﻿# Regras para Agentes de IA
+# Regras para Agentes de IA
 
-## Segurança de Secrets
+## Seguranca de secrets
 
-- NUNCA leia, exiba ou compartilhe o conteúdo de arquivos .env, .env.local ou qualquer arquivo *.secret, *.key, *.pem
-- NUNCA inclua senhas, tokens, API keys ou credenciais em respostas ou commits
-- Se precisar referenciar uma variável de ambiente, use o 이름 da variável (ex: DATABASE_URL) sem o valor
-- Use .env.example como referência para variáveis disponíveis — ele contém apenas valores placeholder
-- Valores reais ficam apenas no arquivo .env local (gitignored) ou no dashboard da plataforma de deploy
+- Nunca leia, exiba ou compartilhe o conteudo de `.env`, `.env.local` ou qualquer arquivo de credencial.
+- Nunca inclua senhas, tokens, API keys ou conexoes reais em respostas ou commits.
+- Quando precisar citar configuracao, use apenas o nome da variavel, sem o valor.
+- Use `.env.example` como referencia publica.
 
-## Estrutura do Projeto
+## Estrutura atual do projeto
 
-- Stack: Next.js 16 + TypeScript + Tailwind CSS 4 + shadcn/ui + Prisma ORM + SQLite + NextAuth v5
-- Interface em português do Brasil
-- Banco de dados: SQLite (dev) / PostgreSQL (prod, via Prisma)
-- Autenticação: NextAuth v5 com Credentials Provider e demo users hardcoded
-- Variáveis de ambiente: ler de process.env diretamente, sem SDK externo
+- Stack: Next.js 16 + TypeScript + Tailwind CSS 4 + shadcn/ui + Prisma ORM + PostgreSQL
+- Interface em portugues do Brasil
+- Banco de dados: PostgreSQL
+- Autenticacao: fluxo manual com JWT em cookie HTTP-only
+- Auth implementado: login por senha, cadastro real, Google OAuth, lembrar sessao e recuperacao de senha
+- Variaveis de ambiente: leitura direta de `process.env`
 
-## Comandos
+## Comandos mais usados
 
-- 
-pm run dev — servidor de desenvolvimento
-- 
-pm run build — build de produção
-- 
-pm run db:seed — popular banco com dados demo
-- 
-pm run typecheck — verificar tipos TypeScript
-- 
-pm run lint — executar ESLint
-- 
-pm run lint:fix — corrigir problemas do ESLint
+- `npm run dev` — servidor de desenvolvimento
+- `npm run build` — build de producao
+- `npm run db:generate` — gerar Prisma Client
+- `npm run db:push` — sincronizar schema com banco
+- `npm run db:seed` — popular dados iniciais do produto
+- `npm run typecheck` — verificar tipos TypeScript
+- `npm run lint` — executar ESLint
 
-## Convenções
+## Convencoes
 
-- Sempre executar 
-pm run build após fazer mudanças para verificar
-- Comentários em código apenas quando necessário
-- Não criar arquivos .md de documentação a menos que explicitamente pedido
-- Seguir padrões existentes no codebase
-- Não comitar mudanças a menos que o usuário peça explicitamente
+- Rodar `npm run build` antes de considerar uma frente concluida
+- Evitar comentarios desnecessarios no codigo
+- Nao criar documentacao nova sem necessidade real ou pedido explicito
+- Seguir os padroes existentes do codebase
+- Nao comitar nem fazer push sem pedido explicito do usuario

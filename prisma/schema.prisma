@@ -142,17 +142,20 @@ enum MediaType {
 
 // Models
 model User {
-  id             String   @id @default(uuid())
-  name           String
-  email          String   @unique
-  password       String
-  role           UserRole @default(HOST)
-  organizationId String
-  image          String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id              String   @id @default(uuid())
+  name            String
+  email           String   @unique
+  password        String?
+  googleId        String?  @unique
+  role            UserRole @default(HOST)
+  organizationId  String
+  image           String?
+  emailVerifiedAt DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id])
+  resetTokens  PasswordResetToken[]
 
   @@map("users")
 }
@@ -243,6 +246,19 @@ model PropertyWiFi {
   property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@map("property_wifi")
+}
+
+model PasswordResetToken {
+  id         String   @id @default(uuid())
+  userId     String
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
 }
 
 model PropertyRules {

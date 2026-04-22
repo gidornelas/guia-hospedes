@@ -11,6 +11,8 @@ interface EnvConfig {
   databaseUrl: string
   nextauthUrl: string
   nextauthSecret: string
+  googleClientId: string
+  googleClientSecret: string
   smtpHost: string
   smtpPort: string
   smtpUser: string
@@ -37,6 +39,8 @@ function loadEnv(): EnvConfig {
     databaseUrl: process.env.DATABASE_URL || 'file:./dev.db',
     nextauthUrl: ensureUrlProtocol(process.env.NEXTAUTH_URL || 'http://localhost:3000'),
     nextauthSecret: process.env.NEXTAUTH_SECRET || 'dev-secret-change-in-production',
+    googleClientId: process.env.GOOGLE_CLIENT_ID || '',
+    googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
     smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
     smtpPort: process.env.SMTP_PORT || '587',
     smtpUser: process.env.SMTP_USER || '',

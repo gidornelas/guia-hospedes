@@ -1,151 +1,87 @@
-# Guia de Deploy em Produção — GuiaHóspedes
+# Guia de Deploy em Producao
 
-> Documento atualizado após a correção do deploy e do login em produção em `21/04/2026`.
+> Atualizado em 22/04/2026 apos a implementacao da autenticacao real.
 
 ## 1. Estado atual
 
-- Produção ativa: `https://guia-hospedes-production.up.railway.app`
-- Banco: Neon PostgreSQL
+- Producao ativa: `https://guia-hospedes-production.up.railway.app`
 - App: Railway
-- Repositório: GitHub
-- Login validado em produção
-- Dashboard validada em produção
+- Banco: Neon PostgreSQL
+- Sessao: JWT manual em cookie
+- Auth adicional: Google OAuth opcional
+- Recuperacao de senha: SMTP opcional
 
-## 2. Arquitetura atual
+## 2. Requisitos antes do deploy
 
-- GitHub para versionamento
-- Railway para build, deploy e runtime
-- Neon para banco PostgreSQL
-- Prisma para acesso ao banco
-- Autenticação manual JWT com `AUTH_SECRET` ou `NEXTAUTH_SECRET`
-
-## 3. Requisitos antes do deploy
-
-- [ ] `npm run typecheck` passando
-- [ ] `npm run build` passando
-- [ ] `package.json` com `engines` e `packageManager`
-- [ ] `mise.toml` presente
-- [ ] `.nvmrc` presente
+- [ ] `npm run db:generate`
+- [ ] `npm run build`
 - [ ] `DATABASE_URL` pronta no Railway
-- [ ] `AUTH_SECRET` ou `NEXTAUTH_SECRET` pronta no Railway
-- [ ] `NEXT_PUBLIC_APP_URL` com URL pública completa
+- [ ] `AUTH_SECRET` ou `NEXTAUTH_SECRET` pronta
+- [ ] `NEXTAUTH_URL` pronta
+- [ ] `NEXT_PUBLIC_APP_URL` pronta
 
-## 4. Variáveis recomendadas no Railway
+## 3. Variaveis recomendadas
 
-Obrigatórias:
+Obrigatorias:
 
-| Variável | Observação |
+| Variavel | Observacao |
 |---|---|
-| `DATABASE_URL` | conexão do Neon |
+| `DATABASE_URL` | conexao PostgreSQL |
 | `AUTH_SECRET` | segredo JWT |
-| `NEXTAUTH_SECRET` | fallback compatível com o código atual |
-| `NEXTAUTH_URL` | URL pública completa com `https://` |
-| `NEXT_PUBLIC_APP_URL` | URL pública completa com `https://` |
-| `NEXT_PUBLIC_APP_NAME` | normalmente `GuiaHóspedes` |
+| `NEXTAUTH_SECRET` | compatibilidade com o codigo atual |
+| `NEXTAUTH_URL` | URL publica completa |
+| `NEXT_PUBLIC_APP_URL` | URL publica completa |
+| `NEXT_PUBLIC_APP_NAME` | normalmente `GuiaHospedes` |
 | `NODE_ENV` | `production` |
 
 Opcionais:
 
-| Variável | Quando usar |
+| Variavel | Quando usar |
 |---|---|
-| `NIXPACKS_NODE_VERSION=20` | se o Railway não respeitar a versão do Node |
+| `GOOGLE_CLIENT_ID` | habilitar login Google |
+| `GOOGLE_CLIENT_SECRET` | habilitar login Google |
+| `SMTP_HOST` | redefinicao por e-mail |
+| `SMTP_PORT` | redefinicao por e-mail |
+| `SMTP_USER` | redefinicao por e-mail |
+| `SMTP_PASS` | redefinicao por e-mail |
+| `EMAIL_FROM` | remetente da redefinicao |
+| `NIXPACKS_NODE_VERSION=20` | fallback de Node no Railway |
 
-Não usar:
+Nao usar:
 
-| Variável | Motivo |
+| Variavel | Motivo |
 |---|---|
-| `NODE_OPTIONS=--require /app/url-patch.js` | já causou quebra de build/runtime |
+| `NODE_OPTIONS=--require /app/url-patch.js` | ja quebrou build e runtime |
 
-## 5. Fluxo recomendado de deploy
+## 4. Fluxo recomendado
 
-1. Atualize o código local.
+1. Atualize o codigo local.
 2. Rode:
 
 ```bash
-npm run typecheck
+npm run db:generate
 npm run build
 ```
 
-3. Faça commit e push no GitHub.
-4. No Railway, confirme:
-   - repositório correto
-   - branch correto
-   - `Root Directory` correto
-   - variáveis corretas
-5. Faça o redeploy.
-6. Valide produção.
+3. Faça commit e push.
+4. No Railway, confirme variaveis e configuracao do servico.
+5. Faça o deploy.
+6. Valide o app em producao.
 
-## 6. Validação pós-deploy
+## 5. Validacao pos-deploy
 
-Checklist mínimo:
-
-- [ ] home `/` abre
+- [ ] `/` abre
+- [ ] `/cadastro` abre
 - [ ] `/login` abre
-- [ ] login com `joao@guiahospedes.com / senha123` funciona
+- [ ] cadastro de conta real funciona
+- [ ] login por senha funciona
+- [ ] login Google funciona, se configurado
+- [ ] esqueci a senha funciona, se SMTP configurado
 - [ ] `/app` abre autenticado
-- [ ] não há erro `500`
-- [ ] logs não mostram `TypeError: Invalid URL`
+- [ ] nao ha erro `500`
 
-## 7. Correções já aplicadas neste projeto
+## 6. Observacoes importantes
 
-As correções que estabilizaram o deploy foram:
-
-- fixação da versão do Node em:
-  - `package.json`
-  - `mise.toml`
-  - `.nvmrc`
-- remoção de `output: 'standalone'` em `next.config.ts`
-- definição de `metadataBase` em `src/app/layout.tsx`
-- melhoria do helper `ensureValidUrl()` em `src/lib/utils.ts`
-- remoção da variável `NODE_OPTIONS` no Railway
-
-## 8. Comandos úteis
-
-```bash
-npm run typecheck
-npm run build
-railway status
-railway variables
-railway deployment list
-railway logs --latest --lines 100
-railway up -c
-```
-
-## 9. Troubleshooting real deste projeto
-
-### Erro: `TypeError: Invalid URL`
-
-Causa mais provável:
-
-- URL pública sem protocolo sendo usada internamente pelo runtime
-
-O que conferir:
-
-- `NEXTAUTH_URL`
-- `NEXT_PUBLIC_APP_URL`
-- `metadataBase` no `src/app/layout.tsx`
-- presença de qualquer workaround antigo com `NODE_OPTIONS`
-
-### Erro no `mise install`
-
-O que conferir:
-
-- `mise.toml`
-- `.nvmrc`
-- `package.json` com `engines`
-- fallback `NIXPACKS_NODE_VERSION=20`
-
-### Erro ao subir o app
-
-O que conferir:
-
-- `Start Command`
-- ausência de `output: 'standalone'`
-- variáveis de ambiente obrigatórias
-
-## 10. Observações finais
-
-- Nunca versionar secrets
-- Nunca recolocar `NODE_OPTIONS` para `url-patch.js`
-- Sempre testar login e dashboard após deploy
-- Sempre manter GitHub e Railway sincronizados para evitar drift entre produção e repositório
+- usuarios demo nao sao mais o fluxo oficial de autenticacao
+- o seed continua util para dados de produto, mas nao cria acessos prontos
+- veja [docs/autenticacao_setup.md](docs/autenticacao_setup.md) para configurar Google e SMTP

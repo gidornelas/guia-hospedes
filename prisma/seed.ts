@@ -1,6 +1,5 @@
 import 'dotenv/config'
 import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
@@ -16,6 +15,7 @@ async function main() {
   await prisma.shareLog.deleteMany()
   await prisma.guideVersion.deleteMany()
   await prisma.guide.deleteMany()
+  await prisma.passwordResetToken.deleteMany()
   await prisma.propertyMedia.deleteMany()
   await prisma.propertyLink.deleteMany()
   await prisma.localRecommendation.deleteMany()
@@ -58,38 +58,7 @@ async function main() {
 
   console.log('✅ Organizações criadas')
 
-  // Usuários
-  const admin = await prisma.user.create({
-    data: {
-      name: 'João Silva',
-      email: 'joao@guiahospedes.com',
-      password: await bcrypt.hash('senha123', 10),
-      role: 'ADMIN',
-      organizationId: orgGuiaHospedes.id,
-    },
-  })
-
-  const manager = await prisma.user.create({
-    data: {
-      name: 'Maria Santos',
-      email: 'maria@exemplo.com',
-      password: await bcrypt.hash('senha123', 10),
-      role: 'MANAGER',
-      organizationId: orgGuiaHospedes.id,
-    },
-  })
-
-  const host = await prisma.user.create({
-    data: {
-      name: 'Carlos Lima',
-      email: 'carlos@exemplo.com',
-      password: await bcrypt.hash('senha123', 10),
-      role: 'HOST',
-      organizationId: orgHostPremium.id,
-    },
-  })
-
-  console.log('✅ Usuários criados')
+  console.log('ℹ️ Seed sem usuários demo: use cadastro real ou login com Google')
 
   // Imóveis
   const properties = await Promise.all([
@@ -405,7 +374,7 @@ async function main() {
   console.log('✅ Integrações e logs criados')
 
   console.log('\n🎉 Seed concluído com sucesso!')
-  console.log(`   • ${3} usuários`)
+  console.log('   • 0 usuarios de login pre-criados')
   console.log(`   • ${5} imóveis`)
   console.log(`   • ${5} guias`)
   console.log(`   • ${4} templates de mensagem`)
