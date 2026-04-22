@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { createReservation } from '@/app/actions/reservations'
+import { PageHeader } from '@/components/shared/page-header'
 
 interface Property {
   id: string
@@ -20,37 +21,34 @@ export function NewReservationForm({ properties }: { properties: Property[] }) {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <div className="flex items-center gap-4">
+      <PageHeader
+        eyebrow="Nova reserva"
+        title="Cadastre uma reserva manualmente"
+        description="Preencha os dados do hospede, periodo da estadia e origem da reserva para manter a operacao organizada."
+      >
         <Link href="/app/reservas">
-          <Button variant="ghost" size="icon">
+          <Button variant="outline" className="gap-2">
             <ArrowLeft className="h-4 w-4" />
+            Voltar para reservas
           </Button>
         </Link>
-        <div>
-          <h1 className="font-heading text-2xl font-bold tracking-tight">
-            Nova Reserva
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Cadastre uma nova reserva manualmente.
-          </p>
-        </div>
-      </div>
+      </PageHeader>
 
       <Card>
         <CardHeader>
-          <CardTitle>Informações da Reserva</CardTitle>
+          <CardTitle>Informacoes da reserva</CardTitle>
         </CardHeader>
         <CardContent>
           <form action={formAction} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="propertyId">Imóvel *</Label>
+              <Label htmlFor="propertyId">Imovel *</Label>
               <select
                 id="propertyId"
                 name="propertyId"
                 required
                 className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
               >
-                <option value="">Selecione um imóvel</option>
+                <option value="">Selecione um imovel</option>
                 {properties.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name}
@@ -63,7 +61,7 @@ export function NewReservationForm({ properties }: { properties: Property[] }) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="guestName">Nome do hóspede *</Label>
+              <Label htmlFor="guestName">Nome do hospede *</Label>
               <Input id="guestName" name="guestName" required placeholder="Ex: Maria Silva" />
               {state?.error?.guestName && (
                 <p className="text-sm text-red-600">{state.error.guestName[0]}</p>
@@ -85,11 +83,7 @@ export function NewReservationForm({ properties }: { properties: Property[] }) {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="guestPhone">Telefone</Label>
-                <Input
-                  id="guestPhone"
-                  name="guestPhone"
-                  placeholder="(11) 99999-9999"
-                />
+                <Input id="guestPhone" name="guestPhone" placeholder="(11) 99999-9999" />
               </div>
             </div>
 
@@ -112,7 +106,7 @@ export function NewReservationForm({ properties }: { properties: Property[] }) {
 
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="space-y-2">
-                <Label htmlFor="numberOfGuests">Hóspedes *</Label>
+                <Label htmlFor="numberOfGuests">Hospedes *</Label>
                 <Input
                   id="numberOfGuests"
                   name="numberOfGuests"
@@ -169,12 +163,12 @@ export function NewReservationForm({ properties }: { properties: Property[] }) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="notes">Observações</Label>
+              <Label htmlFor="notes">Observacoes</Label>
               <Textarea
                 id="notes"
                 name="notes"
                 rows={3}
-                placeholder="Informações adicionais sobre a reserva..."
+                placeholder="Informacoes adicionais sobre a reserva..."
               />
             </div>
 
@@ -185,7 +179,7 @@ export function NewReservationForm({ properties }: { properties: Property[] }) {
                 </Button>
               </Link>
               <Button type="submit" className="flex-1" disabled={isPending}>
-                {isPending ? 'Salvando...' : 'Salvar Reserva'}
+                {isPending ? 'Salvando...' : 'Salvar reserva'}
               </Button>
             </div>
           </form>

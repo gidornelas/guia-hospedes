@@ -1,13 +1,8 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import {
-  AlertTriangle,
-  ArrowLeft,
   CalendarDays,
-  CheckCircle2,
-  Clock,
   Edit,
-  LogIn,
   LogOut,
   Mail,
   MapPin,
@@ -23,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { db } from '@/lib/db'
 import { env } from '@/lib/env'
 import { ShareModal } from '@/components/shared/share-modal'
+import { PageHeader } from '@/components/shared/page-header'
 
 async function getReservation(id: string) {
   return db.reservation.findUnique({
@@ -94,42 +90,32 @@ export default async function ReservationDetailPage({
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-4">
-          <Link href="/app/reservas">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="font-heading text-2xl font-bold tracking-tight">
-              {reservation.guestName}
-            </h1>
-            <div className="mt-1 flex items-center gap-2">
-              <Badge
-                variant="secondary"
-                className={STATUS_COLORS[reservation.status] || ''}
-              >
-                {STATUS_LABELS[reservation.status] || reservation.status}
-              </Badge>
-              <Badge variant="outline">
-                {SOURCE_LABELS[reservation.source] || reservation.source}
-              </Badge>
-            </div>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Link href={`/app/reservas/${reservation.id}/editar`}>
-            <Button variant="outline" size="sm" className="gap-2">
-              <Edit className="h-4 w-4" />
-              Editar
-            </Button>
-          </Link>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Reserva"
+        title={reservation.guestName}
+        description={`Estadia em ${property.name}`}
+        meta={
+          <>
+            <Badge variant="secondary" className={STATUS_COLORS[reservation.status] || ''}>
+              {STATUS_LABELS[reservation.status] || reservation.status}
+            </Badge>
+            <Badge variant="outline">
+              {SOURCE_LABELS[reservation.source] || reservation.source}
+            </Badge>
+          </>
+        }
+      >
+        <Link href="/app/reservas">
+          <Button variant="outline">Voltar para reservas</Button>
+        </Link>
+        <Link href={`/app/reservas/${reservation.id}/editar`}>
+          <Button variant="outline" className="gap-2">
+            <Edit className="h-4 w-4" />
+            Editar
+          </Button>
+        </Link>
+      </PageHeader>
 
-      {/* Info Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardContent className="flex items-center gap-3 p-4">
@@ -163,7 +149,7 @@ export default async function ReservationDetailPage({
               <Users className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Hóspedes</p>
+              <p className="text-xs text-muted-foreground">Hospedes</p>
               <p className="text-sm font-semibold">{reservation.numberOfGuests}</p>
             </div>
           </CardContent>
@@ -182,13 +168,12 @@ export default async function ReservationDetailPage({
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_0.6fr]">
-        {/* Main Info */}
         <div className="space-y-6">
           <Card className="shadow-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <MapPin className="h-5 w-5 text-primary" />
-                Imóvel
+                Imovel
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -198,7 +183,7 @@ export default async function ReservationDetailPage({
               </div>
               {property.address && (
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Endereço</span>
+                  <span className="text-sm text-muted-foreground">Endereco</span>
                   <span className="text-sm">{property.address}</span>
                 </div>
               )}
@@ -211,8 +196,7 @@ export default async function ReservationDetailPage({
               <div className="pt-2">
                 <Link href={`/app/imoveis/${property.id}`}>
                   <Button variant="outline" size="sm" className="w-full gap-2">
-                    <ArrowLeft className="h-4 w-4" />
-                    Ver detalhes do imóvel
+                    Ver detalhes do imovel
                   </Button>
                 </Link>
               </div>
@@ -223,7 +207,7 @@ export default async function ReservationDetailPage({
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Users className="h-5 w-5 text-primary" />
-                Dados do Hóspede
+                Dados do hospede
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -255,16 +239,15 @@ export default async function ReservationDetailPage({
           {reservation.notes && (
             <Card className="shadow-card">
               <CardHeader>
-                <CardTitle className="text-lg">Observações</CardTitle>
+                <CardTitle className="text-lg">Observacoes</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm whitespace-pre-wrap">{reservation.notes}</p>
+                <p className="whitespace-pre-wrap text-sm">{reservation.notes}</p>
               </CardContent>
             </Card>
           )}
         </div>
 
-        {/* Sidebar Actions */}
         <div className="space-y-6">
           <Card className="shadow-card">
             <CardHeader>
@@ -285,7 +268,7 @@ export default async function ReservationDetailPage({
                   <span>{reservation.createdAt.toLocaleDateString('pt-BR')}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Última atualização</span>
+                  <span className="text-muted-foreground">Ultima atualizacao</span>
                   <span>{reservation.updatedAt.toLocaleDateString('pt-BR')}</span>
                 </div>
               </div>
@@ -296,7 +279,7 @@ export default async function ReservationDetailPage({
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Send className="h-5 w-5 text-primary" />
-                Ações rápidas
+                Acoes rapidas
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -313,14 +296,14 @@ export default async function ReservationDetailPage({
                     trigger={
                       <Button className="w-full justify-start gap-2">
                         <Share2 className="h-4 w-4" />
-                        Enviar guia ao hóspede
+                        Enviar guia ao hospede
                       </Button>
                     }
                   />
                   <Link href={publicUrl} target="_blank">
                     <Button variant="outline" className="w-full justify-start gap-2">
                       <MessageCircle className="h-4 w-4" />
-                      Abrir guia público
+                      Abrir guia publico
                     </Button>
                   </Link>
                 </>
@@ -328,11 +311,11 @@ export default async function ReservationDetailPage({
               {(!guide || guide.status !== 'PUBLISHED') && (
                 <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
                   <p className="text-xs text-amber-800">
-                    Publique o guia do imóvel para liberar o compartilhamento com o hóspede.
+                    Publique o guia do imovel para liberar o compartilhamento com o hospede.
                   </p>
                   <Link href={`/app/imoveis/${property.id}`} className="mt-2 block">
                     <Button variant="outline" size="sm" className="w-full">
-                      Ir para o imóvel
+                      Ir para o imovel
                     </Button>
                   </Link>
                 </div>

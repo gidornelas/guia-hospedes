@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { updateReservation } from '@/app/actions/reservations'
+import { PageHeader } from '@/components/shared/page-header'
 
 interface Property {
   id: string
@@ -55,30 +56,27 @@ export function EditReservationForm({
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <div className="flex items-center gap-4">
+      <PageHeader
+        eyebrow="Editar reserva"
+        title="Atualize os dados da estadia"
+        description={`${reservation.guestName} · ${reservation.property.name}`}
+      >
         <Link href={`/app/reservas/${reservation.id}`}>
-          <Button variant="ghost" size="icon">
+          <Button variant="outline" className="gap-2">
             <ArrowLeft className="h-4 w-4" />
+            Voltar para detalhes
           </Button>
         </Link>
-        <div>
-          <h1 className="font-heading text-2xl font-bold tracking-tight">
-            Editar Reserva
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {reservation.guestName} — {reservation.property.name}
-          </p>
-        </div>
-      </div>
+      </PageHeader>
 
       <Card>
         <CardHeader>
-          <CardTitle>Informações da Reserva</CardTitle>
+          <CardTitle>Informacoes da reserva</CardTitle>
         </CardHeader>
         <CardContent>
           <form action={formAction} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="propertyId">Imóvel *</Label>
+              <Label htmlFor="propertyId">Imovel *</Label>
               <select
                 id="propertyId"
                 name="propertyId"
@@ -86,7 +84,7 @@ export function EditReservationForm({
                 defaultValue={reservation.propertyId}
                 className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
               >
-                <option value="">Selecione um imóvel</option>
+                <option value="">Selecione um imovel</option>
                 {properties.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name}
@@ -99,13 +97,8 @@ export function EditReservationForm({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="guestName">Nome do hóspede *</Label>
-              <Input
-                id="guestName"
-                name="guestName"
-                required
-                defaultValue={reservation.guestName}
-              />
+              <Label htmlFor="guestName">Nome do hospede *</Label>
+              <Input id="guestName" name="guestName" required defaultValue={reservation.guestName} />
               {state?.error?.guestName && (
                 <p className="text-sm text-red-600">{state.error.guestName[0]}</p>
               )}
@@ -126,11 +119,7 @@ export function EditReservationForm({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="guestPhone">Telefone</Label>
-                <Input
-                  id="guestPhone"
-                  name="guestPhone"
-                  defaultValue={reservation.guestPhone || ''}
-                />
+                <Input id="guestPhone" name="guestPhone" defaultValue={reservation.guestPhone || ''} />
               </div>
             </div>
 
@@ -165,7 +154,7 @@ export function EditReservationForm({
 
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="space-y-2">
-                <Label htmlFor="numberOfGuests">Hóspedes *</Label>
+                <Label htmlFor="numberOfGuests">Hospedes *</Label>
                 <Input
                   id="numberOfGuests"
                   name="numberOfGuests"
@@ -224,13 +213,8 @@ export function EditReservationForm({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="notes">Observações</Label>
-              <Textarea
-                id="notes"
-                name="notes"
-                rows={3}
-                defaultValue={reservation.notes || ''}
-              />
+              <Label htmlFor="notes">Observacoes</Label>
+              <Textarea id="notes" name="notes" rows={3} defaultValue={reservation.notes || ''} />
             </div>
 
             <div className="flex gap-3 pt-2">
@@ -240,7 +224,7 @@ export function EditReservationForm({
                 </Button>
               </Link>
               <Button type="submit" className="flex-1" disabled={isPending}>
-                {isPending ? 'Salvando...' : 'Salvar Alterações'}
+                {isPending ? 'Salvando...' : 'Salvar alteracoes'}
               </Button>
             </div>
           </form>
