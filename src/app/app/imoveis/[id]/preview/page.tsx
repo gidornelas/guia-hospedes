@@ -92,9 +92,9 @@ export default async function PreviewPage({
     | keyof typeof GUIDE_STATUS
     | undefined
   const guideStatus = guideStatusKey ? GUIDE_STATUS[guideStatusKey] : null
-  const publicUrl = property.guide?.slug
-    ? `${env.appUrl}/g/${property.guide.slug.replace('guia-', '')}`
-    : null
+  const guideSlug = property.guide?.slug?.replace('guia-', '')
+  const publicUrl = guideSlug ? `${env.appUrl}/g/${guideSlug}` : null
+  const previewUrl = guideSlug ? `${env.appUrl}/g/${guideSlug}?preview=1` : null
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
@@ -191,9 +191,9 @@ export default async function PreviewPage({
                     <div className="w-full max-w-[390px]">
                       <div className="aspect-[9/19.5] w-full rounded-[2.5rem] border border-slate-300 bg-slate-900 p-2 shadow-2xl">
                         <div className="h-full overflow-hidden rounded-[2rem] bg-slate-50">
-                          {publicUrl ? (
+                          {previewUrl ? (
                             <iframe
-                              src={publicUrl}
+                              src={previewUrl}
                               className="h-full w-full border-0"
                               title="Preview mobile do guia"
                             />
@@ -211,9 +211,9 @@ export default async function PreviewPage({
                 <CardContent className="px-0 pb-0 pt-2">
                   <div className="overflow-hidden rounded-2xl border border-border bg-muted/30 shadow-sm">
                     <div className="h-[min(70vh,720px)] min-h-[420px] bg-slate-50">
-                      {publicUrl ? (
+                      {previewUrl ? (
                         <iframe
-                          src={publicUrl}
+                          src={previewUrl}
                           className="h-full w-full border-0"
                           title="Preview desktop do guia"
                         />

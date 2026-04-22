@@ -14,6 +14,7 @@ interface GuidePageTemplateProps {
   propertyName: string
   hostWhatsapp?: string | null
   showBottomBar?: boolean
+  previewQuery?: string
 }
 
 export function GuidePageTemplate({
@@ -27,6 +28,7 @@ export function GuidePageTemplate({
   propertyName,
   hostWhatsapp,
   showBottomBar = true,
+  previewQuery = '',
 }: GuidePageTemplateProps) {
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
@@ -42,7 +44,7 @@ export function GuidePageTemplate({
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
           <Link
-            href={`/g/${slug}`}
+            href={`/g/${slug}${previewQuery}`}
             className="p-2 -ml-2 rounded-full hover:bg-slate-100 transition-colors shrink-0"
             aria-label="Voltar ao início"
           >
@@ -70,7 +72,7 @@ export function GuidePageTemplate({
         <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200">
           <div className="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
             <Link
-              href={`/g/${slug}`}
+              href={`/g/${slug}${previewQuery}`}
               className="flex items-center justify-center gap-2 flex-1 rounded-xl bg-slate-100 text-slate-700 py-3 text-sm font-medium transition-colors hover:bg-slate-200 active:scale-[0.98]"
             >
               <Home className="h-4 w-4" aria-hidden="true" />

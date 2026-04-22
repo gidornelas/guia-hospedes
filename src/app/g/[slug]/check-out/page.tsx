@@ -1,4 +1,3 @@
-import { db } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import { MapPin, Clock, ClipboardList } from 'lucide-react'
 import { InteractiveChecklist } from '@/components/shared/interactive-checklist'
@@ -9,31 +8,29 @@ import {
   InfoRow,
   TimelineItem,
 } from '@/components/shared/guide-page-template'
+import { getGuideProperty } from '@/lib/guide-utils'
 
-async function getGuideProperty(slug: string) {
-  const guide = await db.guide.findUnique({
-    where: { slug: `guia-${slug}` },
-    include: {
-      property: {
-        include: {
-          checkOut: true,
-          contacts: true,
-        },
-      },
-    },
-  })
-  return guide?.status === 'PUBLISHED' ? guide.property : null
-}
-
-export default async function CheckOutPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function CheckOutPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ preview?: string }>
+}) {
   const { slug } = await params
-  const property = await getGuideProperty(slug)
+  const { preview } = await searchParams
+  const property = await getGuideProperty({
+    slug,
+    allowPreview: preview === '1',
+    include: { checkOut: true, contacts: true },
+  })
   if (!property || !property.checkOut) notFound()
 
   const hostContact = property.contacts.find((c: any) => c.role === 'HOST')
   const checklistItems = property.checkOut.exitChecklist
     ? property.checkOut.exitChecklist.split('.').filter(Boolean)
     : []
+  const previewQuery = preview === '1' ? '?preview=1' : ''
 
   return (
     <GuidePageTemplate
@@ -45,6 +42,7 @@ export default async function CheckOutPage({ params }: { params: Promise<{ slug:
       iconBgColor="bg-indigo-50"
       propertyName={property.name}
       hostWhatsapp={hostContact?.whatsapp}
+      previewQuery={previewQuery}
     >
       <div className="space-y-5">
         {/* Primary: Horário */}

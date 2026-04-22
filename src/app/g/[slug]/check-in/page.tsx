@@ -1,4 +1,3 @@
-import { db } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import { MapPin, Clock, KeyRound, Copy, Navigation } from 'lucide-react'
 import { CopyButton } from '@/components/shared/copy-button'
@@ -10,28 +9,26 @@ import {
   TimelineItem,
   ActionButton,
 } from '@/components/shared/guide-page-template'
+import { getGuideProperty } from '@/lib/guide-utils'
 
-async function getGuideProperty(slug: string) {
-  const guide = await db.guide.findUnique({
-    where: { slug: `guia-${slug}` },
-    include: {
-      property: {
-        include: {
-          checkIn: true,
-          contacts: true,
-        },
-      },
-    },
-  })
-  return guide?.status === 'PUBLISHED' ? guide.property : null
-}
-
-export default async function CheckInPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function CheckInPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ preview?: string }>
+}) {
   const { slug } = await params
-  const property = await getGuideProperty(slug)
+  const { preview } = await searchParams
+  const property = await getGuideProperty({
+    slug,
+    allowPreview: preview === '1',
+    include: { checkIn: true, contacts: true },
+  })
   if (!property || !property.checkIn) notFound()
 
   const hostContact = property.contacts.find((c: any) => c.role === 'HOST')
+  const previewQuery = preview === '1' ? '?preview=1' : ''
 
   return (
     <GuidePageTemplate
@@ -43,6 +40,7 @@ export default async function CheckInPage({ params }: { params: Promise<{ slug: 
       iconBgColor="bg-blue-50"
       propertyName={property.name}
       hostWhatsapp={hostContact?.whatsapp}
+      previewQuery={previewQuery}
     >
       <div className="space-y-5">
         {/* Primary: Horário */}

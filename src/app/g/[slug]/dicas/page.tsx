@@ -1,4 +1,3 @@
-import { db } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import {
   UtensilsCrossed,
@@ -15,21 +14,7 @@ import {
   PrimaryCard,
   SecondaryCard,
 } from '@/components/shared/guide-page-template'
-
-async function getGuideProperty(slug: string) {
-  const guide = await db.guide.findUnique({
-    where: { slug: `guia-${slug}` },
-    include: {
-      property: {
-        include: {
-          recommendations: true,
-          contacts: true,
-        },
-      },
-    },
-  })
-  return guide?.status === 'PUBLISHED' ? guide.property : null
-}
+import { getGuideProperty } from '@/lib/guide-utils'
 
 const categoryLabels: Record<string, string> = {
   RESTAURANT: 'Restaurante',
@@ -49,9 +34,20 @@ const categoryColors: Record<string, { bg: string; text: string; border: string;
   TRANSPORT: { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', iconBg: 'bg-purple-100' },
 }
 
-export default async function TipsPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function TipsPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ preview?: string }>
+}) {
   const { slug } = await params
-  const property = await getGuideProperty(slug)
+  const { preview } = await searchParams
+  const property = await getGuideProperty({
+    slug,
+    allowPreview: preview === '1',
+    include: { recommendations: true, contacts: true },
+  })
   if (!property || property.recommendations.length === 0) notFound()
 
   const hostContact = property.contacts.find((c: any) => c.role === 'HOST')
@@ -63,6 +59,7 @@ export default async function TipsPage({ params }: { params: Promise<{ slug: str
     acc[cat].push(rec)
     return acc
   }, {})
+  const previewQuery = preview === '1' ? '?preview=1' : ''
 
   return (
     <GuidePageTemplate
@@ -74,6 +71,7 @@ export default async function TipsPage({ params }: { params: Promise<{ slug: str
       iconBgColor="bg-orange-50"
       propertyName={property.name}
       hostWhatsapp={hostContact?.whatsapp}
+      previewQuery={previewQuery}
     >
       <div className="space-y-8">
         {/* Intro */}

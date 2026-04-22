@@ -1,4 +1,3 @@
-import { db } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -17,35 +16,11 @@ import {
   CheckCircle2,
   Lock,
   KeyRound,
+  Eye,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { CopyButton } from '@/components/shared/copy-button'
-
-async function getGuideData(slug: string) {
-  const guide = await db.guide.findUnique({
-    where: { slug: `guia-${slug}` },
-    include: {
-      property: {
-        include: {
-          checkIn: true,
-          checkOut: true,
-          wifi: true,
-          rules: true,
-          devices: true,
-          contacts: true,
-          recommendations: true,
-          links: true,
-        },
-      },
-    },
-  })
-
-  if (!guide || guide.status !== 'PUBLISHED') {
-    return null
-  }
-
-  return guide
-}
+import { getGuideProperty } from '@/lib/guide-utils'
 
 interface SectionDef {
   id: string
@@ -67,15 +42,35 @@ const sections: SectionDef[] = [
   { id: 'links', label: 'Links Úteis', icon: Link2, color: 'text-cyan-600', bgColor: 'bg-cyan-50', priority: 8 },
 ]
 
-export default async function GuideHubPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function GuideHubPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ preview?: string }>
+}) {
   const { slug } = await params
-  const guide = await getGuideData(slug)
+  const { preview } = await searchParams
+  const allowPreview = preview === '1'
 
-  if (!guide) {
-    notFound()
-  }
+  const property = await getGuideProperty({
+    slug,
+    allowPreview,
+    include: {
+      checkIn: true,
+      checkOut: true,
+      wifi: true,
+      rules: true,
+      devices: true,
+      contacts: true,
+      recommendations: true,
+      links: true,
+    },
+  })
 
-  const property = guide.property
+  if (!property) notFound()
+
+  const isPreview = allowPreview
   const hostContact = property.contacts.find((c: any) => c.role === 'HOST')
   const hasWiFi = !!property.wifi?.networkName
   const hasCheckIn = !!property.checkIn
@@ -106,10 +101,22 @@ export default async function GuideHubPage({ params }: { params: Promise<{ slug:
     }
   }
 
+  const previewQuery = isPreview ? '?preview=1' : ''
+
   return (
     <div className="min-h-screen bg-slate-50">
+      {/* Preview Banner */}
+      {isPreview && (
+        <div className="bg-amber-100 border-b border-amber-200 px-4 py-2">
+          <div className="max-w-lg mx-auto flex items-center gap-2 text-amber-800">
+            <Eye className="h-4 w-4 shrink-0" />
+            <p className="text-xs font-medium">Modo preview — apenas você vê esta versão</p>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
+      <header className={cn('bg-white border-b border-slate-200 sticky z-10', isPreview ? 'top-8' : 'top-0')}>
         <div className="max-w-lg mx-auto px-4 py-4 flex items-center gap-3">
           <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
             <Home className="h-5 w-5 text-primary" />
@@ -152,7 +159,7 @@ export default async function GuideHubPage({ params }: { params: Promise<{ slug:
           <div className="grid grid-cols-3 gap-2">
             {hasCheckIn && (
               <Link
-                href={`/g/${slug}/check-in`}
+                href={`/g/${slug}/check-in${previewQuery}`}
                 className="flex flex-col items-center gap-2 rounded-xl bg-white border border-slate-200 p-3 shadow-sm transition-all active:scale-95 hover:border-blue-300 hover:shadow-md"
               >
                 <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
@@ -201,7 +208,7 @@ export default async function GuideHubPage({ params }: { params: Promise<{ slug:
               return (
                 <Link
                   key={section.id}
-                  href={hasData ? `/g/${slug}/${section.id}` : '#'}
+                  href={hasData ? `/g/${slug}/${section.id}${previewQuery}` : '#'}
                   className={cn(
                     'flex items-center gap-3 rounded-xl border bg-white p-3 shadow-sm transition-all',
                     hasData

@@ -1,4 +1,3 @@
-import { db } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import {
   Link2,
@@ -15,21 +14,7 @@ import {
   GuidePageTemplate,
   PrimaryCard,
 } from '@/components/shared/guide-page-template'
-
-async function getGuideProperty(slug: string) {
-  const guide = await db.guide.findUnique({
-    where: { slug: `guia-${slug}` },
-    include: {
-      property: {
-        include: {
-          links: true,
-          contacts: true,
-        },
-      },
-    },
-  })
-  return guide?.status === 'PUBLISHED' ? guide.property : null
-}
+import { getGuideProperty } from '@/lib/guide-utils'
 
 const typeLabels: Record<string, string> = {
   GOOGLE_MAPS: 'Google Maps',
@@ -51,12 +36,24 @@ const typeConfig: Record<string, { icon: React.ElementType; color: string; bgCol
   OTHER: { icon: Globe, color: 'text-slate-600', bgColor: 'bg-slate-100', labelColor: 'text-slate-700' },
 }
 
-export default async function LinksPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function LinksPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ preview?: string }>
+}) {
   const { slug } = await params
-  const property = await getGuideProperty(slug)
+  const { preview } = await searchParams
+  const property = await getGuideProperty({
+    slug,
+    allowPreview: preview === '1',
+    include: { links: true, contacts: true },
+  })
   if (!property || property.links.length === 0) notFound()
 
   const hostContact = property.contacts.find((c: any) => c.role === 'HOST')
+  const previewQuery = preview === '1' ? '?preview=1' : ''
 
   return (
     <GuidePageTemplate
@@ -68,6 +65,7 @@ export default async function LinksPage({ params }: { params: Promise<{ slug: st
       iconBgColor="bg-cyan-50"
       propertyName={property.name}
       hostWhatsapp={hostContact?.whatsapp}
+      previewQuery={previewQuery}
     >
       <div className="space-y-5">
         <div className="space-y-3">

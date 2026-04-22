@@ -1,4 +1,3 @@
-import { db } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import { Phone, Mail, MessageCircle, Star, AlertTriangle, Heart } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -7,20 +6,7 @@ import {
   PrimaryCard,
   SecondaryCard,
 } from '@/components/shared/guide-page-template'
-
-async function getGuideProperty(slug: string) {
-  const guide = await db.guide.findUnique({
-    where: { slug: `guia-${slug}` },
-    include: {
-      property: {
-        include: {
-          contacts: true,
-        },
-      },
-    },
-  })
-  return guide?.status === 'PUBLISHED' ? guide.property : null
-}
+import { getGuideProperty } from '@/lib/guide-utils'
 
 const roleLabels: Record<string, string> = {
   HOST: 'Anfitrião',
@@ -132,9 +118,20 @@ function ContactCard({ contact, priority }: ContactCardProps) {
   )
 }
 
-export default async function ContactsPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function ContactsPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ preview?: string }>
+}) {
   const { slug } = await params
-  const property = await getGuideProperty(slug)
+  const { preview } = await searchParams
+  const property = await getGuideProperty({
+    slug,
+    allowPreview: preview === '1',
+    include: { contacts: true },
+  })
   if (!property || property.contacts.length === 0) notFound()
 
   const hostContact = property.contacts.find((c: any) => c.role === 'HOST')
@@ -149,6 +146,7 @@ export default async function ContactsPage({ params }: { params: Promise<{ slug:
   const host = sortedContacts.find((c: any) => c.role === 'HOST')
   const emergency = sortedContacts.filter((c: any) => c.role === 'EMERGENCY')
   const others = sortedContacts.filter((c: any) => c.role !== 'HOST' && c.role !== 'EMERGENCY')
+  const previewQuery = preview === '1' ? '?preview=1' : ''
 
   return (
     <GuidePageTemplate
@@ -160,6 +158,7 @@ export default async function ContactsPage({ params }: { params: Promise<{ slug:
       iconBgColor="bg-rose-50"
       propertyName={property.name}
       hostWhatsapp={hostContact?.whatsapp}
+      previewQuery={previewQuery}
     >
       <div className="space-y-5">
         {/* Anfitrião — destaque especial */}

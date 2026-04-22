@@ -1,4 +1,3 @@
-import { db } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import {
   Shield,
@@ -18,21 +17,7 @@ import {
   PrimaryCard,
   SecondaryCard,
 } from '@/components/shared/guide-page-template'
-
-async function getGuideProperty(slug: string) {
-  const guide = await db.guide.findUnique({
-    where: { slug: `guia-${slug}` },
-    include: {
-      property: {
-        include: {
-          rules: true,
-          contacts: true,
-        },
-      },
-    },
-  })
-  return guide?.status === 'PUBLISHED' ? guide.property : null
-}
+import { getGuideProperty } from '@/lib/guide-utils'
 
 interface RuleItem {
   label: string
@@ -61,13 +46,25 @@ function RuleCard({ item }: { item: RuleItem }) {
   )
 }
 
-export default async function RulesPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function RulesPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ preview?: string }>
+}) {
   const { slug } = await params
-  const property = await getGuideProperty(slug)
+  const { preview } = await searchParams
+  const property = await getGuideProperty({
+    slug,
+    allowPreview: preview === '1',
+    include: { rules: true, contacts: true },
+  })
   if (!property || !property.rules) notFound()
 
   const rules = property.rules
   const hostContact = property.contacts.find((c: any) => c.role === 'HOST')
+  const previewQuery = preview === '1' ? '?preview=1' : ''
 
   // Build rule items with positive language
   const ruleItems: RuleItem[] = []
@@ -154,6 +151,7 @@ export default async function RulesPage({ params }: { params: Promise<{ slug: st
       iconBgColor="bg-amber-50"
       propertyName={property.name}
       hostWhatsapp={hostContact?.whatsapp}
+      previewQuery={previewQuery}
     >
       <div className="space-y-5">
         {/* Intro */}

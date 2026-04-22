@@ -1,4 +1,3 @@
-import { db } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import {
   Tv,
@@ -30,21 +29,7 @@ import {
   PrimaryCard,
   SecondaryCard,
 } from '@/components/shared/guide-page-template'
-
-async function getGuideProperty(slug: string) {
-  const guide = await db.guide.findUnique({
-    where: { slug: `guia-${slug}` },
-    include: {
-      property: {
-        include: {
-          devices: true,
-          contacts: true,
-        },
-      },
-    },
-  })
-  return guide?.status === 'PUBLISHED' ? guide.property : null
-}
+import { getGuideProperty } from '@/lib/guide-utils'
 
 // Map device types to semantic icons
 const deviceIconMap: Record<string, LucideIcon> = {
@@ -143,12 +128,24 @@ function DeviceCard({ device }: { device: any }) {
   )
 }
 
-export default async function DevicesPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function DevicesPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ preview?: string }>
+}) {
   const { slug } = await params
-  const property = await getGuideProperty(slug)
+  const { preview } = await searchParams
+  const property = await getGuideProperty({
+    slug,
+    allowPreview: preview === '1',
+    include: { devices: true, contacts: true },
+  })
   if (!property || property.devices.length === 0) notFound()
 
   const hostContact = property.contacts.find((c: any) => c.role === 'HOST')
+  const previewQuery = preview === '1' ? '?preview=1' : ''
 
   return (
     <GuidePageTemplate
@@ -160,6 +157,7 @@ export default async function DevicesPage({ params }: { params: Promise<{ slug: 
       iconBgColor="bg-purple-50"
       propertyName={property.name}
       hostWhatsapp={hostContact?.whatsapp}
+      previewQuery={previewQuery}
     >
       <div className="space-y-5">
         {/* Intro */}
