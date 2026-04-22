@@ -12,7 +12,6 @@ import {
   Home,
   MessageCircle,
   Clock,
-  Copy,
   CheckCircle2,
   Lock,
   KeyRound,
@@ -20,11 +19,13 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { CopyButton } from '@/components/shared/copy-button'
-import { getGuideProperty } from '@/lib/guide-utils'
+import { GuideAccessTracker } from '@/components/shared/guide-access-tracker'
+import { getGuideProperty, buildGuideQuery } from '@/lib/guide-utils'
+import { getLocaleFromSearchParams, getDictionary } from '@/lib/i18n'
+import { getPropertyTranslations, translateField } from '@/lib/translate'
 
 interface SectionDef {
   id: string
-  label: string
   icon: React.ElementType
   color: string
   bgColor: string
@@ -32,14 +33,14 @@ interface SectionDef {
 }
 
 const sections: SectionDef[] = [
-  { id: 'check-in', label: 'Check-in', icon: MapPin, color: 'text-blue-600', bgColor: 'bg-blue-50', priority: 1 },
-  { id: 'wifi', label: 'Wi-Fi', icon: Wifi, color: 'text-emerald-600', bgColor: 'bg-emerald-50', priority: 2 },
-  { id: 'contatos', label: 'Contatos', icon: Phone, color: 'text-rose-600', bgColor: 'bg-rose-50', priority: 3 },
-  { id: 'check-out', label: 'Check-out', icon: Clock, color: 'text-indigo-600', bgColor: 'bg-indigo-50', priority: 4 },
-  { id: 'regras', label: 'Regras', icon: Shield, color: 'text-amber-600', bgColor: 'bg-amber-50', priority: 5 },
-  { id: 'equipamentos', label: 'Equipamentos', icon: Tv, color: 'text-purple-600', bgColor: 'bg-purple-50', priority: 6 },
-  { id: 'dicas', label: 'Dicas da Região', icon: UtensilsCrossed, color: 'text-orange-600', bgColor: 'bg-orange-50', priority: 7 },
-  { id: 'links', label: 'Links Úteis', icon: Link2, color: 'text-cyan-600', bgColor: 'bg-cyan-50', priority: 8 },
+  { id: 'check-in', icon: MapPin, color: 'text-blue-600', bgColor: 'bg-blue-50', priority: 1 },
+  { id: 'wifi', icon: Wifi, color: 'text-emerald-600', bgColor: 'bg-emerald-50', priority: 2 },
+  { id: 'contatos', icon: Phone, color: 'text-rose-600', bgColor: 'bg-rose-50', priority: 3 },
+  { id: 'check-out', icon: Clock, color: 'text-indigo-600', bgColor: 'bg-indigo-50', priority: 4 },
+  { id: 'regras', icon: Shield, color: 'text-amber-600', bgColor: 'bg-amber-50', priority: 5 },
+  { id: 'equipamentos', icon: Tv, color: 'text-purple-600', bgColor: 'bg-purple-50', priority: 6 },
+  { id: 'dicas', icon: UtensilsCrossed, color: 'text-orange-600', bgColor: 'bg-orange-50', priority: 7 },
+  { id: 'links', icon: Link2, color: 'text-cyan-600', bgColor: 'bg-cyan-50', priority: 8 },
 ]
 
 export default async function GuideHubPage({
@@ -47,15 +48,17 @@ export default async function GuideHubPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ preview?: string }>
+  searchParams: Promise<{ preview?: string; lang?: string }>
 }) {
   const { slug } = await params
-  const { preview } = await searchParams
-  const allowPreview = preview === '1'
+  const sp = await searchParams
+  const locale = getLocaleFromSearchParams(sp)
+  const d = getDictionary(locale)
+  const query = buildGuideQuery(sp)
 
   const property = await getGuideProperty({
     slug,
-    allowPreview,
+    allowPreview: sp.preview === '1',
     include: {
       checkIn: true,
       checkOut: true,
@@ -70,13 +73,28 @@ export default async function GuideHubPage({
 
   if (!property) notFound()
 
-  const isPreview = allowPreview
+  const isPreview = sp.preview === '1'
   const hostContact = property.contacts.find((c: any) => c.role === 'HOST')
   const hasWiFi = !!property.wifi?.networkName
   const hasCheckIn = !!property.checkIn
 
+  const translations = getPropertyTranslations(property.translations, locale)
+  const welcomeMessage = translateField(property.welcomeMessage, translations.welcomeMessage)
+  const shortDescription = translateField(property.shortDescription, translations.shortDescription)
+
   // Sort sections by priority
   const sortedSections = [...sections].sort((a, b) => a.priority - b.priority)
+
+  const sectionLabels: Record<string, string> = {
+    'check-in': d.hub.checkIn,
+    'wifi': d.hub.wifi,
+    'contatos': d.hub.contacts,
+    'check-out': d.hub.checkOut,
+    'regras': d.hub.rules,
+    'equipamentos': d.hub.devices,
+    'dicas': d.hub.tips,
+    'links': d.hub.usefulLinks,
+  }
 
   const getHasData = (sectionId: string) => {
     switch (sectionId) {
@@ -101,10 +119,13 @@ export default async function GuideHubPage({
     }
   }
 
-  const previewQuery = isPreview ? '?preview=1' : ''
-
   return (
     <div className="min-h-screen bg-slate-50">
+      {/* Access Tracker */}
+      {!isPreview && 'guideId' in property && (
+        <GuideAccessTracker guideId={(property as any).guideId} />
+      )}
+
       {/* Preview Banner */}
       {isPreview && (
         <div className="bg-amber-100 border-b border-amber-200 px-4 py-2">
@@ -121,10 +142,10 @@ export default async function GuideHubPage({
           <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
             <Home className="h-5 w-5 text-primary" />
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <h1 className="font-semibold text-slate-900 truncate">{property.name}</h1>
             <p className="text-xs text-slate-500">
-              {property.city && property.state ? `${property.city}, ${property.state}` : property.city || property.state || 'Guia do Hóspede'}
+              {property.city && property.state ? `${property.city}, ${property.state}` : property.city || property.state || d.common.guideSubtitle}
             </p>
           </div>
         </div>
@@ -135,18 +156,18 @@ export default async function GuideHubPage({
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-medium">
             <CheckCircle2 className="h-3.5 w-3.5" />
-            Guia oficial do imóvel
+            {d.hub.officialGuide}
           </div>
           <h2 className="font-heading text-2xl font-bold text-slate-900">
-            Seja bem-vindo!
+            {d.hub.welcome}
           </h2>
-          {property.welcomeMessage ? (
+          {welcomeMessage ? (
             <p className="text-slate-600 text-sm leading-relaxed max-w-sm mx-auto">
-              {property.welcomeMessage}
+              {welcomeMessage}
             </p>
           ) : (
             <p className="text-slate-500 text-sm">
-              Aqui você encontra tudo que precisa para aproveitar sua estadia.
+              {d.hub.welcomeFallback}
             </p>
           )}
         </div>
@@ -154,18 +175,18 @@ export default async function GuideHubPage({
         {/* Primeiros Passos - Top Actions */}
         <div className="space-y-2">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1">
-            Primeiros passos
+            {d.hub.firstSteps}
           </h3>
           <div className="grid grid-cols-3 gap-2">
             {hasCheckIn && (
               <Link
-                href={`/g/${slug}/check-in${previewQuery}`}
+                href={`/g/${slug}/check-in${query}`}
                 className="flex flex-col items-center gap-2 rounded-xl bg-white border border-slate-200 p-3 shadow-sm transition-all active:scale-95 hover:border-blue-300 hover:shadow-md"
               >
                 <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
                   <KeyRound className="h-5 w-5 text-blue-600" />
                 </div>
-                <span className="text-xs font-medium text-slate-700 text-center leading-tight">Check-in</span>
+                <span className="text-xs font-medium text-slate-700 text-center leading-tight">{d.hub.checkIn}</span>
               </Link>
             )}
             {hasWiFi && (
@@ -173,7 +194,7 @@ export default async function GuideHubPage({
                 <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center">
                   <Wifi className="h-5 w-5 text-emerald-600" />
                 </div>
-                <span className="text-xs font-medium text-slate-700 text-center leading-tight">Wi-Fi</span>
+                <span className="text-xs font-medium text-slate-700 text-center leading-tight">{d.hub.wifi}</span>
                 <div className="flex items-center gap-1 text-[10px] text-muted-foreground bg-muted rounded-md px-1.5 py-0.5">
                   <span className="truncate max-w-[60px]">{property.wifi?.networkName}</span>
                   <CopyButton text={property.wifi?.networkName || ''} className="h-3 w-3" />
@@ -190,7 +211,7 @@ export default async function GuideHubPage({
                 <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center">
                   <MessageCircle className="h-5 w-5 text-green-600" />
                 </div>
-                <span className="text-xs font-medium text-green-800 text-center leading-tight">Anfitrião</span>
+                <span className="text-xs font-medium text-green-800 text-center leading-tight">{d.common.host}</span>
               </a>
             )}
           </div>
@@ -199,7 +220,7 @@ export default async function GuideHubPage({
         {/* All Sections */}
         <div className="space-y-2">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1">
-            Tudo sobre o imóvel
+            {d.hub.allAboutProperty}
           </h3>
           <div className="grid grid-cols-2 gap-2">
             {sortedSections.map((section) => {
@@ -208,7 +229,7 @@ export default async function GuideHubPage({
               return (
                 <Link
                   key={section.id}
-                  href={hasData ? `/g/${slug}/${section.id}${previewQuery}` : '#'}
+                  href={hasData ? `/g/${slug}/${section.id}${query}` : '#'}
                   className={cn(
                     'flex items-center gap-3 rounded-xl border bg-white p-3 shadow-sm transition-all',
                     hasData
@@ -220,9 +241,9 @@ export default async function GuideHubPage({
                     <section.icon className={cn('h-5 w-5', section.color)} />
                   </div>
                   <div className="min-w-0">
-                    <span className="text-sm font-medium text-slate-700 block truncate">{section.label}</span>
+                    <span className="text-sm font-medium text-slate-700 block truncate">{sectionLabels[section.id]}</span>
                     <span className={cn('text-[10px]', hasData ? 'text-emerald-600' : 'text-slate-400')}>
-                      {hasData ? 'Disponível' : 'Sem informações'}
+                      {hasData ? d.common.available : d.common.noInfo}
                     </span>
                   </div>
                   {hasData && <ArrowRight className="h-4 w-4 text-slate-300 ml-auto shrink-0" />}
@@ -233,10 +254,10 @@ export default async function GuideHubPage({
         </div>
 
         {/* Quick Info Card */}
-        {(property.address || property.shortDescription) && (
+        {(property.address || shortDescription) && (
           <div className="rounded-xl bg-white border border-slate-200 p-4 space-y-2">
-            {property.shortDescription && (
-              <p className="text-sm text-slate-600">{property.shortDescription}</p>
+            {shortDescription && (
+              <p className="text-sm text-slate-600">{shortDescription}</p>
             )}
             {property.address && (
               <div className="flex items-start gap-2 text-sm text-slate-600">
@@ -259,7 +280,7 @@ export default async function GuideHubPage({
               className="flex items-center justify-center gap-2 w-full rounded-xl bg-green-500 text-white py-3 font-medium transition-colors hover:bg-green-600 active:scale-[0.98]"
             >
               <MessageCircle className="h-5 w-5" />
-              Falar com o Anfitrião
+              {d.common.callHost}
             </a>
           </div>
         </div>
@@ -267,8 +288,8 @@ export default async function GuideHubPage({
 
       {/* Footer */}
       <footer className="py-6 text-center space-y-1 pb-24">
-        <p className="text-xs text-slate-400">Powered by GuiaHóspedes</p>
-        <p className="text-[10px] text-slate-300">Seu guia digital de boas-vindas</p>
+        <p className="text-xs text-slate-400">{d.common.poweredBy}</p>
+        <p className="text-[10px] text-slate-300">{d.common.guideSubtitle}</p>
       </footer>
     </div>
   )

@@ -14,17 +14,9 @@ import {
   GuidePageTemplate,
   PrimaryCard,
 } from '@/components/shared/guide-page-template'
-import { getGuideProperty } from '@/lib/guide-utils'
-
-const typeLabels: Record<string, string> = {
-  GOOGLE_MAPS: 'Google Maps',
-  WHATSAPP: 'WhatsApp',
-  INSTAGRAM: 'Instagram',
-  LISTING: 'Anúncio',
-  MANUAL: 'Manual',
-  VIDEO: 'Vídeo',
-  OTHER: 'Link',
-}
+import { getGuideProperty, buildGuideQuery } from '@/lib/guide-utils'
+import { getLocaleFromSearchParams, getDictionary } from '@/lib/i18n'
+import { getPropertyTranslations, translateField } from '@/lib/translate'
 
 const typeConfig: Record<string, { icon: React.ElementType; color: string; bgColor: string; labelColor: string }> = {
   GOOGLE_MAPS: { icon: MapPin, color: 'text-red-600', bgColor: 'bg-red-50', labelColor: 'text-red-700' },
@@ -41,37 +33,45 @@ export default async function LinksPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ preview?: string }>
+  searchParams: Promise<{ preview?: string; lang?: string }>
 }) {
   const { slug } = await params
-  const { preview } = await searchParams
+  const sp = await searchParams
+  const locale = getLocaleFromSearchParams(sp)
+  const d = getDictionary(locale)
+  const query = buildGuideQuery(sp)
+
   const property = await getGuideProperty({
     slug,
-    allowPreview: preview === '1',
+    allowPreview: sp.preview === '1',
     include: { links: true, contacts: true },
   })
   if (!property || property.links.length === 0) notFound()
 
   const hostContact = property.contacts.find((c: any) => c.role === 'HOST')
-  const previewQuery = preview === '1' ? '?preview=1' : ''
+  const typeLabels = d.links.typeLabels
+  const translations = getPropertyTranslations(property.translations, locale)
 
   return (
     <GuidePageTemplate
       slug={slug}
-      title="Links Úteis"
-      subtitle="Recursos adicionais"
+      title={d.links.title}
+      subtitle={d.links.subtitle}
       icon={Link2}
       iconColor="text-cyan-600"
       iconBgColor="bg-cyan-50"
       propertyName={property.name}
       hostWhatsapp={hostContact?.whatsapp}
-      previewQuery={previewQuery}
+      previewQuery={query}
+      locale={locale}
     >
       <div className="space-y-5">
         <div className="space-y-3">
           {property.links.map((link: any) => {
             const config = typeConfig[link.type] || typeConfig.OTHER
             const Icon = config.icon
+            const linkTranslations = translations.links?.[link.id]
+            const label = translateField(link.label, linkTranslations?.label)
 
             return (
               <a
@@ -85,8 +85,8 @@ export default async function LinksPage({
                   <Icon className={cn('h-5 w-5', config.color)} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-slate-900 text-sm">{link.label}</p>
-                  <p className="text-xs text-slate-500 truncate">{link.url}</p>
+                  <p className="font-semibold text-slate-900 text-sm">{label}</p>
+                  <p className="text-xs text-slate-500">{typeLabels[link.type] || link.type}</p>
                 </div>
                 <ExternalLink className="h-4 w-4 text-slate-400 shrink-0" />
               </a>

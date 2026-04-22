@@ -29,7 +29,9 @@ import {
   PrimaryCard,
   SecondaryCard,
 } from '@/components/shared/guide-page-template'
-import { getGuideProperty } from '@/lib/guide-utils'
+import { getGuideProperty, buildGuideQuery } from '@/lib/guide-utils'
+import { getLocaleFromSearchParams, getDictionary } from '@/lib/i18n'
+import { getPropertyTranslations, translateField, translatePath, getTranslatedLabels } from '@/lib/translate'
 
 // Map device types to semantic icons
 const deviceIconMap: Record<string, LucideIcon> = {
@@ -66,43 +68,15 @@ const deviceIconMap: Record<string, LucideIcon> = {
   OTHER: Tv,
 }
 
-const deviceTypeLabels: Record<string, string> = {
-  TV: 'Televisão',
-  AIR_CONDITIONING: 'Ar-condicionado',
-  REFRIGERATOR: 'Geladeira',
-  COFFEE_MACHINE: 'Cafeteira',
-  STOVE: 'Fogão',
-  MICROWAVE: 'Micro-ondas',
-  WASHING_MACHINE: 'Máquina de lavar',
-  DRYER: 'Secadora',
-  FAN: 'Ventilador',
-  HEATER: 'Aquecedor',
-  HAIR_DRYER: 'Secador de cabelo',
-  IRON: 'Ferro de passar',
-  VACUUM: 'Aspirador',
-  BLENDER: 'Liquidificador',
-  TOASTER: 'Torradeira',
-  WATER_HEATER: 'Aquecedor de água',
-  PURIFIER: 'Purificador de ar',
-  HUMIDIFIER: 'Umidificador',
-  ROUTER: 'Roteador Wi-Fi',
-  SPEAKER: 'Caixa de som',
-  LAMP: 'Iluminação',
-  SAFE: 'Cofre',
-  SHOWER: 'Chuveiro',
-  BATHTUB: 'Banheira',
-  BED: 'Cama',
-  SOFA: 'Sofá',
-  PARKING: 'Estacionamento',
-  UMBRELLA: 'Guarda-sol',
-  GRILL: 'Churrasqueira',
-  POOL: 'Piscina',
-  OTHER: 'Equipamento',
-}
-
-function DeviceCard({ device }: { device: any }) {
+function DeviceCard({ device, locale }: { device: any; locale: string }) {
   const Icon = deviceIconMap[device.type] || Tv
-  const label = deviceTypeLabels[device.type] || device.type
+  const labels = getTranslatedLabels(locale as any).deviceTypeLabels
+  const label = labels[device.type] || device.type
+
+  const translations = getPropertyTranslations(device._parentTranslations, locale as any)
+  const deviceTranslations = translations.devices?.[device.id]
+  const name = translateField(device.name, deviceTranslations?.name)
+  const instructions = translateField(device.instructions, deviceTranslations?.instructions)
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -111,17 +85,17 @@ function DeviceCard({ device }: { device: any }) {
           <Icon className="h-5 w-5 text-purple-600" />
         </div>
         <div className="min-w-0">
-          <p className="font-semibold text-slate-900 text-sm">{device.name}</p>
+          <p className="font-semibold text-slate-900 text-sm">{name}</p>
           <p className="text-[10px] text-slate-500">{label}</p>
         </div>
       </div>
       {device.brand && (
         <p className="text-xs text-slate-500 mb-2">{device.brand}</p>
       )}
-      {device.instructions && (
+      {instructions && (
         <div className="flex items-start gap-2 bg-slate-50 rounded-lg p-3">
           <Info className="h-4 w-4 text-slate-400 mt-0.5 shrink-0" />
-          <p className="text-sm text-slate-600 leading-relaxed">{device.instructions}</p>
+          <p className="text-sm text-slate-600 leading-relaxed">{instructions}</p>
         </div>
       )}
     </div>
@@ -133,31 +107,35 @@ export default async function DevicesPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ preview?: string }>
+  searchParams: Promise<{ preview?: string; lang?: string }>
 }) {
   const { slug } = await params
-  const { preview } = await searchParams
+  const sp = await searchParams
+  const locale = getLocaleFromSearchParams(sp)
+  const d = getDictionary(locale)
+  const query = buildGuideQuery(sp)
+
   const property = await getGuideProperty({
     slug,
-    allowPreview: preview === '1',
+    allowPreview: sp.preview === '1',
     include: { devices: true, contacts: true },
   })
   if (!property || property.devices.length === 0) notFound()
 
   const hostContact = property.contacts.find((c: any) => c.role === 'HOST')
-  const previewQuery = preview === '1' ? '?preview=1' : ''
 
   return (
     <GuidePageTemplate
       slug={slug}
-      title="Equipamentos"
-      subtitle="Tudo que você pode usar"
+      title={d.devices.title}
+      subtitle={d.devices.subtitle}
       icon={Tv}
       iconColor="text-purple-600"
       iconBgColor="bg-purple-50"
       propertyName={property.name}
       hostWhatsapp={hostContact?.whatsapp}
-      previewQuery={previewQuery}
+      previewQuery={query}
+      locale={locale}
     >
       <div className="space-y-5">
         {/* Intro */}
@@ -165,7 +143,7 @@ export default async function DevicesPage({
           <div className="flex items-start gap-3">
             <Info className="h-5 w-5 text-purple-600 shrink-0 mt-0.5" />
             <p className="text-sm text-purple-700 leading-relaxed">
-              Sinta-se em casa! Abaixo estão os equipamentos disponíveis e instruções de uso. Em caso de dúvida, entre em contato com o anfitrião.
+              {d.devices.intro}
             </p>
           </div>
         </div>
@@ -173,7 +151,7 @@ export default async function DevicesPage({
         {/* Devices */}
         <div className="space-y-3">
           {property.devices.map((device: any) => (
-            <DeviceCard key={device.id} device={device} />
+            <DeviceCard key={device.id} device={{ ...device, _parentTranslations: property.translations }} locale={locale} />
           ))}
         </div>
       </div>

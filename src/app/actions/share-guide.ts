@@ -4,7 +4,7 @@ import { db } from '@/lib/db'
 
 interface ShareGuideInput {
   guideId: string
-  channel: 'WHATSAPP' | 'EMAIL' | 'LINK'
+  channel: 'WHATSAPP' | 'EMAIL' | 'LINK' | 'QR'
   recipient?: string
   message?: string
 }

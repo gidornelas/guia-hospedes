@@ -40,9 +40,27 @@ export async function getGuideProperty(options: GuideFetchOptions) {
 
   // Em modo preview (dashboard), ignora verificação de status
   if (allowPreview) {
-    return guide.property
+    return { ...guide.property, guideId: guide.id, guideStatus: guide.status }
   }
 
   // Modo público: apenas guias publicados
-  return guide.status === 'PUBLISHED' ? guide.property : null
+  return guide.status === 'PUBLISHED'
+    ? { ...guide.property, guideId: guide.id, guideStatus: guide.status }
+    : null
+}
+
+export async function getGuideIdBySlug(slug: string) {
+  const guide = await db.guide.findUnique({
+    where: { slug: `guia-${slug}` },
+    select: { id: true, status: true },
+  })
+  return guide
+}
+
+export function buildGuideQuery(searchParams: { preview?: string; lang?: string }): string {
+  const params = new URLSearchParams()
+  if (searchParams.preview === '1') params.set('preview', '1')
+  if (searchParams.lang) params.set('lang', searchParams.lang)
+  const qs = params.toString()
+  return qs ? `?${qs}` : ''
 }

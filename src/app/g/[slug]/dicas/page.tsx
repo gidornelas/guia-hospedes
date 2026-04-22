@@ -5,7 +5,6 @@ import {
   Navigation,
   ExternalLink,
   Info,
-  Phone,
   Instagram,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -13,24 +12,9 @@ import {
   GuidePageTemplate,
   PrimaryCard,
 } from '@/components/shared/guide-page-template'
-import { getGuideProperty } from '@/lib/guide-utils'
-
-const categoryLabels: Record<string, string> = {
-  RESTAURANT: 'Restaurante',
-  CAFE: 'Café',
-  BAR: 'Bar',
-  BAKERY: 'Padaria',
-  MARKET: 'Mercado',
-  PHARMACY: 'Farmácia',
-  SHOPPING: 'Shopping',
-  NIGHTCLUB: 'Boate',
-  ATTRACTION: 'Atração',
-  BEACH: 'Praia',
-  PARK: 'Parque',
-  GYM: 'Academia',
-  HOSPITAL: 'Hospital',
-  TRANSPORT: 'Transporte',
-}
+import { getGuideProperty, buildGuideQuery } from '@/lib/guide-utils'
+import { getLocaleFromSearchParams, getDictionary } from '@/lib/i18n'
+import { getPropertyTranslations, translateField, translatePath, getTranslatedLabels } from '@/lib/translate'
 
 const categoryColors: Record<string, { bg: string; text: string; border: string; iconBg: string }> = {
   RESTAURANT: { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200', iconBg: 'bg-orange-100' },
@@ -54,18 +38,24 @@ export default async function TipsPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ preview?: string }>
+  searchParams: Promise<{ preview?: string; lang?: string }>
 }) {
   const { slug } = await params
-  const { preview } = await searchParams
+  const sp = await searchParams
+  const locale = getLocaleFromSearchParams(sp)
+  const d = getDictionary(locale)
+  const query = buildGuideQuery(sp)
+
   const property = await getGuideProperty({
     slug,
-    allowPreview: preview === '1',
+    allowPreview: sp.preview === '1',
     include: { recommendations: true, contacts: true },
   })
   if (!property || property.recommendations.length === 0) notFound()
 
   const hostContact = property.contacts.find((c: any) => c.role === 'HOST')
+  const categoryLabels = getTranslatedLabels(locale).categoryLabels
+  const translations = getPropertyTranslations(property.translations, locale)
 
   // Group by category
   const grouped: Record<string, any[]> = property.recommendations.reduce((acc: any, rec: any) => {
@@ -74,19 +64,19 @@ export default async function TipsPage({
     acc[cat].push(rec)
     return acc
   }, {})
-  const previewQuery = preview === '1' ? '?preview=1' : ''
 
   return (
     <GuidePageTemplate
       slug={slug}
-      title="Dicas da Região"
-      subtitle="Recomendações do anfitrião"
+      title={d.tips.title}
+      subtitle={d.tips.subtitle}
       icon={UtensilsCrossed}
       iconColor="text-orange-600"
       iconBgColor="bg-orange-50"
       propertyName={property.name}
       hostWhatsapp={hostContact?.whatsapp}
-      previewQuery={previewQuery}
+      previewQuery={query}
+      locale={locale}
     >
       <div className="space-y-8">
         {/* Intro */}
@@ -94,7 +84,7 @@ export default async function TipsPage({
           <div className="flex items-start gap-3">
             <Info className="h-5 w-5 text-orange-600 shrink-0 mt-0.5" />
             <p className="text-sm text-orange-700 leading-relaxed">
-              Estas são recomendações pessoais do anfitrião. Locais testados e aprovados para você aproveitar ao máximo sua estadia.
+              {d.tips.intro}
             </p>
           </div>
         </div>
@@ -108,91 +98,97 @@ export default async function TipsPage({
                 <span className={cn('text-xs font-semibold px-2.5 py-1 rounded-full', colors.bg, colors.text, colors.border)}>
                   {categoryLabels[category] || category}
                 </span>
-                <span className="text-xs text-slate-400">{items.length} recomendação{items.length > 1 ? 'ões' : ''}</span>
+                <span className="text-xs text-slate-400">{items.length} {items.length > 1 ? d.tips.recommendations : d.tips.recommendation}</span>
               </div>
 
               <div className="space-y-3">
-                {items.map((item) => (
-                  <div key={item.id} className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-                    {/* Foto */}
-                    {item.image && (
-                      <div className="h-40 overflow-hidden">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="h-full w-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                    )}
-                    <div className="p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-slate-900 text-sm">{item.name}</p>
-                          {item.description && (
-                            <p className="text-sm text-slate-500 mt-1 leading-relaxed">{item.description}</p>
-                          )}
+                {items.map((item) => {
+                  const recTranslations = translations.recommendations?.[item.id]
+                  const name = translateField(item.name, recTranslations?.name)
+                  const description = translateField(item.description, recTranslations?.description)
 
-                          <div className="flex flex-col gap-1 mt-2">
-                            {item.address && (
-                              <div className="flex items-start gap-1 text-xs text-slate-500">
-                                <MapPin className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-                                <span>{item.address}</span>
-                              </div>
+                  return (
+                    <div key={item.id} className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                      {/* Foto */}
+                      {item.image && (
+                        <div className="h-40 overflow-hidden">
+                          <img
+                            src={item.image}
+                            alt={name || undefined}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                          />
+                        </div>
+                      )}
+                      <div className="p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-slate-900 text-sm">{name}</p>
+                            {description && (
+                              <p className="text-sm text-slate-500 mt-1 leading-relaxed">{description}</p>
                             )}
-                            {item.distance && (
-                              <div className="flex items-center gap-1 text-xs text-slate-500">
-                                <MapPin className="h-3.5 w-3.5" />
-                                <span>{item.distance}</span>
-                              </div>
-                            )}
+
+                            <div className="flex flex-col gap-1 mt-2">
+                              {item.address && (
+                                <div className="flex items-start gap-1 text-xs text-slate-500">
+                                  <MapPin className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                                  <span>{item.address}</span>
+                                </div>
+                              )}
+                              {item.distance && (
+                                <div className="flex items-center gap-1 text-xs text-slate-500">
+                                  <MapPin className="h-3.5 w-3.5" />
+                                  <span>{item.distance}</span>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      {/* Actions */}
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        {item.mapUrl && (
-                          <a
-                            href={item.mapUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
-                          >
-                            <Navigation className="h-3.5 w-3.5" />
-                            Ver no Maps
-                          </a>
-                        )}
-                        {item.instagram && (
-                          <a
-                            href={
-                              item.instagram.startsWith('http')
-                                ? item.instagram
-                                : `https://instagram.com/${item.instagram.replace('@', '')}`
-                            }
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 rounded-lg bg-pink-50 px-3 py-2 text-xs font-medium text-pink-700 hover:bg-pink-100 transition-colors"
-                          >
-                            <Instagram className="h-3.5 w-3.5" />
-                            Instagram
-                          </a>
-                        )}
-                        {item.link && !item.mapUrl && (
-                          <a
-                            href={item.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-200 transition-colors"
-                          >
-                            <ExternalLink className="h-3.5 w-3.5" />
-                            Ver mais
-                          </a>
-                        )}
+                        {/* Actions */}
+                        <div className="flex flex-wrap gap-2 mt-3">
+                          {item.mapUrl && (
+                            <a
+                              href={item.mapUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+                            >
+                              <Navigation className="h-3.5 w-3.5" />
+                              {d.common.seeOnMaps}
+                            </a>
+                          )}
+                          {item.instagram && (
+                            <a
+                              href={
+                                item.instagram.startsWith('http')
+                                  ? item.instagram
+                                  : `https://instagram.com/${item.instagram.replace('@', '')}`
+                              }
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-pink-50 px-3 py-2 text-xs font-medium text-pink-700 hover:bg-pink-100 transition-colors"
+                            >
+                              <Instagram className="h-3.5 w-3.5" />
+                              {d.common.seeOnInstagram}
+                            </a>
+                          )}
+                          {item.link && !item.mapUrl && (
+                            <a
+                              href={item.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-200 transition-colors"
+                            >
+                              <ExternalLink className="h-3.5 w-3.5" />
+                              {d.common.viewMore}
+                            </a>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           )

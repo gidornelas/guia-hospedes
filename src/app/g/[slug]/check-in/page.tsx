@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { MapPin, Clock, KeyRound, Copy, Navigation } from 'lucide-react'
+import { MapPin, Clock, KeyRound, Navigation } from 'lucide-react'
 import { CopyButton } from '@/components/shared/copy-button'
 import {
   GuidePageTemplate,
@@ -9,38 +9,50 @@ import {
   TimelineItem,
   ActionButton,
 } from '@/components/shared/guide-page-template'
-import { getGuideProperty } from '@/lib/guide-utils'
+import { getGuideProperty, buildGuideQuery } from '@/lib/guide-utils'
+import { getLocaleFromSearchParams, getDictionary } from '@/lib/i18n'
+import { getPropertyTranslations, translateField, translatePath } from '@/lib/translate'
 
 export default async function CheckInPage({
   params,
   searchParams,
 }: {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ preview?: string }>
+  searchParams: Promise<{ preview?: string; lang?: string }>
 }) {
   const { slug } = await params
-  const { preview } = await searchParams
+  const sp = await searchParams
+  const locale = getLocaleFromSearchParams(sp)
+  const d = getDictionary(locale)
+  const query = buildGuideQuery(sp)
+
   const property = await getGuideProperty({
     slug,
-    allowPreview: preview === '1',
+    allowPreview: sp.preview === '1',
     include: { checkIn: true, contacts: true },
   })
   if (!property || !property.checkIn) notFound()
 
   const hostContact = property.contacts.find((c: any) => c.role === 'HOST')
-  const previewQuery = preview === '1' ? '?preview=1' : ''
+  const translations = getPropertyTranslations(property.translations, locale)
+  const t = (path: string) => translatePath(translations, path)
+
+  const instructions = translateField(property.checkIn.instructions, t('checkIn.instructions'))
+  const accessMethod = translateField(property.checkIn.accessMethod, t('checkIn.accessMethod'))
+  const notes = translateField(property.checkIn.notes, t('checkIn.notes'))
 
   return (
     <GuidePageTemplate
       slug={slug}
-      title="Check-in"
-      subtitle="Sua chegada ao imóvel"
+      title={d.checkIn.title}
+      subtitle={d.checkIn.subtitle}
       icon={MapPin}
       iconColor="text-blue-600"
       iconBgColor="bg-blue-50"
       propertyName={property.name}
       hostWhatsapp={hostContact?.whatsapp}
-      previewQuery={previewQuery}
+      previewQuery={query}
+      locale={locale}
     >
       <div className="space-y-5">
         {/* Primary: Horário */}
@@ -50,14 +62,14 @@ export default async function CheckInPage({
               <Clock className="h-6 w-6 text-blue-600" />
             </div>
             <InfoRow
-              label="Horário de Check-in"
-              value={property.checkIn.time || 'A combinar com o anfitrião'}
+              label={d.checkIn.checkInTime}
+              value={property.checkIn.time || d.checkIn.timeToBeArranged}
               highlight
             />
           </div>
           {property.checkIn.time && (
             <p className="text-xs text-slate-500 bg-slate-50 rounded-lg p-3">
-              Se precisar chegar fora deste horário, entre em contato com o anfitrião com antecedência.
+              {d.checkIn.contactHostIfLate}
             </p>
           )}
         </PrimaryCard>
@@ -65,44 +77,44 @@ export default async function CheckInPage({
         {/* Timeline */}
         <SecondaryCard>
           <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-4">
-            Passo a passo
+            {d.common.stepByStep}
           </p>
           <TimelineItem
             step={1}
-            title="Antes de chegar"
-            description="Confirme seu horário de chegada e avise o anfitrião se houver alguma mudança."
+            title={d.checkIn.beforeArrival}
+            description={d.checkIn.beforeArrivalDesc}
             isActive
           />
           <TimelineItem
             step={2}
-            title="Na chegada"
-            description={property.checkIn.accessMethod || 'Procure o anfitrião ou siga as instruções de acesso.'}
+            title={d.checkIn.onArrival}
+            description={accessMethod || d.checkIn.onArrivalFallback}
             isActive
           />
           <TimelineItem
             step={3}
-            title="Durante a estadia"
-            description="Aproveite! Se precisar de algo, o anfitrião está a um toque de distância."
+            title={d.checkIn.duringStay}
+            description={d.checkIn.duringStayDesc}
             isLast
           />
         </SecondaryCard>
 
         {/* Método de Acesso */}
-        {property.checkIn.accessMethod && (
+        {accessMethod && (
           <PrimaryCard>
             <div className="flex items-center gap-3 mb-3">
               <div className="h-10 w-10 rounded-lg bg-amber-50 flex items-center justify-center">
                 <KeyRound className="h-5 w-5 text-amber-600" />
               </div>
-              <InfoRow label="Método de Acesso" value={property.checkIn.accessMethod} />
+              <InfoRow label={d.checkIn.accessMethod} value={accessMethod} />
             </div>
           </PrimaryCard>
         )}
 
         {/* Instruções */}
-        {property.checkIn.instructions && (
+        {instructions && (
           <PrimaryCard>
-            <InfoRow label="Instruções de Chegada" value={property.checkIn.instructions} />
+            <InfoRow label={d.checkIn.arrivalInstructions} value={instructions} />
           </PrimaryCard>
         )}
 
@@ -110,12 +122,12 @@ export default async function CheckInPage({
         {property.address && (
           <PrimaryCard>
             <div className="space-y-3">
-              <InfoRow label="Endereço" value={property.address} />
+              <InfoRow label={d.checkIn.address} value={property.address} />
               <div className="flex gap-2">
                 <ActionButton
                   href={`https://maps.google.com/?q=${encodeURIComponent(property.address)}`}
                   icon={Navigation}
-                  label="Abrir no Maps"
+                  label={d.common.openInMaps}
                   color="blue"
                 />
               </div>
@@ -128,10 +140,10 @@ export default async function CheckInPage({
         )}
 
         {/* Observações */}
-        {property.checkIn.notes && (
+        {notes && (
           <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
-            <p className="text-sm font-medium text-amber-800 mb-1">Observação importante</p>
-            <p className="text-sm text-amber-700 leading-relaxed">{property.checkIn.notes}</p>
+            <p className="text-sm font-medium text-amber-800 mb-1">{d.common.importantNote}</p>
+            <p className="text-sm text-amber-700 leading-relaxed">{notes}</p>
           </div>
         )}
       </div>

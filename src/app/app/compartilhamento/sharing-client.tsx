@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -37,12 +37,16 @@ import {
   Filter,
   Eye,
   CheckCircle2,
+  Download,
+  Image as ImageIcon,
   X,
 } from 'lucide-react'
 import { shareGuide } from '@/app/actions/share-guide'
 import QRCode from 'react-qr-code'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { TEMPLATE_TYPES } from '@/lib/constants'
+import { copyQrSvg, downloadQrSvg } from '@/lib/qr-code'
 
 interface PropertyWithGuide {
   id: string
@@ -55,6 +59,7 @@ interface MessageTemplate {
   id: string
   name: string
   body: string
+  type: string
 }
 
 interface ShareLog {
@@ -117,6 +122,7 @@ export default function SharingClient({ properties, templates, initialLogs, appU
   const [logs, setLogs] = useState<ShareLog[]>(initialLogs)
   const [filterChannel, setFilterChannel] = useState('')
   const [filterProperty, setFilterProperty] = useState('')
+  const qrCodeRef = useRef<HTMLDivElement | null>(null)
 
   const selectedProperty = useMemo(
     () => properties.find((p) => p.id === selectedPropertyId),
@@ -161,6 +167,46 @@ export default function SharingClient({ properties, templates, initialLogs, appU
   const handleCopyMessage = async () => {
     await navigator.clipboard.writeText(generatedMessage)
     toast.success('Mensagem copiada!')
+  }
+
+  const registerQrShare = async () => {
+    if (!selectedProperty?.guide) return
+
+    await shareGuide({
+      guideId: selectedProperty.guide.id,
+      channel: 'QR',
+      message: guideUrl,
+    })
+  }
+
+  const handleDownloadQr = async () => {
+    const svg = qrCodeRef.current?.querySelector('svg')
+
+    if (!svg || !selectedProperty) {
+      toast.error('QR Code indisponivel no momento')
+      return
+    }
+
+    downloadQrSvg(svg, `qr-guia-${selectedProperty.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.svg`)
+    await registerQrShare()
+    toast.success('QR Code baixado com sucesso!')
+  }
+
+  const handleCopyQr = async () => {
+    const svg = qrCodeRef.current?.querySelector('svg')
+
+    if (!svg) {
+      toast.error('QR Code indisponivel no momento')
+      return
+    }
+
+    try {
+      await copyQrSvg(svg)
+      await registerQrShare()
+      toast.success('QR Code copiado como imagem SVG!')
+    } catch {
+      toast.error('Seu navegador nao suporta copiar imagem do QR diretamente')
+    }
   }
 
   const handleWhatsApp = async () => {
@@ -353,12 +399,37 @@ export default function SharingClient({ properties, templates, initialLogs, appU
                       <SelectValue placeholder="Escolha um template..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Personalizado</SelectItem>
-                      {templates.map((t) => (
-                        <SelectItem key={t.id} value={t.id}>
-                          {t.name}
-                        </SelectItem>
-                      ))}
+                      <SelectItem value="">Padrão (sem template)</SelectItem>
+                      {Object.entries(TEMPLATE_TYPES).map(([type, label]) => {
+                        const typeTemplates = templates.filter((t) => t.type === type)
+                        if (typeTemplates.length === 0) return null
+                        return (
+                          <div key={type}>
+                            <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                              {label}
+                            </div>
+                            {typeTemplates.map((t) => (
+                              <SelectItem key={t.id} value={t.id}>
+                                {t.name}
+                              </SelectItem>
+                            ))}
+                          </div>
+                        )
+                      })}
+                      {templates.filter((t) => !t.type || !TEMPLATE_TYPES[t.type as keyof typeof TEMPLATE_TYPES]).length > 0 && (
+                        <div>
+                          <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                            Outros
+                          </div>
+                          {templates
+                            .filter((t) => !t.type || !TEMPLATE_TYPES[t.type as keyof typeof TEMPLATE_TYPES])
+                            .map((t) => (
+                              <SelectItem key={t.id} value={t.id}>
+                                {t.name}
+                              </SelectItem>
+                            ))}
+                        </div>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -461,21 +532,31 @@ export default function SharingClient({ properties, templates, initialLogs, appU
                       <span className="text-[10px] opacity-80 text-center leading-tight">Visualizar</span>
                     </div>
                   </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>QR Code do Guia</DialogTitle>
-                    </DialogHeader>
-                    <div className="flex flex-col items-center gap-4 py-4">
-                      <div className="rounded-xl border p-4 bg-white">
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>QR Code do Guia</DialogTitle>
+                      </DialogHeader>
+                      <div className="flex flex-col items-center gap-4 py-4">
+                      <div ref={qrCodeRef} className="rounded-xl border p-4 bg-white">
                         <QRCode value={guideUrl} size={240} />
                       </div>
                       <p className="text-sm text-muted-foreground text-center break-all max-w-xs">
                         {guideUrl}
                       </p>
-                      <Button variant="outline" onClick={handleCopyLink} className="gap-2">
-                        <Copy className="h-4 w-4" />
-                        Copiar link
-                      </Button>
+                      <div className="flex w-full flex-col gap-2 sm:flex-row">
+                        <Button variant="outline" onClick={handleCopyLink} className="gap-2 sm:flex-1">
+                          <Copy className="h-4 w-4" />
+                          Copiar link
+                        </Button>
+                        <Button variant="outline" onClick={handleCopyQr} className="gap-2 sm:flex-1">
+                          <ImageIcon className="h-4 w-4" />
+                          Copiar QR
+                        </Button>
+                        <Button variant="outline" onClick={handleDownloadQr} className="gap-2 sm:flex-1">
+                          <Download className="h-4 w-4" />
+                          Baixar SVG
+                        </Button>
+                      </div>
                     </div>
                   </DialogContent>
                 </Dialog>

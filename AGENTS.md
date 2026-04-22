@@ -9,12 +9,27 @@
 
 ## Estrutura atual do projeto
 
-- Stack: Next.js 16 + TypeScript + Tailwind CSS 4 + shadcn/ui + Prisma ORM + PostgreSQL
+- Stack: Next.js 16 + TypeScript + Tailwind CSS 4 + shadcn/ui (base-ui) + Prisma ORM + PostgreSQL
 - Interface em portugues do Brasil
 - Banco de dados: PostgreSQL
 - Autenticacao: fluxo manual com JWT em cookie HTTP-only
 - Auth implementado: login por senha, cadastro real, Google OAuth, lembrar sessao e recuperacao de senha
 - Variaveis de ambiente: leitura direta de `process.env`
+
+## Funcionalidades implementadas
+
+- CRUD completo de imoveis com guia digital
+- Publicacao/despublicacao de guia com slug publico
+- Compartilhamento via WhatsApp, E-mail, Link e QR Code
+- QR Code gerado com `react-qr-code`
+- Modelos de mensagem personalizaveis (templates)
+- Analytics com dados reais (acessos, compartilhamentos, canais)
+- Sistema de reservas (booking) com check-in/check-out
+- Geracao de PDF do guia com `@react-pdf/renderer`
+- **Multilinguismo nas guias (PT/EN/ES)** com seletor de idioma, traducao automatica (DeepL/Google) e editor manual
+- Landing page completa (14 componentes)
+- Tela de configuracoes da organizacao
+- Integracoes (Airbnb, WhatsApp, E-mail, Storage)
 
 ## Comandos mais usados
 

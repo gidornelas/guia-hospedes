@@ -8,41 +8,53 @@ import {
   InfoRow,
   TimelineItem,
 } from '@/components/shared/guide-page-template'
-import { getGuideProperty } from '@/lib/guide-utils'
+import { getGuideProperty, buildGuideQuery } from '@/lib/guide-utils'
+import { getLocaleFromSearchParams, getDictionary } from '@/lib/i18n'
+import { getPropertyTranslations, translateField, translatePath } from '@/lib/translate'
 
 export default async function CheckOutPage({
   params,
   searchParams,
 }: {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ preview?: string }>
+  searchParams: Promise<{ preview?: string; lang?: string }>
 }) {
   const { slug } = await params
-  const { preview } = await searchParams
+  const sp = await searchParams
+  const locale = getLocaleFromSearchParams(sp)
+  const d = getDictionary(locale)
+  const query = buildGuideQuery(sp)
+
   const property = await getGuideProperty({
     slug,
-    allowPreview: preview === '1',
+    allowPreview: sp.preview === '1',
     include: { checkOut: true, contacts: true },
   })
   if (!property || !property.checkOut) notFound()
 
   const hostContact = property.contacts.find((c: any) => c.role === 'HOST')
-  const checklistItems = property.checkOut.exitChecklist
-    ? property.checkOut.exitChecklist.split('.').filter(Boolean)
+  const translations = getPropertyTranslations(property.translations, locale)
+  const t = (path: string) => translatePath(translations, path)
+
+  const instructions = translateField(property.checkOut.instructions, t('checkOut.instructions'))
+  const exitChecklist = translateField(property.checkOut.exitChecklist, t('checkOut.exitChecklist'))
+
+  const checklistItems = exitChecklist
+    ? exitChecklist.split('.').filter(Boolean)
     : []
-  const previewQuery = preview === '1' ? '?preview=1' : ''
 
   return (
     <GuidePageTemplate
       slug={slug}
-      title="Check-out"
-      subtitle="Sua saída do imóvel"
+      title={d.checkOut.title}
+      subtitle={d.checkOut.subtitle}
       icon={MapPin}
       iconColor="text-indigo-600"
       iconBgColor="bg-indigo-50"
       propertyName={property.name}
       hostWhatsapp={hostContact?.whatsapp}
-      previewQuery={previewQuery}
+      previewQuery={query}
+      locale={locale}
     >
       <div className="space-y-5">
         {/* Primary: Horário */}
@@ -52,14 +64,14 @@ export default async function CheckOutPage({
               <Clock className="h-6 w-6 text-indigo-600" />
             </div>
             <InfoRow
-              label="Horário de Check-out"
-              value={property.checkOut.time || 'A combinar com o anfitrião'}
+              label={d.checkOut.checkOutTime}
+              value={property.checkOut.time || d.checkOut.timeToBeArranged}
               highlight
             />
           </div>
           {property.checkOut.time && (
             <p className="text-xs text-slate-500 bg-slate-50 rounded-lg p-3">
-              Solicite uma saída tardia com antecedência. O anfitrião pode cobrar uma taxa adicional.
+              {d.checkOut.lateCheckoutNote}
             </p>
           )}
         </PrimaryCard>
@@ -67,24 +79,24 @@ export default async function CheckOutPage({
         {/* Timeline */}
         <SecondaryCard>
           <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-4">
-            Passo a passo
+            {d.common.stepByStep}
           </p>
           <TimelineItem
             step={1}
-            title="No dia da saída"
+            title={d.checkOut.onCheckoutDay}
             description="Organize suas malas com antecedência e verifique se não esqueceu nada."
             isActive
           />
           <TimelineItem
             step={2}
-            title="Antes de sair"
-            description="Siga o checklist ao lado para deixar o imóvel em ordem."
+            title={d.checkOut.beforeLeaving}
+            description={d.checkOut.beforeLeavingDesc}
             isActive
           />
           <TimelineItem
             step={3}
-            title="Após a saída"
-            description="Feche portas e janelas, e devolva as chaves conforme combinado."
+            title={d.checkOut.afterLeaving}
+            description={d.checkOut.afterLeavingDesc}
             isLast
           />
         </SecondaryCard>
@@ -97,8 +109,8 @@ export default async function CheckOutPage({
                 <ClipboardList className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="font-semibold text-slate-900">Checklist de Saída</p>
-                <p className="text-xs text-slate-500">Toque para marcar o que já fez</p>
+                <p className="font-semibold text-slate-900">{d.checkOut.exitChecklist}</p>
+                <p className="text-xs text-slate-500">{d.checkOut.checklistHint}</p>
               </div>
             </div>
             <InteractiveChecklist
@@ -109,9 +121,9 @@ export default async function CheckOutPage({
         )}
 
         {/* Instruções */}
-        {property.checkOut.instructions && (
+        {instructions && (
           <PrimaryCard>
-            <InfoRow label="Instruções de Saída" value={property.checkOut.instructions} />
+            <InfoRow label={d.checkOut.exitInstructions} value={instructions} />
           </PrimaryCard>
         )}
       </div>

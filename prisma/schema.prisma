@@ -90,6 +90,23 @@ enum SyncStatus {
   FAILED
 }
 
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CHECKED_IN
+  CHECKED_OUT
+  CANCELLED
+}
+
+enum ReservationSource {
+  AIRBNB
+  BOOKING
+  DIRECT
+  WHATSAPP
+  EMAIL
+  OTHER
+}
+
 enum DeviceType {
   AC
   TV
@@ -192,6 +209,7 @@ model Property {
   slug             String         @unique
   status           PropertyStatus @default(DRAFT)
   coverImage       String?
+  translations     Json?
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
@@ -207,6 +225,7 @@ model Property {
   media           PropertyMedia[]
   guide           Guide?
   airbnbMappings  AirbnbPropertyMapping[]
+  reservations    Reservation[]
 
   @@map("properties")
 }
@@ -361,6 +380,7 @@ model Guide {
   property    Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   versions    GuideVersion[]
   shareLogs   ShareLog[]
+  accesses    GuideAccess[]
 
   @@map("guides")
 }
@@ -467,4 +487,38 @@ model SyncLog {
   integration Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
 
   @@map("sync_logs")
+}
+
+model GuideAccess {
+  id          String   @id @default(uuid())
+  guideId     String
+  accessedAt  DateTime @default(now())
+  deviceType  String?
+  userAgent   String?
+  referrer    String?
+
+  guide Guide @relation(fields: [guideId], references: [id], onDelete: Cascade)
+
+  @@map("guide_access")
+}
+
+model Reservation {
+  id             String            @id @default(uuid())
+  propertyId     String
+  guestName      String
+  guestEmail     String?
+  guestPhone     String?
+  checkInDate    DateTime
+  checkOutDate   DateTime
+  numberOfGuests Int               @default(1)
+  status         ReservationStatus @default(CONFIRMED)
+  source         ReservationSource @default(DIRECT)
+  totalAmount    Float?
+  notes          String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("reservations")
 }

@@ -34,11 +34,13 @@ import {
   List,
   CheckCircle2,
   FileEdit,
+  Share2,
 } from 'lucide-react'
 import { PROPERTY_STATUS, GUIDE_STATUS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { PageHeader } from '@/components/shared/page-header'
 import { EmptyState } from '@/components/shared/empty-state'
+import { ShareModal } from '@/components/shared/share-modal'
 
 interface Property {
   id: string
@@ -49,19 +51,32 @@ interface Property {
   status: string
   type: string
   coverImage: string | null
-  guide: { status: string } | null
+  guide: { id: string; status: string; slug: string } | null
+}
+
+interface MessageTemplate {
+  id: string
+  name: string
+  body: string
+  type: string
 }
 
 interface PropertiesClientProps {
   properties: Property[]
+  templates: MessageTemplate[]
+  appUrl: string
 }
 
 function PropertyCard({
   property,
   compact = false,
+  templates,
+  appUrl,
 }: {
   property: Property
   compact?: boolean
+  templates: MessageTemplate[]
+  appUrl: string
 }) {
   const statusConfig = PROPERTY_STATUS[property.status as keyof typeof PROPERTY_STATUS]
   const guideStatus = property.guide
@@ -132,13 +147,36 @@ function PropertyCard({
               Editar
             </Button>
           </Link>
+          {property.guide && (
+            <div className="sm:col-span-2">
+              <ShareModal
+                propertyId={property.id}
+                propertyName={property.name}
+                guideId={property.guide.id}
+                guideSlug={property.guide.slug}
+                guideStatus={property.guide.status}
+                appUrl={appUrl}
+                templates={templates}
+                trigger={
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full gap-1 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                  >
+                    <Share2 className="h-3.5 w-3.5" />
+                    Compartilhar
+                  </Button>
+                }
+              />
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
   )
 }
 
-export default function PropertiesClient({ properties }: PropertiesClientProps) {
+export default function PropertiesClient({ properties, templates, appUrl }: PropertiesClientProps) {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table')
@@ -271,7 +309,7 @@ export default function PropertiesClient({ properties }: PropertiesClientProps) 
             <>
               <div className="grid gap-3 lg:hidden">
                 {filteredProperties.map((property) => (
-                  <PropertyCard key={property.id} property={property} compact />
+                  <PropertyCard key={property.id} property={property} compact templates={templates} appUrl={appUrl} />
                 ))}
               </div>
 
@@ -369,11 +407,27 @@ export default function PropertiesClient({ properties }: PropertiesClientProps) 
                                 </Button>
                               </Link>
                               {property.guide && (
-                                <Link href={`/app/imoveis/${property.id}/preview`}>
-                                  <Button variant="ghost" size="icon" title="Preview">
-                                    <BookOpen className="h-4 w-4" />
-                                  </Button>
-                                </Link>
+                                <>
+                                  <Link href={`/app/imoveis/${property.id}/preview`}>
+                                    <Button variant="ghost" size="icon" title="Preview">
+                                      <BookOpen className="h-4 w-4" />
+                                    </Button>
+                                  </Link>
+                                  <ShareModal
+                                    propertyId={property.id}
+                                    propertyName={property.name}
+                                    guideId={property.guide.id}
+                                    guideSlug={property.guide.slug}
+                                    guideStatus={property.guide.status}
+                                    appUrl={appUrl}
+                                    templates={templates}
+                                    trigger={
+                                      <Button variant="ghost" size="icon" title="Compartilhar">
+                                        <Share2 className="h-4 w-4" />
+                                      </Button>
+                                    }
+                                  />
+                                </>
                               )}
                             </div>
                           </TableCell>
@@ -387,7 +441,7 @@ export default function PropertiesClient({ properties }: PropertiesClientProps) 
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {filteredProperties.map((property) => (
-                <PropertyCard key={property.id} property={property} />
+                <PropertyCard key={property.id} property={property} templates={templates} appUrl={appUrl} />
               ))}
             </div>
           )}

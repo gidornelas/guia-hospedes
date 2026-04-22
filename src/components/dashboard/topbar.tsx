@@ -19,30 +19,74 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { DASHBOARD_NAV } from '@/lib/constants'
 import { NavLink, LogoutButton } from '@/components/dashboard/sidebar'
 
-function getBreadcrumbs(pathname: string) {
-  const parts = pathname.split('/').filter(Boolean)
-  const breadcrumbs: { label: string; href?: string }[] = []
+interface BreadcrumbItem {
+  label: string
+  href?: string
+}
 
-  if (parts[0] === 'app') {
-    breadcrumbs.push({ label: 'Dashboard', href: '/app' })
+function getBreadcrumbs(pathname: string): BreadcrumbItem[] {
+  const parts = pathname.split('/').filter(Boolean)
+  const breadcrumbs: BreadcrumbItem[] = []
+
+  if (parts[0] !== 'app') {
+    return breadcrumbs
   }
 
+  breadcrumbs.push({ label: 'Dashboard', href: '/app' })
+
   if (parts[1] === 'imoveis') {
-    breadcrumbs.push({ label: 'Imóveis', href: '/app/imoveis' })
-    if (parts[2] && parts[2] !== 'novo') {
-      breadcrumbs.push({ label: 'Detalhes' })
-    }
+    breadcrumbs.push({ label: 'Imoveis', href: '/app/imoveis' })
+
     if (parts[2] === 'novo') {
-      breadcrumbs.push({ label: 'Novo Imóvel' })
+      breadcrumbs.push({ label: 'Novo imovel' })
+      return breadcrumbs
     }
+
+    if (parts[2]) {
+      breadcrumbs.push({ label: 'Detalhes', href: `/app/imoveis/${parts[2]}` })
+
+      if (parts[3] === 'editar') {
+        breadcrumbs.push({ label: 'Editar imovel' })
+      }
+
+      if (parts[3] === 'preview') {
+        breadcrumbs.push({ label: 'Preview do guia' })
+      }
+    }
+
+    return breadcrumbs
+  }
+
+  if (parts[1] === 'reservas') {
+    breadcrumbs.push({ label: 'Reservas', href: '/app/reservas' })
+
+    if (parts[2] === 'novo') {
+      breadcrumbs.push({ label: 'Nova reserva' })
+      return breadcrumbs
+    }
+
+    if (parts[2] === 'calendario') {
+      breadcrumbs.push({ label: 'Calendario' })
+      return breadcrumbs
+    }
+
+    if (parts[2]) {
+      breadcrumbs.push({ label: 'Detalhes da reserva', href: `/app/reservas/${parts[2]}` })
+
+      if (parts[3] === 'editar') {
+        breadcrumbs.push({ label: 'Editar reserva' })
+      }
+    }
+
+    return breadcrumbs
   }
 
   if (parts[1] === 'guias') breadcrumbs.push({ label: 'Guias' })
   if (parts[1] === 'compartilhamento') breadcrumbs.push({ label: 'Compartilhamento' })
-  if (parts[1] === 'modelos-mensagem') breadcrumbs.push({ label: 'Modelos de Mensagem' })
-  if (parts[1] === 'integracoes') breadcrumbs.push({ label: 'Integrações' })
+  if (parts[1] === 'modelos-mensagem') breadcrumbs.push({ label: 'Modelos de mensagem' })
+  if (parts[1] === 'integracoes') breadcrumbs.push({ label: 'Integracoes' })
   if (parts[1] === 'analytics') breadcrumbs.push({ label: 'Analytics' })
-  if (parts[1] === 'configuracoes') breadcrumbs.push({ label: 'Configurações' })
+  if (parts[1] === 'configuracoes') breadcrumbs.push({ label: 'Configuracoes' })
 
   return breadcrumbs
 }
@@ -118,9 +162,9 @@ export function Topbar() {
               aria-hidden="true"
             />
             <Input
-              placeholder="Buscar imóveis, guias..."
+              placeholder="Buscar imoveis, guias..."
               className="border-none bg-muted/60 pl-9 transition-colors duration-200 focus:bg-background"
-              aria-label="Buscar imóveis e guias"
+              aria-label="Buscar imoveis e guias"
             />
           </div>
         </div>
@@ -130,7 +174,7 @@ export function Topbar() {
             variant="ghost"
             size="icon"
             className="relative hidden transition-all duration-200 ease-in-out active:scale-95 focus-visible:ring-2 focus-visible:ring-ring/50 sm:flex"
-            aria-label="Notificações"
+            aria-label="Notificacoes"
           >
             <Bell className="h-5 w-5" aria-hidden="true" />
             <span
@@ -142,7 +186,7 @@ export function Topbar() {
           <DropdownMenu>
             <DropdownMenuTrigger
               className="relative h-9 w-9 rounded-full outline-none transition-all duration-200 ease-in-out active:scale-95 focus-visible:ring-2 focus-visible:ring-ring/50"
-              aria-label={`Menu do usuário: ${user?.name || 'Usuário'}`}
+              aria-label={`Menu do usuario: ${user?.name || 'Usuario'}`}
             >
               <Avatar className="h-9 w-9 transition-opacity duration-200">
                 <AvatarImage src={user?.image || undefined} alt="" />
@@ -162,7 +206,7 @@ export function Topbar() {
               <DropdownMenuItem
                 onClick={() => (window.location.href = '/app/configuracoes')}
               >
-                Configurações
+                Configuracoes
               </DropdownMenuItem>
               <DropdownMenuItem onClick={logout}>Sair</DropdownMenuItem>
             </DropdownMenuContent>
@@ -184,7 +228,7 @@ function MobileMenu() {
             variant="ghost"
             size="icon"
             className="shrink-0 xl:hidden"
-            aria-label="Abrir menu de navegação"
+            aria-label="Abrir menu de navegacao"
           >
             <Menu className="h-5 w-5" aria-hidden="true" />
           </Button>
@@ -202,7 +246,7 @@ function MobileMenu() {
                 <BookOpen className="h-4 w-4" />
               </div>
               <span className="font-heading text-lg font-semibold tracking-tight text-sidebar-foreground">
-                GuiaHóspedes
+                GuiaHospedes
               </span>
             </Link>
           </div>
@@ -214,9 +258,9 @@ function MobileMenu() {
                 aria-hidden="true"
               />
               <Input
-                placeholder="Buscar imóveis, guias..."
+                placeholder="Buscar imoveis, guias..."
                 className="border-sidebar-border bg-sidebar-accent pl-9 text-sidebar-foreground placeholder:text-sidebar-foreground/50"
-                aria-label="Buscar imóveis e guias"
+                aria-label="Buscar imoveis e guias"
               />
             </div>
           </div>

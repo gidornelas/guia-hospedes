@@ -2,6 +2,9 @@ import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { ArrowLeft, Home, MessageCircle } from 'lucide-react'
 import { ReactNode } from 'react'
+import { LanguageSwitcher } from './language-switcher'
+import { Locale } from '@/lib/i18n/types'
+import { getDictionary } from '@/lib/i18n'
 
 interface GuidePageTemplateProps {
   slug: string
@@ -15,6 +18,7 @@ interface GuidePageTemplateProps {
   hostWhatsapp?: string | null
   showBottomBar?: boolean
   previewQuery?: string
+  locale: Locale
 }
 
 export function GuidePageTemplate({
@@ -29,7 +33,10 @@ export function GuidePageTemplate({
   hostWhatsapp,
   showBottomBar = true,
   previewQuery = '',
+  locale,
 }: GuidePageTemplateProps) {
+  const d = getDictionary(locale)
+
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
       {/* Skip to content */}
@@ -37,7 +44,7 @@ export function GuidePageTemplate({
         href="#guide-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:text-sm"
       >
-        Pular para o conteúdo
+        {d.common.skipToContent}
       </a>
 
       {/* Header */}
@@ -46,19 +53,20 @@ export function GuidePageTemplate({
           <Link
             href={`/g/${slug}${previewQuery}`}
             className="p-2 -ml-2 rounded-full hover:bg-slate-100 transition-colors shrink-0"
-            aria-label="Voltar ao início"
+            aria-label={d.common.backToHome}
           >
             <ArrowLeft className="h-5 w-5 text-slate-600" aria-hidden="true" />
           </Link>
           <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center shrink-0', iconBgColor)}>
             <Icon className={cn('h-5 w-5', iconColor)} aria-hidden="true" />
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <h1 className="font-semibold text-base text-slate-900 leading-tight truncate">{title}</h1>
             {subtitle && (
               <p className="text-xs text-slate-500 truncate">{subtitle}</p>
             )}
           </div>
+          <LanguageSwitcher />
         </div>
       </header>
 
@@ -76,7 +84,7 @@ export function GuidePageTemplate({
               className="flex items-center justify-center gap-2 flex-1 rounded-xl bg-slate-100 text-slate-700 py-3 text-sm font-medium transition-colors hover:bg-slate-200 active:scale-[0.98]"
             >
               <Home className="h-4 w-4" aria-hidden="true" />
-              Início
+              {d.common.backToHome}
             </Link>
             {hostWhatsapp && (
               <a
@@ -86,7 +94,7 @@ export function GuidePageTemplate({
                 className="flex items-center justify-center gap-2 flex-1 rounded-xl bg-green-500 text-white py-3 text-sm font-medium transition-colors hover:bg-green-600 active:scale-[0.98]"
               >
                 <MessageCircle className="h-4 w-4" aria-hidden="true" />
-                Anfitrião
+                {d.common.host}
               </a>
             )}
           </div>

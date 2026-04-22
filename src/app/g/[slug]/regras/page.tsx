@@ -6,7 +6,6 @@ import {
   Dog,
   CigaretteOff,
   PartyPopper,
-  Trash2,
   Info,
   CheckCircle2,
   XCircle,
@@ -17,7 +16,9 @@ import {
   PrimaryCard,
   SecondaryCard,
 } from '@/components/shared/guide-page-template'
-import { getGuideProperty } from '@/lib/guide-utils'
+import { getGuideProperty, buildGuideQuery } from '@/lib/guide-utils'
+import { getLocaleFromSearchParams, getDictionary } from '@/lib/i18n'
+import { getPropertyTranslations, translateField, translatePath } from '@/lib/translate'
 
 interface RuleItem {
   label: string
@@ -51,28 +52,38 @@ export default async function RulesPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ preview?: string }>
+  searchParams: Promise<{ preview?: string; lang?: string }>
 }) {
   const { slug } = await params
-  const { preview } = await searchParams
+  const sp = await searchParams
+  const locale = getLocaleFromSearchParams(sp)
+  const d = getDictionary(locale)
+  const query = buildGuideQuery(sp)
+
   const property = await getGuideProperty({
     slug,
-    allowPreview: preview === '1',
+    allowPreview: sp.preview === '1',
     include: { rules: true, contacts: true },
   })
   if (!property || !property.rules) notFound()
 
   const rules = property.rules
   const hostContact = property.contacts.find((c: any) => c.role === 'HOST')
-  const previewQuery = preview === '1' ? '?preview=1' : ''
+  const translations = getPropertyTranslations(property.translations, locale)
+  const t = (path: string) => translatePath(translations, path)
+
+  const silence = translateField(rules.silence, t('rules.silence'))
+  const visits = translateField(rules.visits, t('rules.visits'))
+  const equipmentUse = translateField(rules.equipmentUse, t('rules.equipmentUse'))
+  const notes = translateField(rules.notes, t('rules.notes'))
 
   // Build rule items with positive language
   const ruleItems: RuleItem[] = []
 
-  if (rules.silence) {
+  if (silence) {
     ruleItems.push({
-      label: 'Momento de descanso',
-      value: rules.silence,
+      label: d.rules.silenceLabel,
+      value: silence,
       icon: Volume2,
       type: 'text',
       color: 'text-blue-600',
@@ -80,10 +91,10 @@ export default async function RulesPage({
     })
   }
 
-  if (rules.visits) {
+  if (visits) {
     ruleItems.push({
-      label: 'Visitas',
-      value: rules.visits,
+      label: d.rules.visitsLabel,
+      value: visits,
       icon: Users,
       type: 'text',
       color: 'text-indigo-600',
@@ -93,10 +104,8 @@ export default async function RulesPage({
 
   if (rules.pets !== null && rules.pets !== undefined) {
     ruleItems.push({
-      label: rules.pets ? 'Pets bem-vindos' : 'Sem animais de estimação',
-      value: rules.pets
-        ? 'Seu pet pode acompanhar você nesta estadia.'
-        : 'Para garantir o conforto de todos, não aceitamos animais de estimação.',
+      label: rules.pets ? d.rules.petsWelcome : d.rules.noPets,
+      value: rules.pets ? d.rules.petsWelcomeDesc : d.rules.noPetsDesc,
       icon: Dog,
       type: rules.pets ? 'positive' : 'negative',
       color: rules.pets ? 'text-emerald-600' : 'text-slate-500',
@@ -106,10 +115,8 @@ export default async function RulesPage({
 
   if (rules.smoking !== null && rules.smoking !== undefined) {
     ruleItems.push({
-      label: rules.smoking ? 'Ambiente para fumantes' : 'Ambiente livre de fumaça',
-      value: rules.smoking
-        ? 'É permitido fumar no imóvel. Respeite os espaços comuns.'
-        : 'O imóvel é 100% livre de fumaça para garantir o bem-estar de todos.',
+      label: rules.smoking ? d.rules.smokingAllowed : d.rules.noSmoking,
+      value: rules.smoking ? d.rules.smokingAllowedDesc : d.rules.noSmokingDesc,
       icon: CigaretteOff,
       type: rules.smoking ? 'positive' : 'negative',
       color: rules.smoking ? 'text-emerald-600' : 'text-slate-500',
@@ -119,10 +126,8 @@ export default async function RulesPage({
 
   if (rules.parties !== null && rules.parties !== undefined) {
     ruleItems.push({
-      label: rules.parties ? 'Eventos permitidos' : 'Ambiente tranquilo',
-      value: rules.parties
-        ? 'Pequenos encontros são bem-vindos. Comunique com antecedência.'
-        : 'O espaço é ideal para descanso. Não são permitidos eventos ou festas.',
+      label: rules.parties ? d.rules.eventsAllowed : d.rules.noEvents,
+      value: rules.parties ? d.rules.eventsAllowedDesc : d.rules.noEventsDesc,
       icon: PartyPopper,
       type: rules.parties ? 'positive' : 'negative',
       color: rules.parties ? 'text-emerald-600' : 'text-slate-500',
@@ -130,10 +135,10 @@ export default async function RulesPage({
     })
   }
 
-  if (rules.equipmentUse) {
+  if (equipmentUse) {
     ruleItems.push({
-      label: 'Cuidado com os equipamentos',
-      value: rules.equipmentUse,
+      label: d.rules.equipmentCare,
+      value: equipmentUse,
       icon: Info,
       type: 'text',
       color: 'text-amber-600',
@@ -144,14 +149,15 @@ export default async function RulesPage({
   return (
     <GuidePageTemplate
       slug={slug}
-      title="Regras da Casa"
-      subtitle="Para uma estadia agradável para todos"
+      title={d.rules.title}
+      subtitle={d.rules.subtitle}
       icon={Shield}
       iconColor="text-amber-600"
       iconBgColor="bg-amber-50"
       propertyName={property.name}
       hostWhatsapp={hostContact?.whatsapp}
-      previewQuery={previewQuery}
+      previewQuery={query}
+      locale={locale}
     >
       <div className="space-y-5">
         {/* Intro */}
@@ -159,9 +165,9 @@ export default async function RulesPage({
           <div className="flex items-start gap-3">
             <Shield className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-medium text-amber-800">Regras de convivência</p>
+              <p className="text-sm font-medium text-amber-800">{d.rules.coexistenceRules}</p>
               <p className="text-xs text-amber-700 mt-1 leading-relaxed">
-                Estas normas existem para garantir que você e os próximos hóspedes tenham uma experiência incrível. Obrigado por respeitá-las!
+                {d.rules.coexistenceDesc}
               </p>
             </div>
           </div>
@@ -175,13 +181,13 @@ export default async function RulesPage({
         </div>
 
         {/* Notes */}
-        {rules.notes && (
+        {notes && (
           <PrimaryCard>
             <div className="flex items-start gap-3">
               <Info className="h-5 w-5 text-primary shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-slate-900 mb-1">Observações</p>
-                <p className="text-sm text-slate-600 leading-relaxed">{rules.notes}</p>
+                <p className="text-sm font-medium text-slate-900 mb-1">{d.common.note}</p>
+                <p className="text-sm text-slate-600 leading-relaxed">{notes}</p>
               </div>
             </div>
           </PrimaryCard>

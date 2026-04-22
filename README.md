@@ -1,4 +1,4 @@
-﻿# GuiaHóspedes
+# GuiaHóspedes
 
 Plataforma de gestão de guias digitais de boas-vindas para imóveis de hospedagem.
 
@@ -34,8 +34,7 @@ Edite o arquivo `.env` com suas configuracoes. Para desenvolvimento local, o min
 
 ```env
 DATABASE_URL="postgresql://usuario:senha@host/database?sslmode=require"
-NEXTAUTH_SECRET="troque-por-um-secret-forte"
-NEXTAUTH_URL="http://localhost:3000"
+AUTH_SECRET="troque-por-um-secret-forte-de-32-chars"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
@@ -89,11 +88,24 @@ Acesse http://localhost:3000
 - O .gitignore previne commit acidental de secrets
 - **Nunca** inclua .env em commits, PRs ou compartilhe em chats de IA
 
+## Funcionalidades Principais
+
+- **Gestão de Imóveis**: cadastro completo com informações, Wi-Fi, regras, equipamentos, contatos e dicas da região
+- **Guias Digitais**: publicação automática de guia com slug público para hóspedes
+- **Compartilhamento**: envio via WhatsApp, E-mail, Link direto ou QR Code
+- **Reservas**: controle de check-in/check-out, hóspedes, status e origem da reserva
+- **PDF do Guia**: geração e download do guia em PDF com branding
+- **Multilinguismo**: guias em português, inglês e espanhol com tradução automática (DeepL/Google) e editor manual
+- **Analytics**: métricas reais de acessos, compartilhamentos e canais
+- **Modelos de Mensagem**: templates personalizáveis para envio aos hóspedes
+- **Landing Page**: página de vendas completa com 13 seções
+
 ## Documentação
 
-- [PLAN.md](PLAN.md) — Plano original de arquitetura e implementação
-- [PROGRESS.md](PROGRESS.md) — Progresso completo e planos futuros (documento vivo)
+- [docs/implementation-plan.md](docs/implementation-plan.md) — Plano de implementação e status de todas as etapas
 - [AGENTS.md](AGENTS.md) — Regras para agentes de IA
+- [DEPLOY_PROD.md](DEPLOY_PROD.md) — Guia de deploy em produção (Railway + Neon)
+- [DEPLOY_I18N.md](DEPLOY_I18N.md) — Guia de deploy da funcionalidade de multilinguismo
 
 ## Licença
 

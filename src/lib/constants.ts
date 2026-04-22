@@ -101,6 +101,7 @@ export const DASHBOARD_NAV = [
   { label: 'Visão Geral', href: '/app', icon: 'LayoutDashboard' },
   { label: 'Imóveis', href: '/app/imoveis', icon: 'Building2' },
   { label: 'Novo Imóvel', href: '/app/imoveis/novo', icon: 'Plus' },
+  { label: 'Reservas', href: '/app/reservas', icon: 'CalendarDays' },
   { label: 'Guias', href: '/app/guias', icon: 'BookOpen' },
   { label: 'Compartilhamento', href: '/app/compartilhamento', icon: 'Share2' },
   { label: 'Modelos de Mensagem', href: '/app/modelos-mensagem', icon: 'MessageSquare' },

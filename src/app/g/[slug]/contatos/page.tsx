@@ -6,15 +6,9 @@ import {
   PrimaryCard,
   SecondaryCard,
 } from '@/components/shared/guide-page-template'
-import { getGuideProperty } from '@/lib/guide-utils'
-
-const roleLabels: Record<string, string> = {
-  HOST: 'Anfitrião',
-  SUPPORT: 'Suporte',
-  MAINTENANCE: 'Manutenção',
-  CONCIERGE: 'Portaria',
-  EMERGENCY: 'Emergência',
-}
+import { getGuideProperty, buildGuideQuery } from '@/lib/guide-utils'
+import { getLocaleFromSearchParams, getDictionary } from '@/lib/i18n'
+import { getPropertyTranslations, translateField, translatePath, getTranslatedLabels } from '@/lib/translate'
 
 const rolePriority: Record<string, number> = {
   HOST: 1,
@@ -32,11 +26,18 @@ interface ContactCardProps {
     phone: string | null
     email: string | null
     whatsapp: string | null
+    _parentTranslations?: unknown
   }
   priority: 'host' | 'emergency' | 'normal'
+  locale: string
 }
 
-function ContactCard({ contact, priority }: ContactCardProps) {
+function ContactCard({ contact, priority, locale }: ContactCardProps) {
+  const labels = getTranslatedLabels(locale as any).contactRoleLabels
+  const translations = getPropertyTranslations(contact._parentTranslations, locale as any)
+  const contactTranslations = translations.contacts?.[contact.id]
+  const name = translateField(contact.name, contactTranslations?.name)
+
   const styles = {
     host: {
       card: 'border-primary/20 bg-gradient-to-br from-primary/5 to-transparent',
@@ -73,9 +74,9 @@ function ContactCard({ contact, priority }: ContactCardProps) {
           )}
         </div>
         <div className="min-w-0">
-          <p className="font-semibold text-slate-900 truncate">{contact.name}</p>
+          <p className="font-semibold text-slate-900 truncate">{name}</p>
           <span className={cn('text-[10px] font-medium px-2 py-0.5 rounded-full', s.badge)}>
-            {roleLabels[contact.role] || contact.role}
+            {labels[contact.role] || contact.role}
           </span>
         </div>
       </div>
@@ -123,13 +124,17 @@ export default async function ContactsPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ preview?: string }>
+  searchParams: Promise<{ preview?: string; lang?: string }>
 }) {
   const { slug } = await params
-  const { preview } = await searchParams
+  const sp = await searchParams
+  const locale = getLocaleFromSearchParams(sp)
+  const d = getDictionary(locale)
+  const query = buildGuideQuery(sp)
+
   const property = await getGuideProperty({
     slug,
-    allowPreview: preview === '1',
+    allowPreview: sp.preview === '1',
     include: { contacts: true },
   })
   if (!property || property.contacts.length === 0) notFound()
@@ -146,19 +151,19 @@ export default async function ContactsPage({
   const host = sortedContacts.find((c: any) => c.role === 'HOST')
   const emergency = sortedContacts.filter((c: any) => c.role === 'EMERGENCY')
   const others = sortedContacts.filter((c: any) => c.role !== 'HOST' && c.role !== 'EMERGENCY')
-  const previewQuery = preview === '1' ? '?preview=1' : ''
 
   return (
     <GuidePageTemplate
       slug={slug}
-      title="Contatos"
-      subtitle="Quem você pode chamar"
+      title={d.contacts.title}
+      subtitle={d.contacts.subtitle}
       icon={Phone}
       iconColor="text-rose-600"
       iconBgColor="bg-rose-50"
       propertyName={property.name}
       hostWhatsapp={hostContact?.whatsapp}
-      previewQuery={previewQuery}
+      previewQuery={query}
+      locale={locale}
     >
       <div className="space-y-5">
         {/* Anfitrião — destaque especial */}
@@ -167,10 +172,10 @@ export default async function ContactsPage({
             <div className="flex items-center gap-2 px-1">
               <Star className="h-3.5 w-3.5 text-primary" />
               <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-                Seu anfitrião
+                {d.contacts.yourHost}
               </span>
             </div>
-            <ContactCard contact={host} priority="host" />
+            <ContactCard contact={{ ...host, _parentTranslations: property.translations }} priority="host" locale={locale} />
           </div>
         )}
 
@@ -180,11 +185,11 @@ export default async function ContactsPage({
             <div className="flex items-center gap-2 px-1">
               <AlertTriangle className="h-3.5 w-3.5 text-red-500" />
               <span className="text-xs font-semibold uppercase tracking-wider text-red-600">
-                Emergência
+                {d.contacts.emergency}
               </span>
             </div>
             {emergency.map((contact: any) => (
-              <ContactCard key={contact.id} contact={contact} priority="emergency" />
+              <ContactCard key={contact.id} contact={{ ...contact, _parentTranslations: property.translations }} priority="emergency" locale={locale} />
             ))}
           </div>
         )}
@@ -195,12 +200,12 @@ export default async function ContactsPage({
             <div className="flex items-center gap-2 px-1">
               <Phone className="h-3.5 w-3.5 text-slate-400" />
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Outros contatos
+                {d.contacts.otherContacts}
               </span>
             </div>
             <div className="space-y-3">
               {others.map((contact: any) => (
-                <ContactCard key={contact.id} contact={contact} priority="normal" />
+                <ContactCard key={contact.id} contact={{ ...contact, _parentTranslations: property.translations }} priority="normal" locale={locale} />
               ))}
             </div>
           </div>

@@ -11,6 +11,8 @@ import {
   Edit,
   Eye,
   ExternalLink,
+  FileDown,
+  Languages,
   Link2,
   Mail,
   MapPin,
@@ -36,6 +38,7 @@ import {
 } from '@/lib/constants'
 import { db } from '@/lib/db'
 import { env } from '@/lib/env'
+import { ShareModal } from '@/components/shared/share-modal'
 import { cn } from '@/lib/utils'
 import { PropertyActions } from './property-actions'
 import RecommendationsManager from '@/components/dashboard/recommendations-manager'
@@ -57,13 +60,22 @@ async function getProperty(id: string) {
   })
 }
 
+async function getMessageTemplates() {
+  return db.messageTemplate.findMany({
+    orderBy: { createdAt: 'desc' },
+  })
+}
+
 export default async function PropertyDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const property = await getProperty(id)
+  const [property, templates] = await Promise.all([
+    getProperty(id),
+    getMessageTemplates(),
+  ])
 
   if (!property) notFound()
 
@@ -383,15 +395,23 @@ export default async function PropertyDetailPage({
                         Preview
                       </Button>
                     </Link>
-                    <Link
-                      href={`/app/compartilhamento?property=${property.id}`}
-                      className="flex-1"
-                    >
-                      <Button className="w-full gap-2">
-                        <Share2 className="h-4 w-4" />
-                        Compartilhar
-                      </Button>
-                    </Link>
+                    <div className="flex-1">
+                      <ShareModal
+                        propertyId={property.id}
+                        propertyName={property.name}
+                        guideId={property.guide?.id}
+                        guideSlug={property.guide?.slug}
+                        guideStatus={property.guide?.status}
+                        appUrl={env.appUrl}
+                        templates={templates}
+                        trigger={
+                          <Button className="w-full gap-2">
+                            <Share2 className="h-4 w-4" />
+                            Compartilhar
+                          </Button>
+                        }
+                      />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -544,16 +564,41 @@ export default async function PropertyDetailPage({
                           Abrir preview completo
                         </Button>
                       </Link>
-                      <Link href={`/app/compartilhamento?property=${property.id}`}>
-                        <Button className="w-full justify-start gap-2">
-                          <Share2 className="h-4 w-4" />
-                          Ir para compartilhamento
+                      <Link
+                        href={`/api/guides/${property.id}/pdf`}
+                        target="_blank"
+                        className="w-full"
+                      >
+                        <Button variant="outline" className="w-full justify-start gap-2">
+                          <FileDown className="h-4 w-4" />
+                          Baixar PDF do guia
                         </Button>
                       </Link>
+                      <ShareModal
+                        propertyId={property.id}
+                        propertyName={property.name}
+                        guideId={property.guide?.id}
+                        guideSlug={property.guide?.slug}
+                        guideStatus={property.guide?.status}
+                        appUrl={env.appUrl}
+                        templates={templates}
+                        trigger={
+                          <Button className="w-full justify-start gap-2">
+                            <Share2 className="h-4 w-4" />
+                            Compartilhar guia
+                          </Button>
+                        }
+                      />
                       <Link href={`/app/imoveis/${property.id}/editar`}>
                         <Button variant="outline" className="w-full justify-start gap-2">
                           <Edit className="h-4 w-4" />
                           Editar conteúdo do guia
+                        </Button>
+                      </Link>
+                      <Link href={`/app/imoveis/${property.id}/traducoes`}>
+                        <Button variant="outline" className="w-full justify-start gap-2">
+                          <Languages className="h-4 w-4" />
+                          Traduções
                         </Button>
                       </Link>
                       {publicUrl && property.guide.status === 'PUBLISHED' && (

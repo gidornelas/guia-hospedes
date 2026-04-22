@@ -1,8 +1,7 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  // Railway inicia a aplicação com `npm start` / `next start`.
-  // Evitamos `output: 'standalone'` para não gerar incompatibilidade de runtime.
+  output: 'standalone',
   images: {
     remotePatterns: [
       {

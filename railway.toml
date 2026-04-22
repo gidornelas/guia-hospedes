@@ -1,0 +1,8 @@
+[build]
+builder = "nixpacks"
+watchPatterns = ["src/**", "prisma/**", "package.json"]
+
+[deploy]
+startCommand = "npm run start"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
