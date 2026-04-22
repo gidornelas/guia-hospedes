@@ -9,8 +9,8 @@ import {
   MapPin,
   Instagram,
   ExternalLink,
-  ImagePlus,
   X,
+  Save,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,15 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
 import { Card, CardContent } from '@/components/ui/card'
 import { RECOMMENDATION_CATEGORIES } from '@/lib/constants'
 import { cn } from '@/lib/utils'
@@ -79,7 +70,7 @@ export default function RecommendationsManager({
   propertyId,
   recommendations,
 }: RecommendationsManagerProps) {
-  const [open, setOpen] = useState(false)
+  const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -108,6 +99,11 @@ export default function RecommendationsManager({
     setEditingId(null)
   }
 
+  const handleAddNew = () => {
+    resetForm()
+    setShowForm(true)
+  }
+
   const handleEdit = (rec: Recommendation) => {
     setForm({
       name: rec.name,
@@ -120,7 +116,12 @@ export default function RecommendationsManager({
       distance: rec.distance || '',
     })
     setEditingId(rec.id)
-    setOpen(true)
+    setShowForm(true)
+  }
+
+  const handleCancel = () => {
+    setShowForm(false)
+    resetForm()
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -164,7 +165,7 @@ export default function RecommendationsManager({
             ? 'Recomendação atualizada!'
             : 'Recomendação adicionada!'
         )
-        setOpen(false)
+        setShowForm(false)
         resetForm()
       } else {
         toast.error(result.error || 'Erro ao salvar')
@@ -196,61 +197,62 @@ export default function RecommendationsManager({
             Adicione restaurantes, bares, cafeterias, shoppings e outros lugares próximos
           </p>
         </div>
-        <Button className="gap-2" onClick={() => { resetForm(); setOpen(true) }}>
-          <Plus className="h-4 w-4" />
-          Adicionar
-        </Button>
+        {!showForm && (
+          <Button className="gap-2" onClick={handleAddNew}>
+            <Plus className="h-4 w-4" />
+            Adicionar
+          </Button>
+        )}
+      </div>
 
-        <Dialog
-          open={open}
-          onOpenChange={(v) => {
-            setOpen(v)
-            if (!v) resetForm()
-          }}
-        >
-          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>
+      {/* Formulário inline */}
+      {showForm && (
+        <Card className="shadow-card border-primary/20">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="font-semibold">
                 {editingId ? 'Editar recomendação' : 'Nova recomendação'}
-              </DialogTitle>
-              <DialogDescription>
-                Preencha as informações do local para seus hóspedes.
-              </DialogDescription>
-            </DialogHeader>
+              </h4>
+              <Button variant="ghost" size="icon" onClick={handleCancel}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Nome */}
-              <div className="space-y-2">
-                <Label htmlFor="name">Nome do local *</Label>
-                <Input
-                  id="name"
-                  placeholder="Ex: Café Central"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  required
-                />
-              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {/* Nome */}
+                <div className="space-y-2">
+                  <Label htmlFor="name">Nome do local *</Label>
+                  <Input
+                    id="name"
+                    placeholder="Ex: Café Central"
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    required
+                  />
+                </div>
 
-              {/* Categoria */}
-              <div className="space-y-2">
-                <Label htmlFor="category">Categoria *</Label>
-                <Select
-                  value={form.category}
-                  onValueChange={(v: string | null) => setForm({ ...form, category: v || '' })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione uma categoria" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(RECOMMENDATION_CATEGORIES).map(
-                      ([key, label]) => (
-                        <SelectItem key={key} value={key}>
-                          {categoryIcons[key]} {label}
-                        </SelectItem>
-                      )
-                    )}
-                  </SelectContent>
-                </Select>
+                {/* Categoria */}
+                <div className="space-y-2">
+                  <Label htmlFor="category">Categoria *</Label>
+                  <Select
+                    value={form.category}
+                    onValueChange={(v: string | null) => setForm({ ...form, category: v || '' })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(RECOMMENDATION_CATEGORIES).map(
+                        ([key, label]) => (
+                          <SelectItem key={key} value={key}>
+                            {categoryIcons[key]} {label}
+                          </SelectItem>
+                        )
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               {/* Descrição */}
@@ -263,55 +265,59 @@ export default function RecommendationsManager({
                   onChange={(e) =>
                     setForm({ ...form, description: e.target.value })
                   }
-                  rows={3}
+                  rows={2}
                 />
               </div>
 
-              {/* Endereço */}
-              <div className="space-y-2">
-                <Label htmlFor="address">Endereço</Label>
-                <Input
-                  id="address"
-                  placeholder="Rua das Flores, 123 - Centro"
-                  value={form.address}
-                  onChange={(e) => setForm({ ...form, address: e.target.value })}
-                />
+              <div className="grid gap-4 sm:grid-cols-2">
+                {/* Endereço */}
+                <div className="space-y-2">
+                  <Label htmlFor="address">Endereço</Label>
+                  <Input
+                    id="address"
+                    placeholder="Rua das Flores, 123"
+                    value={form.address}
+                    onChange={(e) => setForm({ ...form, address: e.target.value })}
+                  />
+                </div>
+
+                {/* Distância */}
+                <div className="space-y-2">
+                  <Label htmlFor="distance">Distância do imóvel</Label>
+                  <Input
+                    id="distance"
+                    placeholder="Ex: 500m, 2 min a pé"
+                    value={form.distance}
+                    onChange={(e) => setForm({ ...form, distance: e.target.value })}
+                  />
+                </div>
               </div>
 
-              {/* Distância */}
-              <div className="space-y-2">
-                <Label htmlFor="distance">Distância do imóvel</Label>
-                <Input
-                  id="distance"
-                  placeholder="Ex: 500m, 2 min a pé"
-                  value={form.distance}
-                  onChange={(e) => setForm({ ...form, distance: e.target.value })}
-                />
-              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {/* Link do Mapa */}
+                <div className="space-y-2">
+                  <Label htmlFor="mapUrl">Link do Google Maps</Label>
+                  <Input
+                    id="mapUrl"
+                    type="url"
+                    placeholder="https://maps.google.com/..."
+                    value={form.mapUrl}
+                    onChange={(e) => setForm({ ...form, mapUrl: e.target.value })}
+                  />
+                </div>
 
-              {/* Link do Mapa */}
-              <div className="space-y-2">
-                <Label htmlFor="mapUrl">Link do Google Maps</Label>
-                <Input
-                  id="mapUrl"
-                  type="url"
-                  placeholder="https://maps.google.com/..."
-                  value={form.mapUrl}
-                  onChange={(e) => setForm({ ...form, mapUrl: e.target.value })}
-                />
-              </div>
-
-              {/* Instagram */}
-              <div className="space-y-2">
-                <Label htmlFor="instagram">Instagram do local</Label>
-                <Input
-                  id="instagram"
-                  placeholder="@cafe.central ou https://instagram.com/..."
-                  value={form.instagram}
-                  onChange={(e) =>
-                    setForm({ ...form, instagram: e.target.value })
-                  }
-                />
+                {/* Instagram */}
+                <div className="space-y-2">
+                  <Label htmlFor="instagram">Instagram</Label>
+                  <Input
+                    id="instagram"
+                    placeholder="@cafe.central"
+                    value={form.instagram}
+                    onChange={(e) =>
+                      setForm({ ...form, instagram: e.target.value })
+                    }
+                  />
+                </div>
               </div>
 
               {/* Foto */}
@@ -325,42 +331,40 @@ export default function RecommendationsManager({
                   onChange={(e) => setForm({ ...form, image: e.target.value })}
                 />
                 {form.image && (
-                  <div className="mt-2 rounded-lg border overflow-hidden h-32">
+                  <div className="mt-2 rounded-lg border overflow-hidden h-32 w-full max-w-xs">
                     <img
                       src={form.image}
                       alt="Preview"
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = ''
+                        (e.target as HTMLImageElement).style.display = 'none'
                       }}
                     />
                   </div>
                 )}
               </div>
 
-              <DialogFooter>
+              <div className="flex gap-2 pt-2">
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => {
-                    setOpen(false)
-                    resetForm()
-                  }}
+                  onClick={handleCancel}
                 >
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={isSubmitting}>
+                <Button type="submit" disabled={isSubmitting} className="gap-2">
+                  <Save className="h-4 w-4" />
                   {isSubmitting
                     ? 'Salvando...'
                     : editingId
                       ? 'Atualizar'
                       : 'Adicionar'}
                 </Button>
-              </DialogFooter>
+              </div>
             </form>
-          </DialogContent>
-        </Dialog>
-      </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Lista */}
       {recommendations.length === 0 ? (
@@ -370,7 +374,7 @@ export default function RecommendationsManager({
             Nenhuma recomendação cadastrada
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            Adicione bares, restaurantes, cafeterias, shoppings e outros lugares próximos ao imóvel
+            Clique em "Adicionar" para cadastrar bares, restaurantes, cafeterias, shoppings e outros lugares próximos ao imóvel
           </p>
         </div>
       ) : (
