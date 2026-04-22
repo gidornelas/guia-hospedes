@@ -47,6 +47,7 @@ import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { TEMPLATE_TYPES } from '@/lib/constants'
 import { copyQrSvg, downloadQrSvg } from '@/lib/qr-code'
+import { PageHeader } from '@/components/shared/page-header'
 
 interface PropertyWithGuide {
   id: string
@@ -312,13 +313,32 @@ export default function SharingClient({ properties, templates, initialLogs, appU
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="min-w-0 space-y-1">
-        <h1 className="font-heading text-2xl font-bold tracking-tight">Compartilhamento</h1>
-        <p className="max-w-2xl text-muted-foreground">
-          Envie guias aos hóspedes pelo canal ideal para cada situação
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Compartilhamento"
+        title="Escolha o canal certo para cada envio"
+        description="Personalize a mensagem, valide o preview e compartilhe o guia pelo canal ideal para cada contexto da estadia."
+        meta={
+          selectedProperty ? (
+            <>
+              <Badge
+                variant={isPublished ? 'default' : 'destructive'}
+                className={cn(isPublished ? 'bg-emerald-600 hover:bg-emerald-700' : '')}
+              >
+                {isPublished ? 'Publicado' : 'Não publicado'}
+              </Badge>
+              {isPublished ? (
+                <Badge variant="outline" className="bg-background">
+                  Guia pronto para envio
+                </Badge>
+              ) : null}
+            </>
+          ) : (
+            <Badge variant="outline" className="bg-background">
+              Selecione um imóvel para começar
+            </Badge>
+          )
+        }
+      />
 
       {/* Property Selector */}
       <Card className="shadow-card">
@@ -570,8 +590,8 @@ export default function SharingClient({ properties, templates, initialLogs, appU
               <CardHeader className="pb-3">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <CardTitle className="text-base">Preview da Mensagem</CardTitle>
-                    <CardDescription>Veja como o hóspede receberá</CardDescription>
+                    <CardTitle className="text-base">Preview da mensagem</CardTitle>
+                    <CardDescription>Veja como o hospede recebera</CardDescription>
                   </div>
                   <Smartphone className="h-5 w-5 text-muted-foreground" />
                 </div>
@@ -587,7 +607,7 @@ export default function SharingClient({ properties, templates, initialLogs, appU
                             <MessageCircle className="h-4 w-4 text-green-600" />
                           </div>
                           <div>
-                            <p className="text-xs font-medium">Guia do Imóvel</p>
+                            <p className="text-xs font-medium">Guia do imovel</p>
                             <p className="text-[10px] text-muted-foreground">Agora</p>
                           </div>
                         </div>
@@ -622,7 +642,7 @@ export default function SharingClient({ properties, templates, initialLogs, appU
             {/* Quick Info */}
             <Card className="shadow-card">
               <CardContent className="p-4 space-y-3">
-                <h3 className="text-sm font-medium">Informações do Guia</h3>
+                <h3 className="text-sm font-medium">Informacoes do guia</h3>
                 <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
                   <div className="rounded-lg bg-muted p-3">
                     <p className="text-xs text-muted-foreground mb-1">Slug</p>
@@ -644,7 +664,7 @@ export default function SharingClient({ properties, templates, initialLogs, appU
                     onClick={() => window.open(guideUrl, '_blank')}
                   >
                     <Eye className="h-3.5 w-3.5" />
-                    Ver público
+                    Ver publico
                   </Button>
                   <Button
                     variant="outline"
@@ -664,8 +684,8 @@ export default function SharingClient({ properties, templates, initialLogs, appU
           <div className="xl:col-span-1 space-y-6">
             <Card className="shadow-card">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">Histórico de Envios</CardTitle>
-                <CardDescription>Últimos compartilhamentos</CardDescription>
+                <CardTitle className="text-base">Historico de envios</CardTitle>
+                <CardDescription>Ultimos compartilhamentos</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Filters */}

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -18,7 +17,6 @@ import { EmptyState } from '@/components/shared/empty-state'
 import { PageHeader } from '@/components/shared/page-header'
 import { TemplateFormDialog } from '@/components/shared/template-form-dialog'
 import { deleteMessageTemplate } from '@/app/actions/message-templates'
-import { TEMPLATE_TYPES } from '@/lib/constants'
 import { toast } from 'sonner'
 import {
   Edit,
@@ -46,18 +44,18 @@ interface TemplatesClientProps {
 
 const typeLabels: Record<string, string> = {
   WELCOME: 'Boas-vindas',
-  PRE_CHECKIN: 'Pré-check-in',
-  DURING_STAY: 'Durante Estadia',
-  POST_CHECKOUT: 'Pós-check-out',
+  PRE_CHECKIN: 'Pre-check-in',
+  DURING_STAY: 'Durante a estadia',
+  POST_CHECKOUT: 'Pos-check-out',
   CUSTOM: 'Personalizado',
 }
 
 const typeDescriptions: Record<string, string> = {
-  WELCOME: 'Ótimo para enviar o guia logo após a confirmação.',
-  PRE_CHECKIN: 'Ideal para lembrar horários, acesso e orientações finais.',
-  DURING_STAY: 'Útil para mensagens curtas durante a estadia.',
-  POST_CHECKOUT: 'Funciona bem para fechamento e pedido de avaliação.',
-  CUSTOM: 'Use para fluxos próprios da operação.',
+  WELCOME: 'Otimo para enviar o guia logo apos a confirmacao.',
+  PRE_CHECKIN: 'Ideal para lembrar horarios, acesso e orientacoes finais.',
+  DURING_STAY: 'Util para mensagens curtas durante a estadia.',
+  POST_CHECKOUT: 'Funciona bem para fechamento e pedido de avaliacao.',
+  CUSTOM: 'Use para fluxos proprios da operacao.',
 }
 
 export default function TemplatesClient({ templates }: TemplatesClientProps) {
@@ -67,10 +65,10 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
   const [deletingTemplate, setDeletingTemplate] = useState<MessageTemplate | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  const filteredTemplates = templates.filter((t) =>
-    t.name.toLowerCase().includes(search.toLowerCase()) ||
-    t.body.toLowerCase().includes(search.toLowerCase()) ||
-    (typeLabels[t.type] || '').toLowerCase().includes(search.toLowerCase())
+  const filteredTemplates = templates.filter((template) =>
+    template.name.toLowerCase().includes(search.toLowerCase()) ||
+    template.body.toLowerCase().includes(search.toLowerCase()) ||
+    (typeLabels[template.type] || '').toLowerCase().includes(search.toLowerCase())
   )
 
   const handleEdit = (template: MessageTemplate) => {
@@ -90,7 +88,7 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
     const result = await deleteMessageTemplate(deletingTemplate.id)
 
     if (result.success) {
-      toast.success('Template excluído')
+      toast.success('Template excluido')
       setDeletingTemplate(null)
     } else {
       toast.error(result.error || 'Erro ao excluir')
@@ -102,9 +100,9 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Comunicação"
-        title="Modelos de Mensagem"
-        description="Crie e gerencie templates para compartilhamento de guias, mantendo consistência nos principais momentos da jornada do hóspede."
+        eyebrow="Comunicacao"
+        title="Modelos de mensagem"
+        description="Crie e gerencie templates para compartilhamento de guias, mantendo consistencia nos principais momentos da jornada do hospede."
         meta={
           <>
             <Badge className="bg-brand-100 text-brand-700 hover:bg-brand-100">
@@ -130,7 +128,7 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
                 Biblioteca de mensagens
               </p>
               <p className="text-sm text-muted-foreground">
-                Padronize o tom da operação e reduza retrabalho no envio de guias.
+                Padronize o tom da operacao e reduza retrabalho no envio de guias.
               </p>
             </div>
             <div className="relative w-full sm:w-[280px]">
@@ -152,10 +150,10 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
                 <Sparkles className="h-5 w-5" />
               </div>
               <div className="space-y-1">
-                <p className="font-medium text-brand-900">Próximo melhor passo</p>
+                <p className="font-medium text-brand-900">Proximo melhor passo</p>
                 <p className="text-sm text-brand-800">
-                  Garanta pelo menos um modelo de boas-vindas e um de pré-check-in
-                  para deixar o compartilhamento pronto sem edição manual.
+                  Garanta pelo menos um modelo de boas-vindas e um de pre-check-in
+                  para deixar o compartilhamento pronto sem edicao manual.
                 </p>
               </div>
             </div>
@@ -165,7 +163,7 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
 
       <Card className="shadow-card">
         <CardHeader className="pb-4">
-          <CardTitle className="text-lg">Templates disponíveis</CardTitle>
+          <CardTitle className="text-lg">Templates disponiveis</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -179,8 +177,6 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
                     : 'Monte sua biblioteca de mensagens para acelerar compartilhamentos e manter o tom da marca consistente.'
                 }
                 hint={search ? undefined : 'Comece pelos momentos mais recorrentes'}
-                actionLabel={search ? undefined : 'Criar primeiro template'}
-                actionHref={search ? undefined : '/app/modelos-mensagem'}
               />
             ) : (
               filteredTemplates.map((template) => (
@@ -204,15 +200,13 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
                               <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
                                 Assunto
                               </p>
-                              <p className="text-sm text-foreground">
-                                {template.subject}
-                              </p>
+                              <p className="text-sm text-foreground">{template.subject}</p>
                             </div>
                           )}
 
                           <div className="rounded-xl bg-muted p-4">
                             <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                              Prévia da mensagem
+                              Previa da mensagem
                             </p>
                             <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-700">
                               {template.body}
@@ -227,7 +221,7 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
                             </p>
                             <p className="mt-2 text-sm text-muted-foreground">
                               {typeDescriptions[template.type] ||
-                                'Template flexível para adaptar à operação.'}
+                                'Template flexivel para adaptar a operacao.'}
                             </p>
                           </div>
 
@@ -238,16 +232,16 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
                                 return (
                                   <div className="rounded-xl border border-border bg-background p-4">
                                     <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                                      Variáveis disponíveis
+                                      Variaveis disponiveis
                                     </p>
                                     <div className="mt-3 flex flex-wrap gap-2">
-                                      {vars.map((v: string) => (
+                                      {vars.map((variable: string) => (
                                         <span
-                                          key={v}
+                                          key={variable}
                                           className="rounded-full bg-primary/10 px-2.5 py-1 text-xs text-primary"
                                         >
                                           {'{{'}
-                                          {v}
+                                          {variable}
                                           {'}}'}
                                         </span>
                                       ))}
@@ -256,13 +250,14 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
                                 )
                               }
                             } catch {}
+
                             return (
                               <div className="rounded-xl border border-dashed border-border bg-muted/20 p-4">
                                 <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                                  Variáveis disponíveis
+                                  Variaveis disponiveis
                                 </p>
                                 <p className="mt-2 text-sm text-muted-foreground">
-                                  Este template ainda não usa placeholders dinâmicos.
+                                  Este template ainda nao usa placeholders dinamicos.
                                 </p>
                               </div>
                             )
@@ -272,11 +267,7 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
                     </div>
 
                     <div className="ml-0 flex gap-2 self-end lg:ml-4 lg:self-start">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEdit(template)}
-                      >
+                      <Button variant="ghost" size="icon" onClick={() => handleEdit(template)}>
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button
@@ -314,7 +305,7 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
             <DialogTitle>Excluir template</DialogTitle>
             <DialogDescription>
               Tem certeza que deseja excluir o template &quot;{deletingTemplate?.name}&quot;?
-              Esta ação não pode ser desfeita.
+              Esta acao nao pode ser desfeita.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -330,9 +321,7 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
               onClick={handleDelete}
               disabled={isDeleting}
             >
-              {isDeleting ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : null}
+              {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               Excluir
             </Button>
           </DialogFooter>
