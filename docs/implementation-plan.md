@@ -539,6 +539,111 @@
 - `src/lib/guide-utils.ts` — helper `buildGuideQuery`
 - `src/app/app/imoveis/[id]/page.tsx` — link para Traduções na aba Guia
 
+### Esquema de Traduções (Documentação Técnica)
+
+#### Estrutura JSON no banco
+
+O campo `Property.translations` armazena um objeto JSON com a seguinte estrutura:
+
+```json
+{
+  "pt-BR": {},
+  "en": {
+    "welcomeMessage": "Welcome!",
+    "shortDescription": "Cozy apartment",
+    "checkIn": {
+      "instructions": "...",
+      "accessMethod": "...",
+      "notes": "..."
+    },
+    "checkOut": {
+      "instructions": "...",
+      "exitChecklist": "..."
+    },
+    "wifi": {
+      "notes": "..."
+    },
+    "rules": {
+      "silence": "...",
+      "visits": "...",
+      "trash": "...",
+      "equipmentUse": "...",
+      "notes": "..."
+    },
+    "devices": {
+      "[device-id]": {
+        "name": "...",
+        "instructions": "..."
+      }
+    },
+    "contacts": {
+      "[contact-id]": {
+        "name": "..."
+      }
+    },
+    "recommendations": {
+      "[rec-id]": {
+        "name": "...",
+        "description": "..."
+      }
+    },
+    "links": {
+      "[link-id]": {
+        "label": "..."
+      }
+    }
+  },
+  "es": { ... }
+}
+```
+
+#### Campos traduzíveis por entidade
+
+| Entidade | Campos traduzíveis |
+|---|---|
+| **Property** | `welcomeMessage`, `shortDescription` |
+| **PropertyCheckIn** | `instructions`, `accessMethod`, `notes` |
+| **PropertyCheckOut** | `instructions`, `exitChecklist` |
+| **PropertyWiFi** | `notes` |
+| **PropertyRules** | `silence`, `visits`, `trash`, `equipmentUse`, `notes` |
+| **PropertyDevice** | `name`, `instructions` |
+| **PropertyContact** | `name` |
+| **LocalRecommendation** | `name`, `description` |
+| **PropertyLink** | `label` |
+
+#### Fallback de idioma
+
+1. Hóspede acessa a guia → idioma default é **PT-BR**
+2. Hóspede clica em bandeirinha → idioma salvo no **localStorage** + refletido na URL (`?lang=en`)
+3. Ao renderizar, o sistema busca a tradução no campo `translations[locale]`
+4. Se não houver tradução para o campo, usa o valor original em **português**
+5. Isso permite publicar uma guia parcialmente traduzida sem quebrar a experiência
+
+#### Fluxo de tradução automática
+
+```
+Anfitrião clica "Gerar traduções" no dashboard
+  ↓
+Server Action extractTranslatableTexts(property)
+  ↓
+Para cada campo em PT, chama translateText(text, 'PT', 'EN')
+  ↓
+Para cada campo em PT, chama translateText(text, 'PT', 'ES')
+  ↓
+Resultados salvos em Property.translations
+  ↓
+Revalidação das páginas afetadas
+```
+
+#### Provedores de tradução
+
+| Provedor | Custo | Precisa chave? | Configuração |
+|---|---|---|---|
+| **LibreTranslate** (padrão) | Grátis | Não | `TRANSLATION_API_PROVIDER=libretranslate` |
+| DeepL API Free | Grátis (500k chars/mês) | Sim | `TRANSLATION_API_PROVIDER=deepl` + `TRANSLATION_API_KEY` |
+| DeepL API Pro | Pago | Sim | Mesma configuração com chave pro |
+| Google Translate | Pago (free tier) | Sim | `TRANSLATION_API_PROVIDER=google` + `TRANSLATION_API_KEY` |
+
 ---
 
 ## Ordem de Execução
@@ -572,6 +677,7 @@ src/app/actions/
   message-templates.ts
   log-guide-access.ts
   reservations.ts
+  translations.ts         ← gera/atualiza traduções de imóvel
 ```
 
 Cada Server Action segue o padrão:
@@ -669,4 +775,4 @@ import { redirect } from 'next/navigation'
 | `/api/auth/google` | GET | Inicia login com Google |
 | `/api/auth/google/callback` | GET | Callback do Google OAuth |
 | `/api/properties/[id]` | GET/PUT/DELETE | API do imóvel |
-| `/api/guides/[id]/pdf` | GET | Gera PDF do guia |
+| `/api/guides/[id]/pdf` | GET | Gera PDF do guia (aceita `?lang=en\|es`) |

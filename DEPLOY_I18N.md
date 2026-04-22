@@ -1,5 +1,79 @@
 # Deploy do Multilinguismo
 
+## Esquema de Traduções
+
+O multilinguismo funciona atraves do campo `translations` (JSONB) na tabela `properties`. O portugues (PT-BR) continua sendo o idioma principal e **fallback** — todos os campos existentes permanecem em portugues. As traducoes em ingles e espanhol sao armazenadas como JSON aninhado e aplicadas por cima quando o hospede seleciona o idioma.
+
+### Estrutura do JSON
+
+```json
+{
+  "pt-BR": {},
+  "en": {
+    "welcomeMessage": "Welcome!",
+    "shortDescription": "Cozy apartment in downtown",
+    "checkIn": {
+      "instructions": "Ring the bell and wait for the doorman",
+      "accessMethod": "Electronic lock with code",
+      "notes": "Late check-in available upon request"
+    },
+    "checkOut": {
+      "instructions": "Leave the keys on the table",
+      "exitChecklist": "Turn off all lights. Lock the door"
+    },
+    "wifi": {
+      "notes": "Network works in all rooms"
+    },
+    "rules": {
+      "silence": "10pm to 8am",
+      "visits": "Please inform the host",
+      "trash": "Take out before leaving",
+      "equipmentUse": "Handle appliances with care",
+      "notes": "No smoking inside"
+    },
+    "devices": {
+      "uuid-do-ar": { "name": "Air Conditioner", "instructions": "Use remote" },
+      "uuid-tv": { "name": "Smart TV", "instructions": "Press power button" }
+    },
+    "contacts": {
+      "uuid-host": { "name": "John" }
+    },
+    "recommendations": {
+      "uuid-rest": { "name": "Joe's Pizza", "description": "Best pizza in town" }
+    },
+    "links": {
+      "uuid-maps": { "label": "Location on Maps" }
+    }
+  },
+  "es": { ... }
+}
+```
+
+### Como funciona o fallback
+
+1. Hospede abre a guia → idioma default **PT-BR**
+2. Hospede clica na bandeira 🇬🇧 ou 🇪🇸 → idioma salvo no `localStorage` + URL reflete `?lang=en`
+3. Sistema busca o campo no JSON de traducoes (`translations.en.welcomeMessage`)
+4. **Se encontrar traducao** → exibe no idioma selecionado
+5. **Se NAO encontrar** → exibe o valor original em portugues
+6. Isso permite traduzir parcialmente uma guia sem quebrar a experiencia
+
+### Campos que podem ser traduzidos
+
+| Entidade | Campos |
+|---|---|
+| Property | `welcomeMessage`, `shortDescription` |
+| Check-in | `instructions`, `accessMethod`, `notes` |
+| Check-out | `instructions`, `exitChecklist` |
+| Wi-Fi | `notes` |
+| Regras | `silence`, `visits`, `trash`, `equipmentUse`, `notes` |
+| Equipamentos | `name`, `instructions` |
+| Contatos | `name` |
+| Recomendacoes | `name`, `description` |
+| Links | `label` |
+
+---
+
 ## 1. Aplicar migration no banco (obrigatorio)
 
 O ambiente local nao consegue acessar o banco remoto (Neon). Aplique o SQL diretamente no console do Neon:

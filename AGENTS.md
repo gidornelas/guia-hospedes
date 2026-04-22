@@ -26,10 +26,50 @@
 - Analytics com dados reais (acessos, compartilhamentos, canais)
 - Sistema de reservas (booking) com check-in/check-out
 - Geracao de PDF do guia com `@react-pdf/renderer`
-- **Multilinguismo nas guias (PT/EN/ES)** com seletor de idioma, traducao automatica (DeepL/Google) e editor manual
+- **Multilinguismo nas guias (PT/EN/ES)** com seletor de idioma, traducao automatica (LibreTranslate padrao, DeepL, Google) e editor manual
 - Landing page completa (14 componentes)
 - Tela de configuracoes da organizacao
 - Integracoes (Airbnb, WhatsApp, E-mail, Storage)
+
+## Esquema de Traducoes (Multilinguismo)
+
+### Modelo de dados
+O campo `Property.translations` (JSONB no PostgreSQL) armazena traducoes aninhadas por locale:
+```
+{
+  "pt-BR": {},
+  "en": { "welcomeMessage": "...", "checkIn": { "instructions": "..." }, ... },
+  "es": { ... }
+}
+```
+
+### Campos traduziveis
+- Property: welcomeMessage, shortDescription
+- CheckIn/CheckOut: instructions, accessMethod, notes, exitChecklist
+- WiFi: notes
+- Rules: silence, visits, trash, equipmentUse, notes
+- Devices: name, instructions
+- Contacts: name
+- Recommendations: name, description
+- Links: label
+
+### Fluxo de fallback
+1. Hospede abre guia → idioma default PT-BR
+2. Troca idioma via bandeirinhas → salvo em localStorage + URL `?lang=`
+3. Renderizacao: busca traducao no JSON → se nao encontrar, usa valor original em PT
+
+### Provedores de traducao automatica
+- LibreTranslate (padrao, gratis, open-source, sem chave)
+- DeepL API Free/Pro (requer TRANSLATION_API_KEY)
+- Google Translate (requer TRANSLATION_API_KEY)
+
+### Arquivos principais
+- `src/lib/i18n/` — dicionarios pt-BR.ts, en.ts, es.ts, types.ts, index.ts
+- `src/lib/translate.ts` — helpers getPropertyTranslations, translateField, translatePath
+- `src/lib/translation-api.ts` — integracao com APIs de traducao
+- `src/app/actions/translations.ts` — Server Actions generateTranslations, updatePropertyTranslations
+- `src/components/shared/language-provider.tsx` — React Context + localStorage
+- `src/components/shared/language-switcher.tsx` — bandeirinhas no header
 
 ## Comandos mais usados
 
