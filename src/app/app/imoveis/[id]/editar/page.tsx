@@ -36,8 +36,9 @@ import {
   Circle,
   ChevronUp,
   ChevronDown,
+  MapPin,
 } from 'lucide-react'
-import { PROPERTY_TYPES } from '@/lib/constants'
+import { PROPERTY_TYPES, RECOMMENDATION_CATEGORIES } from '@/lib/constants'
 import { updateProperty } from '@/app/actions/update-property'
 import { ImageUpload } from '@/components/shared/image-upload'
 import { toast } from 'sonner'
@@ -51,6 +52,7 @@ const steps = [
   { id: 'rules', label: 'Regras', description: 'Normas e permissões da casa', icon: Shield },
   { id: 'devices', label: 'Equipamentos', description: 'Itens importantes e instruções de uso', icon: Tv },
   { id: 'contacts', label: 'Contatos', description: 'Pessoas de apoio da estadia', icon: Phone },
+  { id: 'region', label: 'Região', description: 'Dicas locais e recomendações', icon: MapPin },
 ]
 
 interface PropertyData {
@@ -80,6 +82,16 @@ interface PropertyData {
     phone: string | null
     email: string | null
     whatsapp: string | null
+  }>
+  recommendations: Array<{
+    name: string
+    category: string
+    description: string | null
+    address: string | null
+    mapUrl: string | null
+    instagram: string | null
+    image: string | null
+    distance: string | null
   }>
 }
 
@@ -138,6 +150,16 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
       email: string
       whatsapp: string
     }>,
+    recommendations: [] as Array<{
+      name: string
+      category: string
+      description: string
+      address: string
+      mapUrl: string
+      instagram: string
+      image: string
+      distance: string
+    }>,
   })
 
   useEffect(() => {
@@ -184,6 +206,16 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
             phone: c.phone || '',
             email: c.email || '',
             whatsapp: c.whatsapp || '',
+          })),
+          recommendations: (data.recommendations || []).map((r) => ({
+            name: r.name,
+            category: r.category,
+            description: r.description || '',
+            address: r.address || '',
+            mapUrl: r.mapUrl || '',
+            instagram: r.instagram || '',
+            image: r.image || '',
+            distance: r.distance || '',
           })),
         })
       } catch {
@@ -253,6 +285,42 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
     })
   }
 
+  const addRecommendation = () => {
+    setFormData((prev) => ({
+      ...prev,
+      recommendations: [
+        ...prev.recommendations,
+        { name: '', category: '', description: '', address: '', mapUrl: '', instagram: '', image: '', distance: '' },
+      ],
+    }))
+  }
+
+  const removeRecommendation = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      recommendations: prev.recommendations.filter((_, i) => i !== index),
+    }))
+  }
+
+  const updateRecommendation = (index: number, field: string, value: string) => {
+    setFormData((prev) => {
+      const recommendations = [...prev.recommendations]
+      recommendations[index] = { ...recommendations[index], [field]: value }
+      return { ...prev, recommendations }
+    })
+  }
+
+  const moveRecommendation = (index: number, direction: 'up' | 'down') => {
+    setFormData((prev) => {
+      const recommendations = [...prev.recommendations]
+      const nextIndex = direction === 'up' ? index - 1 : index + 1
+      if (nextIndex < 0 || nextIndex >= recommendations.length) return prev
+      const [item] = recommendations.splice(index, 1)
+      recommendations.splice(nextIndex, 0, item)
+      return { ...prev, recommendations }
+    })
+  }
+
   const completionStatus = useMemo(() => {
     const checks = [
       { label: 'Nome', filled: !!formData.name, step: 0 },
@@ -264,6 +332,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
       { label: 'Regras', filled: !!formData.rulesSilence || !!formData.rulesVisits, step: 4 },
       { label: 'Equipamentos', filled: formData.devices.length > 0, step: 5 },
       { label: 'Contatos', filled: formData.contacts.length > 0, step: 6 },
+      { label: 'Região', filled: formData.recommendations.length > 0, step: 7 },
     ]
     const filledCount = checks.filter((c) => c.filled).length
     const progress = Math.round((filledCount / checks.length) * 100)
@@ -356,6 +425,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         rulesParties: formData.rulesParties,
         devices: formData.devices,
         contacts: formData.contacts,
+        recommendations: formData.recommendations,
       })
 
       if (result.success) {
@@ -849,6 +919,154 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                       }}
                     />
                   </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )
+
+      case 7:
+        return (
+          <div className="space-y-4">
+            <StepIntro
+              title="Dicas da Região"
+              description="Adicione restaurantes, bares, cafeterias, shoppings, praias e outros lugares próximos ao imóvel."
+            />
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h3 className="font-medium">Recomendações</h3>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addRecommendation}
+                className="gap-2 self-start"
+              >
+                <Plus className="h-4 w-4" />
+                Adicionar local
+              </Button>
+            </div>
+
+            {formData.recommendations.length === 0 && (
+              <div className="rounded-lg border border-dashed border-border p-8 text-center">
+                <MapPin className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">Nenhuma recomendação adicionada</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addRecommendation}
+                  className="mt-3 gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Adicionar local
+                </Button>
+              </div>
+            )}
+
+            {formData.recommendations.map((rec, index) => (
+              <Card key={index} className="shadow-sm">
+                <CardContent className="space-y-3 p-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <h4 className="text-sm font-medium">Local {index + 1}</h4>
+                    <div className="flex items-center gap-1 self-end sm:self-start">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        disabled={index === 0}
+                        onClick={() => moveRecommendation(index, 'up')}
+                      >
+                        <ChevronUp className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        disabled={index === formData.recommendations.length - 1}
+                        onClick={() => moveRecommendation(index, 'down')}
+                      >
+                        <ChevronDown className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => removeRecommendation(index)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <Input
+                      placeholder="Nome do local *"
+                      value={rec.name}
+                      onChange={(e) => updateRecommendation(index, 'name', e.target.value)}
+                    />
+                    <Select
+                      value={rec.category}
+                      onValueChange={(v: string | null) => updateRecommendation(index, 'category', v || '')}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Categoria *" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(RECOMMENDATION_CATEGORIES).map(([key, label]) => (
+                          <SelectItem key={key} value={key}>{label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Textarea
+                    placeholder="Descrição"
+                    value={rec.description}
+                    onChange={(e) => updateRecommendation(index, 'description', e.target.value)}
+                    rows={2}
+                  />
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <Input
+                      placeholder="Endereço"
+                      value={rec.address}
+                      onChange={(e) => updateRecommendation(index, 'address', e.target.value)}
+                    />
+                    <Input
+                      placeholder="Distância do imóvel (ex: 500m)"
+                      value={rec.distance}
+                      onChange={(e) => updateRecommendation(index, 'distance', e.target.value)}
+                    />
+                  </div>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <Input
+                      placeholder="Link do Google Maps"
+                      value={rec.mapUrl}
+                      onChange={(e) => updateRecommendation(index, 'mapUrl', e.target.value)}
+                    />
+                    <Input
+                      placeholder="Instagram (@nome)"
+                      value={rec.instagram}
+                      onChange={(e) => updateRecommendation(index, 'instagram', e.target.value)}
+                    />
+                  </div>
+                  <Input
+                    placeholder="URL da foto"
+                    value={rec.image}
+                    onChange={(e) => updateRecommendation(index, 'image', e.target.value)}
+                  />
+                  {rec.image && (
+                    <div className="rounded-lg border overflow-hidden h-32 w-full max-w-xs">
+                      <img
+                        src={rec.image}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none'
+                        }}
+                      />
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}

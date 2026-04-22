@@ -37,6 +37,16 @@ interface CreatePropertyInput {
   rulesParties: boolean
   devices: Array<{ name: string; type: string; instructions: string; brand: string }>
   contacts: Array<{ name: string; role: string; phone: string; email: string; whatsapp: string }>
+  recommendations?: Array<{
+    name: string
+    category: string
+    description?: string
+    address?: string
+    mapUrl?: string
+    instagram?: string
+    image?: string
+    distance?: string
+  }>
 }
 
 export async function createProperty(input: CreatePropertyInput) {
@@ -131,6 +141,20 @@ export async function createProperty(input: CreatePropertyInput) {
                 phone: c.phone || null,
                 email: c.email || null,
                 whatsapp: c.whatsapp || null,
+              })),
+            }
+          : undefined,
+        recommendations: input.recommendations && input.recommendations.length > 0
+          ? {
+              create: input.recommendations.map((r) => ({
+                name: r.name,
+                category: r.category as any,
+                description: r.description || null,
+                address: r.address || null,
+                mapUrl: r.mapUrl || null,
+                instagram: r.instagram || null,
+                image: r.image || null,
+                distance: r.distance || null,
               })),
             }
           : undefined,

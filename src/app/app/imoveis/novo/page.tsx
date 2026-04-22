@@ -40,7 +40,7 @@ import {
   RotateCcw,
   Check,
 } from 'lucide-react'
-import { PROPERTY_TYPES } from '@/lib/constants'
+import { PROPERTY_TYPES, RECOMMENDATION_CATEGORIES } from '@/lib/constants'
 import { createProperty } from '@/app/actions/create-property'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -86,7 +86,16 @@ export default function NewPropertyPage() {
     rulesParties: false,
     devices: [] as Array<{ name: string; type: string; instructions: string; brand: string }>,
     contacts: [] as Array<{ name: string; role: string; phone: string; email: string; whatsapp: string }>,
-    recommendations: [] as Array<{ name: string; category: string; description: string; distance: string }>,
+    recommendations: [] as Array<{
+      name: string
+      category: string
+      description: string
+      address: string
+      mapUrl: string
+      instagram: string
+      image: string
+      distance: string
+    }>,
   })
 
   const updateField = (field: string, value: any) => {
@@ -140,6 +149,42 @@ export default function NewPropertyPage() {
       const [item] = contacts.splice(index, 1)
       contacts.splice(newIndex, 0, item)
       return { ...prev, contacts }
+    })
+  }
+
+  const addRecommendation = () => {
+    setFormData((prev) => ({
+      ...prev,
+      recommendations: [
+        ...prev.recommendations,
+        { name: '', category: '', description: '', address: '', mapUrl: '', instagram: '', image: '', distance: '' },
+      ],
+    }))
+  }
+
+  const removeRecommendation = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      recommendations: prev.recommendations.filter((_, i) => i !== index),
+    }))
+  }
+
+  const updateRecommendation = (index: number, field: string, value: string) => {
+    setFormData((prev) => {
+      const recommendations = [...prev.recommendations]
+      recommendations[index] = { ...recommendations[index], [field]: value }
+      return { ...prev, recommendations }
+    })
+  }
+
+  const moveRecommendation = (index: number, direction: 'up' | 'down') => {
+    setFormData((prev) => {
+      const recommendations = [...prev.recommendations]
+      const newIndex = direction === 'up' ? index - 1 : index + 1
+      if (newIndex < 0 || newIndex >= recommendations.length) return prev
+      const [item] = recommendations.splice(index, 1)
+      recommendations.splice(newIndex, 0, item)
+      return { ...prev, recommendations }
     })
   }
 
@@ -285,6 +330,7 @@ export default function NewPropertyPage() {
         rulesParties: formData.rulesParties,
         devices: formData.devices,
         contacts: formData.contacts,
+        recommendations: formData.recommendations,
       })
 
       if (result.success && result.propertyId) {
@@ -333,6 +379,7 @@ export default function NewPropertyPage() {
         rulesParties: formData.rulesParties,
         devices: formData.devices,
         contacts: formData.contacts,
+        recommendations: formData.recommendations,
       })
 
       if (result.success && result.propertyId) {
@@ -839,35 +886,134 @@ export default function NewPropertyPage() {
                 <Info className="h-5 w-5 text-brand-600 mt-0.5 shrink-0" />
                 <div>
                   <p className="text-sm font-medium text-brand-800">Dicas da Região</p>
-                  <p className="text-sm text-brand-700 mt-1">Recomende restaurantes, mercados, farmácias e atrações próximas.</p>
+                  <p className="text-sm text-brand-700 mt-1">Adicione restaurantes, bares, cafeterias, shoppings, praias e outros lugares próximos ao imóvel.</p>
                 </div>
               </div>
             </div>
-            <div className="grid sm:grid-cols-2 gap-4">
-              {[
-                { icon: '🍽️', title: 'Restaurantes', desc: 'Indique os melhores lugares para comer nas proximidades' },
-                { icon: '☕', title: 'Cafés', desc: 'Cafeterias e padarias próximas' },
-                { icon: '🛒', title: 'Mercados', desc: 'Onde comprar o essencial' },
-                { icon: '💊', title: 'Farmácias', desc: 'Farmácias 24h ou próximas' },
-                { icon: '🎯', title: 'Atrações', desc: 'Pontos turísticos e atividades' },
-                { icon: '🚇', title: 'Transporte', desc: 'Metrô, ônibus e estacionamentos' },
-              ].map((item) => (
-                <div key={item.title} className="rounded-lg border border-border bg-muted/30 p-4">
-                  <div className="text-2xl mb-2">{item.icon}</div>
-                  <p className="font-medium text-sm">{item.title}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{item.desc}</p>
-                </div>
-              ))}
+            <div className="flex items-center justify-between">
+              <h3 className="font-medium">Recomendações</h3>
+              <Button type="button" variant="outline" size="sm" onClick={addRecommendation} className="gap-2">
+                <Plus className="h-4 w-4" />
+                Adicionar local
+              </Button>
             </div>
-            <div className="rounded-lg border border-dashed border-border p-6 text-center">
-              <MapPin className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">
-                Você poderá adicionar recomendações detalhadas após criar o imóvel
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Acesse a página do imóvel → aba Região
-              </p>
-            </div>
+            {formData.recommendations.map((rec, index) => (
+              <Card key={index} className="shadow-sm">
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex justify-between items-start">
+                    <h4 className="text-sm font-medium">Local {index + 1}</h4>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        disabled={index === 0}
+                        onClick={() => moveRecommendation(index, 'up')}
+                      >
+                        <ChevronUp className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        disabled={index === formData.recommendations.length - 1}
+                        onClick={() => moveRecommendation(index, 'down')}
+                      >
+                        <ChevronDown className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => removeRecommendation(index)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <Input
+                      placeholder="Nome do local *"
+                      value={rec.name}
+                      onChange={(e) => updateRecommendation(index, 'name', e.target.value)}
+                    />
+                    <Select
+                      value={rec.category}
+                      onValueChange={(v: string | null) => updateRecommendation(index, 'category', v || '')}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Categoria *" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(RECOMMENDATION_CATEGORIES).map(([key, label]) => (
+                          <SelectItem key={key} value={key}>{label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Textarea
+                    placeholder="Descrição"
+                    value={rec.description}
+                    onChange={(e) => updateRecommendation(index, 'description', e.target.value)}
+                    rows={2}
+                  />
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <Input
+                      placeholder="Endereço"
+                      value={rec.address}
+                      onChange={(e) => updateRecommendation(index, 'address', e.target.value)}
+                    />
+                    <Input
+                      placeholder="Distância do imóvel (ex: 500m)"
+                      value={rec.distance}
+                      onChange={(e) => updateRecommendation(index, 'distance', e.target.value)}
+                    />
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <Input
+                      placeholder="Link do Google Maps"
+                      value={rec.mapUrl}
+                      onChange={(e) => updateRecommendation(index, 'mapUrl', e.target.value)}
+                    />
+                    <Input
+                      placeholder="Instagram (@nome)"
+                      value={rec.instagram}
+                      onChange={(e) => updateRecommendation(index, 'instagram', e.target.value)}
+                    />
+                  </div>
+                  <Input
+                    placeholder="URL da foto"
+                    value={rec.image}
+                    onChange={(e) => updateRecommendation(index, 'image', e.target.value)}
+                  />
+                  {rec.image && (
+                    <div className="rounded-lg border overflow-hidden h-32 w-full max-w-xs">
+                      <img
+                        src={rec.image}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none'
+                        }}
+                      />
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+            {formData.recommendations.length === 0 && (
+              <div className="rounded-lg border border-dashed border-border p-8 text-center">
+                <MapPin className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">Nenhuma recomendação adicionada</p>
+                <Button type="button" variant="outline" size="sm" onClick={addRecommendation} className="mt-2 gap-2">
+                  <Plus className="h-4 w-4" />
+                  Adicionar local
+                </Button>
+              </div>
+            )}
           </div>
         )
       default:
