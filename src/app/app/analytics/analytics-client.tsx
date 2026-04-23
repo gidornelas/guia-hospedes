@@ -2,9 +2,6 @@
 
 import { useMemo, useState } from 'react'
 import {
-  ArrowDownRight,
-  ArrowUpRight,
-  BarChart3,
   BookOpen,
   CalendarDays,
   Clock,
@@ -63,7 +60,7 @@ const periods = [
   { value: '7d', label: 'Últimos 7 dias' },
   { value: '30d', label: 'Últimos 30 dias' },
   { value: '90d', label: 'Últimos 90 dias' },
-  { value: 'all', label: 'Todo período' },
+  { value: 'all', label: 'Todo o período' },
 ]
 
 export default function AnalyticsClient({ data }: { data: AnalyticsData }) {
@@ -99,11 +96,11 @@ export default function AnalyticsClient({ data }: { data: AnalyticsData }) {
 
   const sortedGuides = useMemo(
     () => [...data.guides].sort((a, b) => b[sortBy] - a[sortBy]),
-    [sortBy, data.guides],
+    [data.guides, sortBy],
   )
 
-  const maxViews = Math.max(...data.guides.map((g) => g.views), 1)
-  const maxChannels = Math.max(...data.channels.map((c) => c.count), 1)
+  const maxViews = Math.max(...data.guides.map((guide) => guide.views), 1)
+  const maxChannels = Math.max(...data.channels.map((channel) => channel.count), 1)
 
   const insights = [
     {
@@ -126,7 +123,7 @@ export default function AnalyticsClient({ data }: { data: AnalyticsData }) {
         data.publishedGuides === 0
           ? 'Você ainda não tem guias publicados. Publique um guia para começar a receber acessos.'
           : data.totalShares === 0
-            ? 'Seus guias estão publicados mas ainda não foram compartilhados. Envie o primeiro!'
+            ? 'Seus guias estão publicados, mas ainda não foram compartilhados. Envie o primeiro.'
             : 'Acompanhe regularmente quais imóveis têm mais acessos para entender o perfil dos hóspedes.',
     },
   ]
@@ -168,14 +165,14 @@ export default function AnalyticsClient({ data }: { data: AnalyticsData }) {
                 <Users className="h-4 w-4" />
                 <span>Dados atualizados em tempo real</span>
               </div>
-              <Select value={period} onValueChange={(v) => setPeriod(v || '30d')}>
+              <Select value={period} onValueChange={(value) => setPeriod(value || '30d')}>
                 <SelectTrigger className="h-9 w-full text-sm sm:w-[200px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {periods.map((p) => (
-                    <SelectItem key={p.value} value={p.value}>
-                      {p.label}
+                  {periods.map((item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      {item.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -184,7 +181,7 @@ export default function AnalyticsClient({ data }: { data: AnalyticsData }) {
           </CardContent>
         </Card>
 
-        <Card className="shadow-card border-brand-200 bg-brand-50/40">
+        <Card className="border-brand-200 bg-brand-50/40 shadow-card">
           <CardContent className="p-5">
             <div className="flex items-start gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-100 text-brand-700">
@@ -245,9 +242,7 @@ export default function AnalyticsClient({ data }: { data: AnalyticsData }) {
                     insight.type === 'tip' && 'text-blue-500',
                   )}
                 />
-                <p className="text-sm leading-relaxed text-slate-700">
-                  {insight.message}
-                </p>
+                <p className="text-sm leading-relaxed text-slate-700">{insight.message}</p>
               </CardContent>
             </Card>
           ))}
@@ -262,10 +257,7 @@ export default function AnalyticsClient({ data }: { data: AnalyticsData }) {
                 <CardTitle className="text-lg">Guias mais acessados</CardTitle>
                 <CardDescription>Ranking por visualizações</CardDescription>
               </div>
-              <Select
-                value={sortBy}
-                onValueChange={(v) => setSortBy(v as 'views' | 'shares')}
-              >
+              <Select value={sortBy} onValueChange={(value) => setSortBy(value as 'views' | 'shares')}>
                 <SelectTrigger className="h-9 w-full text-xs sm:w-[180px]">
                   <SelectValue />
                 </SelectTrigger>
@@ -278,7 +270,7 @@ export default function AnalyticsClient({ data }: { data: AnalyticsData }) {
           </CardHeader>
           <CardContent className="space-y-4">
             {sortedGuides.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
+              <p className="py-8 text-center text-sm text-muted-foreground">
                 Nenhum dado de acesso disponível ainda.
               </p>
             ) : (
@@ -307,9 +299,7 @@ export default function AnalyticsClient({ data }: { data: AnalyticsData }) {
                         </p>
                       </div>
                     </div>
-                    <span className="w-10 text-right text-sm font-semibold">
-                      {guide.views}
-                    </span>
+                    <span className="w-10 text-right text-sm font-semibold">{guide.views}</span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-muted">
                     <div
@@ -326,13 +316,11 @@ export default function AnalyticsClient({ data }: { data: AnalyticsData }) {
         <Card className="shadow-card">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg">Canais de compartilhamento</CardTitle>
-            <CardDescription>
-              Por onde os hóspedes recebem os guias
-            </CardDescription>
+            <CardDescription>Por onde os hóspedes recebem os guias</CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
             {data.channels.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
+              <p className="py-8 text-center text-sm text-muted-foreground">
                 Nenhum compartilhamento registrado ainda.
               </p>
             ) : (
@@ -371,9 +359,7 @@ export default function AnalyticsClient({ data }: { data: AnalyticsData }) {
 
                 <div className="border-t pt-3">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      Total de compartilhamentos
-                    </span>
+                    <span className="text-muted-foreground">Total de compartilhamentos</span>
                     <span className="font-semibold">{data.totalShares}</span>
                   </div>
                 </div>
@@ -396,7 +382,7 @@ export default function AnalyticsClient({ data }: { data: AnalyticsData }) {
         <CardContent>
           <div className="space-y-3">
             {data.recentAccesses.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
+              <p className="py-8 text-center text-sm text-muted-foreground">
                 Nenhum acesso registrado recentemente.
               </p>
             ) : (
@@ -409,9 +395,7 @@ export default function AnalyticsClient({ data }: { data: AnalyticsData }) {
                     <div
                       className={cn(
                         'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg',
-                        access.device === 'Mobile'
-                          ? 'bg-blue-50'
-                          : 'bg-purple-50',
+                        access.device === 'Mobile' ? 'bg-blue-50' : 'bg-purple-50',
                       )}
                     >
                       {access.device === 'Mobile' ? (
@@ -422,9 +406,7 @@ export default function AnalyticsClient({ data }: { data: AnalyticsData }) {
                     </div>
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">{access.guide}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {access.device}
-                      </p>
+                      <p className="text-xs text-muted-foreground">{access.device}</p>
                     </div>
                   </div>
                   <Badge variant="outline" className="w-fit shrink-0 bg-background">

@@ -26,8 +26,9 @@ export default async function GuidesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
+        eyebrow="Biblioteca"
         title="Guias"
-        description="Gerencie todos os guias digitais dos seus imóveis"
+        description="Gerencie todos os guias digitais dos seus imóveis, com foco em preview, status e compartilhamento."
       />
 
       <Card className="shadow-card">
@@ -86,7 +87,7 @@ export default async function GuidesPage() {
                             : guide.status === 'DRAFT'
                               ? 'Rascunho'
                               : guide.status === 'REVIEW'
-                                ? 'Em Revisão'
+                                ? 'Em revisão'
                                 : 'Despublicado'}
                         </Badge>
                         <span className="text-xs text-muted-foreground">

@@ -1033,7 +1033,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                       onChange={(e) => updateRecommendation(index, 'address', e.target.value)}
                     />
                     <Input
-                      placeholder="Distância do imóvel (ex: 500m)"
+                      placeholder="Distancia do imovel (ex: 500m)"
                       value={rec.distance}
                       onChange={(e) => updateRecommendation(index, 'distance', e.target.value)}
                     />

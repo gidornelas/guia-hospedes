@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -120,9 +120,7 @@ function PropertyCard({
           {guideStatus ? (
             <Badge
               variant={guideStatus.color === 'success' ? 'default' : 'outline'}
-              className={cn(
-                guideStatus.color === 'success' && 'bg-emerald-100 text-emerald-700'
-              )}
+              className={cn(guideStatus.color === 'success' && 'bg-emerald-100 text-emerald-700')}
             >
               {guideStatus.label}
             </Badge>
@@ -176,7 +174,11 @@ function PropertyCard({
   )
 }
 
-export default function PropertiesClient({ properties, templates, appUrl }: PropertiesClientProps) {
+export default function PropertiesClient({
+  properties,
+  templates,
+  appUrl,
+}: PropertiesClientProps) {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table')
@@ -201,22 +203,23 @@ export default function PropertiesClient({ properties, templates, appUrl }: Prop
   const stats = useMemo(() => {
     return {
       total: properties.length,
-      withGuide: properties.filter((p) => p.guide).length,
-      published: properties.filter((p) => p.guide?.status === 'PUBLISHED').length,
-      draft: properties.filter((p) => p.guide?.status === 'DRAFT').length,
+      withGuide: properties.filter((property) => property.guide).length,
+      published: properties.filter((property) => property.guide?.status === 'PUBLISHED').length,
+      draft: properties.filter((property) => property.guide?.status === 'DRAFT').length,
     }
   }, [properties])
 
   return (
     <div className="space-y-6">
       <PageHeader
+        eyebrow="Portfólio"
         title="Imóveis"
-        description="Gerencie todos os seus imóveis e seus guias"
+        description="Gerencie todos os seus imóveis, acompanhe o status dos guias e acelere o compartilhamento."
       >
         <Link href="/app/imoveis/novo" className="w-full sm:w-auto">
           <Button className="w-full gap-2 sm:w-auto">
             <Plus className="h-4 w-4" />
-            Novo Imóvel
+            Novo imóvel
           </Button>
         </Link>
       </PageHeader>
@@ -224,7 +227,12 @@ export default function PropertiesClient({ properties, templates, appUrl }: Prop
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {[
           { label: 'Total', value: stats.total, icon: Building2, color: 'text-brand-600' },
-          { label: 'Com Guia', value: stats.withGuide, icon: CheckCircle2, color: 'text-emerald-600' },
+          {
+            label: 'Com guia',
+            value: stats.withGuide,
+            icon: CheckCircle2,
+            color: 'text-emerald-600',
+          },
           { label: 'Publicados', value: stats.published, icon: BookOpen, color: 'text-blue-600' },
           { label: 'Rascunho', value: stats.draft, icon: FileEdit, color: 'text-amber-600' },
         ].map((stat) => (
@@ -251,20 +259,20 @@ export default function PropertiesClient({ properties, templates, appUrl }: Prop
                 placeholder="Buscar por nome, código ou cidade..."
                 className="pl-9"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(event) => setSearch(event.target.value)}
               />
             </div>
 
             <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap lg:w-auto lg:justify-end">
-              <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v || 'all')}>
+              <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value || 'all')}>
                 <SelectTrigger className="w-full sm:w-44">
                   <SlidersHorizontal className="mr-2 h-4 w-4" />
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="with-guide">Com Guia</SelectItem>
-                  <SelectItem value="without-guide">Sem Guia</SelectItem>
+                  <SelectItem value="with-guide">Com guia</SelectItem>
+                  <SelectItem value="without-guide">Sem guia</SelectItem>
                   <SelectItem value="ACTIVE">Ativo</SelectItem>
                   <SelectItem value="DRAFT">Rascunho</SelectItem>
                 </SelectContent>
@@ -302,14 +310,20 @@ export default function PropertiesClient({ properties, templates, appUrl }: Prop
                   ? 'Tente ajustar os filtros ou termos de busca.'
                   : 'Comece criando seu primeiro imóvel para gerar guias digitais para seus hóspedes.'
               }
-              actionLabel="Criar Imóvel"
+              actionLabel="Criar imóvel"
               actionHref="/app/imoveis/novo"
             />
           ) : viewMode === 'table' ? (
             <>
               <div className="grid gap-3 lg:hidden">
                 {filteredProperties.map((property) => (
-                  <PropertyCard key={property.id} property={property} compact templates={templates} appUrl={appUrl} />
+                  <PropertyCard
+                    key={property.id}
+                    property={property}
+                    compact
+                    templates={templates}
+                    appUrl={appUrl}
+                  />
                 ))}
               </div>
 
@@ -320,7 +334,7 @@ export default function PropertiesClient({ properties, templates, appUrl }: Prop
                       <TableHead>Imóvel</TableHead>
                       <TableHead className="hidden xl:table-cell">Código</TableHead>
                       <TableHead className="hidden 2xl:table-cell">Cidade</TableHead>
-                      <TableHead>Status do Guia</TableHead>
+                      <TableHead>Status do guia</TableHead>
                       <TableHead>Publicação</TableHead>
                       <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
@@ -374,7 +388,7 @@ export default function PropertiesClient({ properties, templates, appUrl }: Prop
                                 }
                                 className={cn(
                                   guideStatus.color === 'success' &&
-                                    'bg-emerald-100 text-emerald-700 hover:bg-emerald-100'
+                                    'bg-emerald-100 text-emerald-700 hover:bg-emerald-100',
                                 )}
                               >
                                 {guideStatus.label}
@@ -388,7 +402,7 @@ export default function PropertiesClient({ properties, templates, appUrl }: Prop
                               variant={property.status === 'ACTIVE' ? 'default' : 'secondary'}
                               className={cn(
                                 property.status === 'ACTIVE' &&
-                                  'bg-emerald-100 text-emerald-700 hover:bg-emerald-100'
+                                  'bg-emerald-100 text-emerald-700 hover:bg-emerald-100',
                               )}
                             >
                               {statusConfig?.label || property.status}
@@ -441,7 +455,12 @@ export default function PropertiesClient({ properties, templates, appUrl }: Prop
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {filteredProperties.map((property) => (
-                <PropertyCard key={property.id} property={property} templates={templates} appUrl={appUrl} />
+                <PropertyCard
+                  key={property.id}
+                  property={property}
+                  templates={templates}
+                  appUrl={appUrl}
+                />
               ))}
             </div>
           )}

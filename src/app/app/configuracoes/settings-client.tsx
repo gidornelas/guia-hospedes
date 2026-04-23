@@ -42,9 +42,9 @@ interface SettingsClientProps {
 }
 
 const colorPresets = [
-  { name: 'Rosa Vinho', value: '#B6465F' },
-  { name: 'Verde Esmeralda', value: '#059669' },
-  { name: 'Azul Royal', value: '#2563EB' },
+  { name: 'Rosa vinho', value: '#B6465F' },
+  { name: 'Verde esmeralda', value: '#059669' },
+  { name: 'Azul royal', value: '#2563EB' },
   { name: 'Roxo', value: '#7C3AED' },
   { name: 'Laranja', value: '#EA580C' },
   { name: 'Slate', value: '#475569' },
@@ -83,7 +83,7 @@ export default function SettingsClient({ organization }: SettingsClientProps) {
       })
 
       if (result.success) {
-        toast.success('Configurações salvas com sucesso!')
+        toast.success('Configurações salvas com sucesso.')
       } else {
         toast.error(result.error || 'Erro ao salvar')
       }
@@ -153,17 +153,12 @@ export default function SettingsClient({ organization }: SettingsClientProps) {
             </Badge>
           </>
         }
-        children={
-          <Button className="gap-2" onClick={handleSave} disabled={isSaving}>
-            {isSaving ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="h-4 w-4" />
-            )}
-            Salvar alterações
-          </Button>
-        }
-      />
+      >
+        <Button className="gap-2" onClick={handleSave} disabled={isSaving}>
+          {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          Salvar alterações
+        </Button>
+      </PageHeader>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {settingsSummary.map((item) => {
@@ -201,46 +196,46 @@ export default function SettingsClient({ organization }: SettingsClientProps) {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="w-full bg-muted lg:w-fit">
           <TabsTrigger value="perfil">
-            <Shield className="h-3.5 w-3.5 mr-1.5" />
+            <Shield className="mr-1.5 h-3.5 w-3.5" />
             Perfil
           </TabsTrigger>
           <TabsTrigger value="marca">
-            <Palette className="h-3.5 w-3.5 mr-1.5" />
+            <Palette className="mr-1.5 h-3.5 w-3.5" />
             Marca
           </TabsTrigger>
           <TabsTrigger value="dominio">
-            <Globe className="h-3.5 w-3.5 mr-1.5" />
+            <Globe className="mr-1.5 h-3.5 w-3.5" />
             Domínio
           </TabsTrigger>
           <TabsTrigger value="mensagens">
-            <Bell className="h-3.5 w-3.5 mr-1.5" />
+            <Bell className="mr-1.5 h-3.5 w-3.5" />
             Mensagens
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="perfil" className="space-y-6">
-          <div className="grid lg:grid-cols-3 gap-6">
+          <div className="grid gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2">
               <Card className="shadow-card">
                 <CardHeader>
-                  <CardTitle className="text-lg">Informações da Empresa</CardTitle>
-                  <CardDescription>Dados básicos da sua operação</CardDescription>
+                  <CardTitle className="text-lg">Informações da empresa</CardTitle>
+                  <CardDescription>Dados base da sua operação e dos canais de contato.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                      <Label>Nome da Empresa *</Label>
+                      <Label>Nome da empresa *</Label>
                       <Input
                         value={formData.name}
-                        onChange={(e) => updateField('name', e.target.value)}
-                        placeholder="GuiaHóspedes"
+                        onChange={(event) => updateField('name', event.target.value)}
+                        placeholder="Guia Hóspedes"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Nome do Gestor</Label>
+                      <Label>Nome do gestor</Label>
                       <Input
                         value={formData.managerName}
-                        onChange={(e) => updateField('managerName', e.target.value)}
+                        onChange={(event) => updateField('managerName', event.target.value)}
                         placeholder="João Silva"
                       />
                     </div>
@@ -248,7 +243,7 @@ export default function SettingsClient({ organization }: SettingsClientProps) {
                       <Label>Telefone</Label>
                       <Input
                         value={formData.phone}
-                        onChange={(e) => updateField('phone', e.target.value)}
+                        onChange={(event) => updateField('phone', event.target.value)}
                         placeholder="(11) 98765-4321"
                       />
                     </div>
@@ -257,29 +252,29 @@ export default function SettingsClient({ organization }: SettingsClientProps) {
                       <Input
                         type="email"
                         value={formData.email}
-                        onChange={(e) => updateField('email', e.target.value)}
+                        onChange={(event) => updateField('email', event.target.value)}
                         placeholder="joao@guiahospedes.com"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>WhatsApp Principal</Label>
+                      <Label>WhatsApp principal</Label>
                       <Input
                         value={formData.whatsapp}
-                        onChange={(e) => updateField('whatsapp', e.target.value)}
+                        onChange={(event) => updateField('whatsapp', event.target.value)}
                         placeholder="5511987654321"
                       />
                     </div>
                   </div>
                   <Button className="gap-2" onClick={handleSave} disabled={isSaving}>
                     {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                    Salvar Alterações
+                    Salvar alterações
                   </Button>
                 </CardContent>
               </Card>
             </div>
 
             <div className="space-y-6">
-              <Card className="shadow-card border-amber-200">
+              <Card className="border-amber-200 shadow-card">
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-2">
                     <AlertTriangle className="h-4 w-4 text-amber-600" />
@@ -293,22 +288,27 @@ export default function SettingsClient({ organization }: SettingsClientProps) {
                       <span className={cn('text-sm font-medium', hasEmail ? 'text-emerald-800' : 'text-amber-800')}>
                         E-mail
                       </span>
-                      {hasEmail && <Check className="h-3.5 w-3.5 text-emerald-600 ml-auto" />}
+                      {hasEmail && <Check className="ml-auto h-3.5 w-3.5 text-emerald-600" />}
                     </div>
-                    <p className={cn('text-xs mt-1', hasEmail ? 'text-emerald-700' : 'text-amber-700')}>
-                      {hasEmail ? 'Configurado. Os hóspedes podem receber guias por e-mail.' : 'Necessário para envio de guias por e-mail.'}
+                    <p className={cn('mt-1 text-xs', hasEmail ? 'text-emerald-700' : 'text-amber-700')}>
+                      {hasEmail
+                        ? 'Configurado. Os hóspedes podem receber guias por e-mail.'
+                        : 'Necessário para envio de guias por e-mail.'}
                     </p>
                   </div>
+
                   <div className={cn('rounded-lg p-3', hasWhatsApp ? 'bg-emerald-50' : 'bg-amber-50')}>
                     <div className="flex items-center gap-2">
                       <Smartphone className={cn('h-4 w-4', hasWhatsApp ? 'text-emerald-600' : 'text-amber-600')} />
                       <span className={cn('text-sm font-medium', hasWhatsApp ? 'text-emerald-800' : 'text-amber-800')}>
                         WhatsApp
                       </span>
-                      {hasWhatsApp && <Check className="h-3.5 w-3.5 text-emerald-600 ml-auto" />}
+                      {hasWhatsApp && <Check className="ml-auto h-3.5 w-3.5 text-emerald-600" />}
                     </div>
-                    <p className={cn('text-xs mt-1', hasWhatsApp ? 'text-emerald-700' : 'text-amber-700')}>
-                      {hasWhatsApp ? 'Configurado. Os hóspedes podem contatar o anfitrião.' : 'Necessário para o botão de contato no guia público.'}
+                    <p className={cn('mt-1 text-xs', hasWhatsApp ? 'text-emerald-700' : 'text-amber-700')}>
+                      {hasWhatsApp
+                        ? 'Configurado. Os hóspedes podem contatar o anfitrião.'
+                        : 'Necessário para o botão de contato no guia público.'}
                     </p>
                   </div>
                 </CardContent>
@@ -318,16 +318,16 @@ export default function SettingsClient({ organization }: SettingsClientProps) {
         </TabsContent>
 
         <TabsContent value="marca" className="space-y-6">
-          <div className="grid lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-6">
+          <div className="grid gap-6 lg:grid-cols-3">
+            <div className="space-y-6 lg:col-span-2">
               <Card className="shadow-card">
                 <CardHeader>
-                  <CardTitle className="text-lg">Identidade Visual</CardTitle>
-                  <CardDescription>Personalize a aparência dos seus guias</CardDescription>
+                  <CardTitle className="text-lg">Identidade visual</CardTitle>
+                  <CardDescription>Personalize cor, marca e tom visual dos seus guias.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-2">
-                    <Label>Cor Primária</Label>
+                    <Label>Cor primária</Label>
                     <div className="flex flex-wrap gap-2">
                       {colorPresets.map((preset) => (
                         <button
@@ -337,7 +337,7 @@ export default function SettingsClient({ organization }: SettingsClientProps) {
                             'flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-all',
                             formData.primaryColor === preset.value
                               ? 'border-primary ring-2 ring-primary/20'
-                              : 'border-border hover:border-muted-foreground/30'
+                              : 'border-border hover:border-muted-foreground/30',
                           )}
                         >
                           <div
@@ -348,14 +348,14 @@ export default function SettingsClient({ organization }: SettingsClientProps) {
                         </button>
                       ))}
                     </div>
-                    <div className="flex items-center gap-2 mt-2">
+                    <div className="mt-2 flex items-center gap-2">
                       <Input
                         value={formData.primaryColor}
-                        onChange={(e) => updateField('primaryColor', e.target.value)}
+                        onChange={(event) => updateField('primaryColor', event.target.value)}
                         className="w-32 font-mono text-sm"
                       />
                       <div
-                        className="h-10 w-10 rounded-lg border shrink-0"
+                        className="h-10 w-10 shrink-0 rounded-lg border"
                         style={{ backgroundColor: formData.primaryColor }}
                       />
                     </div>
@@ -363,44 +363,42 @@ export default function SettingsClient({ organization }: SettingsClientProps) {
 
                   <div className="space-y-2">
                     <Label>Logo</Label>
-                    <div className="rounded-lg border border-dashed border-border p-6 text-center hover:bg-muted/30 transition-colors cursor-pointer">
-                      <Sparkles className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                    <div className="cursor-pointer rounded-lg border border-dashed border-border p-6 text-center transition-colors hover:bg-muted/30">
+                      <Sparkles className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
                       <p className="text-sm text-muted-foreground">Arraste uma imagem ou clique para fazer upload</p>
-                      <p className="text-xs text-muted-foreground mt-1">PNG, JPG ou SVG. Máx. 2MB.</p>
+                      <p className="mt-1 text-xs text-muted-foreground">PNG, JPG ou SVG. Max. 2MB.</p>
                     </div>
                   </div>
 
                   <Button className="gap-2" onClick={handleSave} disabled={isSaving}>
                     {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                    Salvar Alterações
+                    Salvar alterações
                   </Button>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Brand Preview */}
             <div className="space-y-6">
-              <Card className="shadow-card border-primary/20">
+              <Card className="border-primary/20 shadow-card">
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-2">
                     <Eye className="h-4 w-4 text-primary" />
-                    <CardTitle className="text-base">Preview da Marca</CardTitle>
+                    <CardTitle className="text-base">Preview da marca</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="rounded-xl bg-slate-50 border p-4 space-y-3">
-                    {/* Mini guide preview */}
-                    <div className="rounded-lg bg-white border shadow-sm p-4 space-y-3">
+                  <div className="space-y-3 rounded-xl border bg-slate-50 p-4">
+                    <div className="space-y-3 rounded-lg border bg-white p-4 shadow-sm">
                       <div className="flex items-center gap-2">
                         <div
-                          className="h-8 w-8 rounded-full flex items-center justify-center"
+                          className="flex h-8 w-8 items-center justify-center rounded-full"
                           style={{ backgroundColor: `${formData.primaryColor}20` }}
                         >
                           <Sparkles className="h-4 w-4" style={{ color: formData.primaryColor }} />
                         </div>
                         <div>
-                          <p className="text-xs font-medium">{formData.name || 'Sua Empresa'}</p>
-                          <p className="text-[10px] text-muted-foreground">Guia do Hóspede</p>
+                          <p className="text-xs font-medium">{formData.name || 'Sua empresa'}</p>
+                          <p className="text-[10px] text-muted-foreground">Guia do hóspede</p>
                         </div>
                       </div>
                       <div className="space-y-2">
@@ -422,18 +420,22 @@ export default function SettingsClient({ organization }: SettingsClientProps) {
                       </div>
                     </div>
 
-                    <div className="rounded-lg bg-white border shadow-sm p-3">
-                      <p className="text-[10px] text-muted-foreground mb-1.5">Botões do guia</p>
+                    <div className="rounded-lg border bg-white p-3 shadow-sm">
+                      <p className="mb-1.5 text-[10px] text-muted-foreground">Botões do guia</p>
                       <div className="grid grid-cols-3 gap-2">
-                        {[1, 2, 3].map((i) => (
+                        {[1, 2, 3].map((item) => (
                           <div
-                            key={i}
-                            className="h-10 rounded-lg flex items-center justify-center"
-                            style={{ backgroundColor: i === 1 ? `${formData.primaryColor}15` : '#f1f5f9' }}
+                            key={item}
+                            className="flex h-10 items-center justify-center rounded-lg"
+                            style={{
+                              backgroundColor: item === 1 ? `${formData.primaryColor}15` : '#f1f5f9',
+                            }}
                           >
                             <div
                               className="h-4 w-4 rounded-full"
-                              style={{ backgroundColor: i === 1 ? formData.primaryColor : '#94a3b8' }}
+                              style={{
+                                backgroundColor: item === 1 ? formData.primaryColor : '#94a3b8',
+                              }}
                             />
                           </div>
                         ))}
@@ -447,35 +449,35 @@ export default function SettingsClient({ organization }: SettingsClientProps) {
         </TabsContent>
 
         <TabsContent value="dominio" className="space-y-6">
-          <div className="grid lg:grid-cols-3 gap-6">
+          <div className="grid gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2">
               <Card className="shadow-card">
                 <CardHeader>
-                  <CardTitle className="text-lg">Domínio Público</CardTitle>
-                  <CardDescription>Configure um domínio personalizado para seus guias</CardDescription>
+                  <CardTitle className="text-lg">Domínio público</CardTitle>
+                  <CardDescription>Configure um domínio personalizado para seus guias.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Domínio dos Guias</Label>
+                    <Label>Domínio dos guias</Label>
                     <Input
                       value={formData.domain}
-                      onChange={(e) => updateField('domain', e.target.value)}
+                      onChange={(event) => updateField('domain', event.target.value)}
                       placeholder="guia.guiahospedes.com"
                     />
                     <p className="text-xs text-muted-foreground">
-                      Os guias públicos serão acessíveis através deste domínio.
+                      Os guias públicos serão acessíveis por este domínio.
                     </p>
                   </div>
 
                   {!hasDomain && (
                     <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
                       <div className="flex items-start gap-3">
-                        <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
                         <div>
                           <p className="text-sm font-medium text-amber-800">Domínio não configurado</p>
-                          <p className="text-xs text-amber-700 mt-1">
+                          <p className="mt-1 text-xs text-amber-700">
                             Sem um domínio personalizado, os guias usarão o domínio padrão da plataforma.
-                            Isso é aceitável para começar, mas um domínio próprio transmite mais confiança.
+                            Isso é suficiente para começar, mas um domínio próprio transmite mais confiança.
                           </p>
                         </div>
                       </div>
@@ -485,10 +487,10 @@ export default function SettingsClient({ organization }: SettingsClientProps) {
                   {hasDomain && (
                     <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
                       <div className="flex items-start gap-3">
-                        <Shield className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+                        <Shield className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
                         <div>
                           <p className="text-sm font-medium text-emerald-800">Domínio configurado</p>
-                          <p className="text-xs text-emerald-700 mt-1">
+                          <p className="mt-1 text-xs text-emerald-700">
                             Seus guias estarão disponíveis em: https://{formData.domain}/g/seu-slug
                           </p>
                         </div>
@@ -498,7 +500,7 @@ export default function SettingsClient({ organization }: SettingsClientProps) {
 
                   <Button className="gap-2" onClick={handleSave} disabled={isSaving}>
                     {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                    Salvar Domínio
+                    Salvar domínio
                   </Button>
                 </CardContent>
               </Card>
@@ -515,12 +517,14 @@ export default function SettingsClient({ organization }: SettingsClientProps) {
                     { label: 'Registro CNAME configurado', done: false },
                     { label: 'SSL/TLS ativo', done: false },
                     { label: 'Redirecionamento www', done: false },
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-3">
-                      <div className={cn(
-                        'h-5 w-5 rounded-full flex items-center justify-center shrink-0',
-                        item.done ? 'bg-emerald-500' : 'border-2 border-muted-foreground/30'
-                      )}>
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-center gap-3">
+                      <div
+                        className={cn(
+                          'flex h-5 w-5 shrink-0 items-center justify-center rounded-full',
+                          item.done ? 'bg-emerald-500' : 'border-2 border-muted-foreground/30',
+                        )}
+                      >
                         {item.done && <Check className="h-3 w-3 text-white" />}
                       </div>
                       <span className={cn('text-sm', item.done ? 'text-muted-foreground line-through' : 'text-foreground')}>
@@ -531,13 +535,13 @@ export default function SettingsClient({ organization }: SettingsClientProps) {
                 </CardContent>
               </Card>
 
-              <Card className="shadow-card border-amber-200">
+              <Card className="border-amber-200 shadow-card">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
-                    <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0" />
+                    <AlertTriangle className="h-5 w-5 shrink-0 text-amber-600" />
                     <div>
                       <p className="text-sm font-medium text-amber-800">Risco de segurança</p>
-                      <p className="text-xs text-amber-700 mt-1">
+                      <p className="mt-1 text-xs text-amber-700">
                         Certifique-se de que seu domínio tenha SSL configurado. Guias sem HTTPS
                         podem ser marcados como inseguros pelos navegadores.
                       </p>
@@ -550,12 +554,12 @@ export default function SettingsClient({ organization }: SettingsClientProps) {
         </TabsContent>
 
         <TabsContent value="mensagens" className="space-y-6">
-          <div className="grid lg:grid-cols-3 gap-6">
+          <div className="grid gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2">
               <Card className="shadow-card">
                 <CardHeader>
-                  <CardTitle className="text-lg">Preferências de Mensagens</CardTitle>
-                  <CardDescription>Controle como e quando seus hóspedes são notificados</CardDescription>
+                  <CardTitle className="text-lg">Preferências de mensagens</CardTitle>
+                  <CardDescription>Controle como e quando seus hóspedes são notificados.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-4">
@@ -563,47 +567,56 @@ export default function SettingsClient({ organization }: SettingsClientProps) {
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-2">
                           <Bell className="h-4 w-4 text-muted-foreground" />
-                          <p className="font-medium">Notificações de Compartilhamento</p>
+                          <p className="font-medium">Notificações de compartilhamento</p>
                         </div>
-                        <p className="text-sm text-muted-foreground">Receber notificações quando um guia for compartilhado</p>
+                        <p className="text-sm text-muted-foreground">
+                          Receber notificações quando um guia for compartilhado
+                        </p>
                       </div>
                       <Switch
                         checked={formData.notificationsEnabled}
-                        onCheckedChange={(v) => updateField('notificationsEnabled', v)}
+                        onCheckedChange={(value) => updateField('notificationsEnabled', value)}
                       />
                     </div>
                     <Separator />
+
                     <div className="flex items-center justify-between py-2">
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-2">
                           <Signature className="h-4 w-4 text-muted-foreground" />
-                          <p className="font-medium">Assinatura Padrão</p>
+                          <p className="font-medium">Assinatura padrão</p>
                         </div>
-                        <p className="text-sm text-muted-foreground">Incluir assinatura nos e-mails enviados</p>
+                        <p className="text-sm text-muted-foreground">
+                          Incluir assinatura nos e-mails enviados
+                        </p>
                       </div>
                       <Switch
                         checked={formData.signatureEnabled}
-                        onCheckedChange={(v) => updateField('signatureEnabled', v)}
+                        onCheckedChange={(value) => updateField('signatureEnabled', value)}
                       />
                     </div>
                     <Separator />
+
                     <div className="flex items-center justify-between py-2">
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-2">
                           <Sparkles className="h-4 w-4 text-muted-foreground" />
-                          <p className="font-medium">Mensagem de Boas-vindas Automática</p>
+                          <p className="font-medium">Mensagem automática de boas-vindas</p>
                         </div>
-                        <p className="text-sm text-muted-foreground">Enviar guia automaticamente após confirmação de reserva</p>
+                        <p className="text-sm text-muted-foreground">
+                          Enviar guia automaticamente após a confirmação de reserva
+                        </p>
                       </div>
                       <Switch
                         checked={formData.autoWelcome}
-                        onCheckedChange={(v) => updateField('autoWelcome', v)}
+                        onCheckedChange={(value) => updateField('autoWelcome', value)}
                       />
                     </div>
                   </div>
+
                   <Button className="gap-2" onClick={handleSave} disabled={isSaving}>
                     {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                    Salvar Preferências
+                    Salvar preferências
                   </Button>
                 </CardContent>
               </Card>
@@ -636,15 +649,15 @@ export default function SettingsClient({ organization }: SettingsClientProps) {
                 </CardContent>
               </Card>
 
-              <Card className="shadow-card border-blue-200">
+              <Card className="border-blue-200 shadow-card">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
-                    <Shield className="h-5 w-5 text-blue-600 shrink-0" />
+                    <Shield className="h-5 w-5 shrink-0 text-blue-600" />
                     <div>
                       <p className="text-sm font-medium text-blue-800">Dica</p>
-                      <p className="text-xs text-blue-700 mt-1">
-                        Ative a mensagem automática de boas-vindas para reduzir em 60% as dúvidas
-                        repetidas dos hóspedes.
+                      <p className="mt-1 text-xs text-blue-700">
+                        Ative a mensagem automática de boas-vindas para reduzir dúvidas repetidas
+                        e reforçar o acesso ao guia logo após a reserva.
                       </p>
                     </div>
                   </div>

@@ -42,6 +42,7 @@ import {
 } from 'lucide-react'
 import { PROPERTY_TYPES, RECOMMENDATION_CATEGORIES } from '@/lib/constants'
 import { createProperty } from '@/app/actions/create-property'
+import { PageHeader } from '@/components/shared/page-header'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
@@ -335,7 +336,7 @@ export default function NewPropertyPage() {
 
       if (result.success && result.propertyId) {
         localStorage.removeItem('property_draft')
-        toast.success('Rascunho salvo! Você pode continuar editando depois.')
+        toast.success('Rascunho salvo. Você pode continuar editando depois.')
         router.push(`/app/imoveis/${result.propertyId}`)
       } else {
         toast.error(result.error || 'Erro ao salvar rascunho')
@@ -383,7 +384,7 @@ export default function NewPropertyPage() {
       })
 
       if (result.success && result.propertyId) {
-        toast.success('Imóvel criado com sucesso!')
+        toast.success('Imóvel criado com sucesso.')
         router.push(`/app/imoveis/${result.propertyId}`)
       } else {
         toast.error(result.error || 'Erro ao criar imóvel')
@@ -1023,38 +1024,62 @@ export default function NewPropertyPage() {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link href="/app/imoveis">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
-        <div className="flex-1 min-w-0">
-          <h1 className="font-heading text-2xl font-bold tracking-tight">Novo Imóvel</h1>
-          <div className="flex items-center gap-2 mt-1 flex-wrap">
-            <p className="text-muted-foreground text-sm">
-              Preencha as informações para criar o guia digital
-            </p>
+      <PageHeader
+        eyebrow="Cadastro guiado"
+        title="Novo imóvel"
+        description="Preencha as informações principais do imóvel, acompanhe a completude do guia e publique com mais segurança."
+        meta={
+          <>
+            <span className="rounded-full border border-border bg-background px-3 py-1 text-xs text-muted-foreground">
+              Etapa {currentStep + 1} de {steps.length}
+            </span>
+            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs text-emerald-700">
+              {completionStatus.progress}% completo
+            </span>
             {lastSaved && (
-              <span className="text-xs text-muted-foreground flex items-center gap-1">
+              <span className="flex items-center gap-1 rounded-full border border-border bg-background px-3 py-1 text-xs text-muted-foreground">
                 <Check className="h-3 w-3 text-emerald-500" />
                 Salvo às {lastSaved.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
               </span>
             )}
+          </>
+        }
+      >
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+          <Link href="/app/imoveis" className="w-full sm:w-auto">
+            <Button variant="outline" className="w-full gap-2 sm:w-auto">
+              <ArrowLeft className="h-4 w-4" />
+              Voltar
+            </Button>
+          </Link>
+          <Button variant="outline" onClick={clearDraft} className="w-full gap-2 sm:w-auto">
+            <RotateCcw className="h-4 w-4" />
+            Limpar rascunho
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setShowPreview((value) => !value)}
+            className="w-full gap-2 sm:w-auto"
+          >
+            <Eye className="h-4 w-4" />
+            {showPreview ? 'Ocultar preview' : 'Abrir preview'}
+          </Button>
+        </div>
+      </PageHeader>
+
+      <Card className="border-brand-200 bg-brand-50/40 shadow-card">
+        <CardContent className="p-5">
+          <div className="flex items-start gap-3">
+            <Info className="mt-0.5 h-5 w-5 shrink-0 text-brand-700" />
+            <div className="space-y-1">
+              <p className="font-medium text-brand-900">Próximo melhor passo</p>
+              <p className="text-sm text-brand-800">
+                Complete nome, tipo, Wi-Fi e pelo menos um contato para sair do cadastro com um guia realmente utilizável.
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="hidden sm:flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={clearDraft} className="gap-1.5">
-            <RotateCcw className="h-3.5 w-3.5" />
-            Limpar
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => setShowPreview((v) => !v)} className="gap-1.5">
-            <Eye className="h-3.5 w-3.5" />
-            {showPreview ? 'Ocultar preview' : 'Preview'}
-          </Button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Progress */}
       <div className="space-y-2">
@@ -1137,7 +1162,7 @@ export default function NewPropertyPage() {
             ) : (
               <Button onClick={handleSubmit} disabled={isLoading} className="gap-2">
                 <Save className="h-4 w-4" />
-                {isLoading ? 'Salvando...' : 'Criar Imóvel'}
+                {isLoading ? 'Salvando...' : 'Criar imóvel'}
               </Button>
             )}
           </div>
@@ -1147,7 +1172,7 @@ export default function NewPropertyPage() {
         <div className="space-y-6">
           <Card className="shadow-card sticky top-24">
             <CardContent className="p-5">
-              <h3 className="font-semibold text-sm mb-4">Resumo do Cadastro</h3>
+              <h3 className="font-semibold text-sm mb-4">Resumo do cadastro</h3>
               <div className="space-y-2">
                 {completionStatus.checks.map((check) => (
                   <button
@@ -1183,12 +1208,12 @@ export default function NewPropertyPage() {
               <CardContent className="p-5 space-y-4">
                 <div className="flex items-center gap-2">
                   <Eye className="h-4 w-4 text-primary" />
-                  <h3 className="font-semibold text-sm">Preview do Guia</h3>
+                  <h3 className="font-semibold text-sm">Preview do guia</h3>
                 </div>
                 <div className="rounded-lg bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/10 p-4 space-y-3">
                   <div>
                     <p className="font-heading text-lg font-bold text-foreground">
-                      {formData.name || 'Nome do Imóvel'}
+                      {formData.name || 'Nome do imóvel'}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {formData.city ? `${formData.city}${formData.state ? `, ${formData.state}` : ''}` : 'Cidade, Estado'}

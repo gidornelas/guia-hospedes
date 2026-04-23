@@ -17,7 +17,6 @@ import {
   Link2,
   AlertTriangle,
   Check,
-  ChevronRight,
 } from 'lucide-react'
 import { PageHeader } from '@/components/shared/page-header'
 import { cn } from '@/lib/utils'
@@ -31,16 +30,41 @@ async function getIntegrations() {
 }
 
 const STATUS_CONFIG = {
-  CONNECTED: { label: 'Conectado', className: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100' },
-  DISCONNECTED: { label: 'Desconectado', className: 'bg-slate-100 text-slate-700 hover:bg-slate-100' },
+  CONNECTED: {
+    label: 'Conectado',
+    className: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100',
+  },
+  DISCONNECTED: {
+    label: 'Desconectado',
+    className: 'bg-slate-100 text-slate-700 hover:bg-slate-100',
+  },
   ERROR: { label: 'Erro', className: 'bg-red-100 text-red-700 hover:bg-red-100' },
 }
 
-const PROVIDER_CONFIG: Record<string, { icon: React.ElementType; iconColor: string; description: string }> = {
-  AIRBNB: { icon: Link2, iconColor: 'bg-[#FF5A5F]', description: 'Sincronização de calendário e listings' },
-  WHATSAPP: { icon: Wifi, iconColor: 'bg-green-500', description: 'Envio de guias via WhatsApp' },
-  EMAIL: { icon: Mail, iconColor: 'bg-blue-500', description: 'Envio de guias por e-mail' },
-  STORAGE: { icon: HardDrive, iconColor: 'bg-slate-600', description: 'Armazenamento de mídia e arquivos' },
+const PROVIDER_CONFIG: Record<
+  string,
+  { icon: React.ElementType; iconColor: string; description: string }
+> = {
+  AIRBNB: {
+    icon: Link2,
+    iconColor: 'bg-[#FF5A5F]',
+    description: 'Sincronização de calendário e listings',
+  },
+  WHATSAPP: {
+    icon: Wifi,
+    iconColor: 'bg-green-500',
+    description: 'Envio de guias via WhatsApp',
+  },
+  EMAIL: {
+    icon: Mail,
+    iconColor: 'bg-blue-500',
+    description: 'Envio de guias por e-mail',
+  },
+  STORAGE: {
+    icon: HardDrive,
+    iconColor: 'bg-slate-600',
+    description: 'Armazenamento de mídia e arquivos',
+  },
 }
 
 function HealthBar({ value }: { value: number }) {
@@ -48,10 +72,12 @@ function HealthBar({ value }: { value: number }) {
     <div className="space-y-1">
       <div className="flex items-center justify-between text-xs">
         <span className="text-muted-foreground">Saúde da conexão</span>
-        <span className={cn(
-          'font-medium',
-          value >= 80 ? 'text-emerald-600' : value >= 50 ? 'text-amber-600' : 'text-red-600'
-        )}>
+        <span
+          className={cn(
+            'font-medium',
+            value >= 80 ? 'text-emerald-600' : value >= 50 ? 'text-amber-600' : 'text-red-600',
+          )}
+        >
           {value}%
         </span>
       </div>
@@ -61,13 +87,14 @@ function HealthBar({ value }: { value: number }) {
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const c = STATUS_CONFIG[status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.DISCONNECTED
+  const config = STATUS_CONFIG[status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.DISCONNECTED
+
   return (
-    <Badge className={cn(c.className)}>
-      {status === 'CONNECTED' && <CheckCircle className="h-3 w-3 mr-1" />}
-      {status === 'ERROR' && <AlertCircle className="h-3 w-3 mr-1" />}
-      {status === 'DISCONNECTED' && <AlertTriangle className="h-3 w-3 mr-1" />}
-      {c.label}
+    <Badge className={cn(config.className)}>
+      {status === 'CONNECTED' && <CheckCircle className="mr-1 h-3 w-3" />}
+      {status === 'ERROR' && <AlertCircle className="mr-1 h-3 w-3" />}
+      {status === 'DISCONNECTED' && <AlertTriangle className="mr-1 h-3 w-3" />}
+      {config.label}
     </Badge>
   )
 }
@@ -75,34 +102,51 @@ function StatusBadge({ status }: { status: string }) {
 export default async function IntegrationsPage() {
   const dbIntegrations = await getIntegrations()
 
-  // Mapear integrações do banco para o formato de exibição
   const integrations = (['AIRBNB', 'WHATSAPP', 'EMAIL', 'STORAGE'] as const).map((provider) => {
-    const dbInt = dbIntegrations.find((i) => i.provider === provider)
+    const dbIntegration = dbIntegrations.find((item) => item.provider === provider)
     const config = PROVIDER_CONFIG[provider]
+
     return {
       id: provider.toLowerCase(),
-      name: provider === 'AIRBNB' ? 'Airbnb' : provider === 'WHATSAPP' ? 'WhatsApp' : provider === 'EMAIL' ? 'E-mail' : 'Armazenamento',
-      status: (dbInt?.status?.toLowerCase() || 'disconnected') as 'connected' | 'disconnected' | 'error',
-      lastSync: dbInt?.syncLogs[0]?.startedAt
-        ? new Date(dbInt.syncLogs[0].startedAt).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+      name:
+        provider === 'AIRBNB'
+          ? 'Airbnb'
+          : provider === 'WHATSAPP'
+            ? 'WhatsApp'
+            : provider === 'EMAIL'
+              ? 'E-mail'
+              : 'Armazenamento',
+      status: (dbIntegration?.status?.toLowerCase() || 'disconnected') as
+        | 'connected'
+        | 'disconnected'
+        | 'error',
+      lastSync: dbIntegration?.syncLogs[0]?.startedAt
+        ? new Date(dbIntegration.syncLogs[0].startedAt).toLocaleDateString('pt-BR', {
+            day: 'numeric',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit',
+          })
         : undefined,
-      health: dbInt?.status === 'CONNECTED' ? 100 : dbInt?.status === 'ERROR' ? 30 : 0,
+      health:
+        dbIntegration?.status === 'CONNECTED' ? 100 : dbIntegration?.status === 'ERROR' ? 30 : 0,
       icon: config.icon,
       iconColor: config.iconColor,
       description: config.description,
-      syncLogs: dbInt?.syncLogs || [],
+      syncLogs: dbIntegration?.syncLogs || [],
     }
   })
 
-  const connectedCount = integrations.filter((i) => i.status === 'connected').length
-
+  const connectedCount = integrations.filter((integration) => integration.status === 'connected').length
   const checklistItems = [
-    { label: 'Conectar conta Airbnb', done: integrations.find((i) => i.id === 'airbnb')?.status === 'connected' },
+    {
+      label: 'Conectar conta Airbnb',
+      done: integrations.find((integration) => integration.id === 'airbnb')?.status === 'connected',
+    },
     { label: 'Mapear imóveis', done: false },
-    { label: 'Configurar sincronização automática', done: false },
-    { label: 'Testar importação iCal', done: false },
+    { label: 'Configurar sincronizacao automatica', done: false },
+    { label: 'Testar importacao iCal', done: false },
   ]
-
   const completedChecklist = checklistItems.filter((item) => item.done).length
 
   return (
@@ -110,11 +154,12 @@ export default async function IntegrationsPage() {
       <PageHeader
         eyebrow="Conectividade"
         title="Integrações"
-        description="Conecte sua operação com outras plataformas"
+        description="Conecte sua operação com outras plataformas e acompanhe a saúde de cada canal."
         meta={
           <>
             <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
-              {connectedCount} integração{connectedCount !== 1 ? 'es' : ''} ativa{connectedCount !== 1 ? 's' : ''}
+              {connectedCount} integracao{connectedCount !== 1 ? 'oes' : ''} ativa
+              {connectedCount !== 1 ? 's' : ''}
             </Badge>
             <Badge variant="outline" className="bg-background">
               Próxima revisão: hoje
@@ -128,16 +173,20 @@ export default async function IntegrationsPage() {
         </Button>
       </PageHeader>
 
-      {/* Overview Cards */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {integrations.map((integration) => (
-          <Card key={integration.id} className="shadow-card hover:shadow-md transition-shadow">
-            <CardContent className="p-5 space-y-4">
+          <Card key={integration.id} className="shadow-card transition-shadow hover:shadow-md">
+            <CardContent className="space-y-4 p-5">
               <div className="flex items-start justify-between">
-                <div className={cn('h-10 w-10 rounded-lg text-white flex items-center justify-center', integration.iconColor)}>
+                <div
+                  className={cn(
+                    'flex h-10 w-10 items-center justify-center rounded-lg text-white',
+                    integration.iconColor,
+                  )}
+                >
                   <integration.icon className="h-5 w-5" />
                 </div>
-                <StatusBadge status={integration.status} />
+                <StatusBadge status={integration.status.toUpperCase()} />
               </div>
               <div>
                 <p className="font-semibold">{integration.name}</p>
@@ -164,13 +213,13 @@ export default async function IntegrationsPage() {
         </TabsList>
 
         <TabsContent value="airbnb" className="space-y-6">
-          <div className="grid lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-6">
+          <div className="grid gap-6 lg:grid-cols-3">
+            <div className="space-y-6 lg:col-span-2">
               <Card className="shadow-card">
                 <CardHeader>
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-[#FF5A5F] text-white flex items-center justify-center font-bold text-sm">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#FF5A5F] text-sm font-bold text-white">
                         air
                       </div>
                       <div>
@@ -179,16 +228,21 @@ export default async function IntegrationsPage() {
                       </div>
                     </div>
                     <div className="sm:self-start">
-                      <StatusBadge status={integrations.find((i) => i.id === 'airbnb')?.status || 'disconnected'} />
+                      <StatusBadge
+                        status={
+                          integrations.find((integration) => integration.id === 'airbnb')?.status.toUpperCase() ||
+                          'DISCONNECTED'
+                        }
+                      />
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="rounded-lg bg-muted p-4 space-y-4">
-                    <h4 className="font-medium text-sm">Configuração iCal</h4>
+                  <div className="space-y-4 rounded-lg bg-muted p-4">
+                    <h4 className="text-sm font-medium">Configuração iCal</h4>
                     <div className="space-y-3">
                       <div>
-                        <Label className="text-sm">URL do Calendário iCal</Label>
+                        <Label className="text-sm">URL do calendário iCal</Label>
                         <div className="mt-1.5 flex flex-col gap-2 sm:flex-row">
                           <Input
                             readOnly
@@ -202,7 +256,7 @@ export default async function IntegrationsPage() {
                       </div>
                       <div className="flex items-center justify-between py-2">
                         <div>
-                          <p className="text-sm font-medium">Sincronização Automática</p>
+                          <p className="text-sm font-medium">Sincronização automática</p>
                           <p className="text-xs text-muted-foreground">Atualiza a cada 6 horas</p>
                         </div>
                         <Switch />
@@ -211,21 +265,38 @@ export default async function IntegrationsPage() {
                   </div>
 
                   <div>
-                    <h4 className="font-medium text-sm mb-3">Logs de Sincronização</h4>
+                    <h4 className="mb-3 text-sm font-medium">Logs de sincronização</h4>
                     <div className="space-y-2">
-                      {integrations.find((i) => i.id === 'airbnb')?.syncLogs.length ? (
-                        integrations.find((i) => i.id === 'airbnb')?.syncLogs.map((log) => (
-                          <div key={log.id} className="flex items-center justify-between rounded-lg border p-3 text-sm">
-                            <div>
-                              <p className="font-medium">{log.type === 'ICAL_IMPORT' ? 'Importação iCal' : 'Sincronização'}</p>
-                              <p className="text-xs text-muted-foreground">{log.details ? JSON.stringify(log.details) : 'Sem detalhes'}</p>
+                      {integrations.find((integration) => integration.id === 'airbnb')?.syncLogs.length ? (
+                        integrations
+                          .find((integration) => integration.id === 'airbnb')
+                          ?.syncLogs.map((log) => (
+                            <div
+                              key={log.id}
+                              className="flex items-center justify-between rounded-lg border p-3 text-sm"
+                            >
+                              <div>
+                                <p className="font-medium">
+                                  {log.type === 'ICAL_IMPORT' ? 'Importação iCal' : 'Sincronização'}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {log.details ? JSON.stringify(log.details) : 'Sem detalhes'}
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <Badge variant="outline" className="text-xs">
+                                  {log.status === 'SUCCESS'
+                                    ? 'Sucesso'
+                                    : log.status === 'PARTIAL'
+                                      ? 'Parcial'
+                                      : 'Falha'}
+                                </Badge>
+                                <p className="mt-1 text-xs text-muted-foreground">
+                                  {new Date(log.startedAt).toLocaleDateString('pt-BR')}
+                                </p>
+                              </div>
                             </div>
-                            <div className="text-right">
-                              <Badge variant="outline" className="text-xs">{log.status === 'SUCCESS' ? 'Sucesso' : log.status === 'PARTIAL' ? 'Parcial' : 'Falha'}</Badge>
-                              <p className="text-xs text-muted-foreground mt-1">{new Date(log.startedAt).toLocaleDateString('pt-BR')}</p>
-                            </div>
-                          </div>
-                        ))
+                          ))
                       ) : (
                         <div className="rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground">
                           Nenhum log de sincronização encontrado.
@@ -240,16 +311,18 @@ export default async function IntegrationsPage() {
             <div className="space-y-6">
               <Card className="shadow-card">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-base">Checklist de Configuração</CardTitle>
-                  <CardDescription>Complete para ativar todas as funcionalidades</CardDescription>
+                  <CardTitle className="text-base">Checklist de configuração</CardTitle>
+                  <CardDescription>Complete para ativar as partes críticas do canal.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {checklistItems.map((item, i) => (
-                    <div key={i} className="flex items-center gap-3">
-                      <div className={cn(
-                        'h-5 w-5 rounded-full flex items-center justify-center shrink-0',
-                        item.done ? 'bg-emerald-500' : 'border-2 border-muted-foreground/30'
-                      )}>
+                  {checklistItems.map((item, index) => (
+                    <div key={index} className="flex items-center gap-3">
+                      <div
+                        className={cn(
+                          'flex h-5 w-5 shrink-0 items-center justify-center rounded-full',
+                          item.done ? 'bg-emerald-500' : 'border-2 border-muted-foreground/30',
+                        )}
+                      >
                         {item.done && <Check className="h-3 w-3 text-white" />}
                       </div>
                       <span className={cn('text-sm', item.done ? 'text-muted-foreground line-through' : 'text-foreground')}>
@@ -257,14 +330,14 @@ export default async function IntegrationsPage() {
                       </span>
                     </div>
                   ))}
-                  <Progress value={completedChecklist * 25} className="h-1.5 mt-2" />
-                  <p className="text-xs text-muted-foreground text-center">
-                    {completedChecklist} de {checklistItems.length} concluídos
+                  <Progress value={completedChecklist * 25} className="mt-2 h-1.5" />
+                  <p className="text-center text-xs text-muted-foreground">
+                    {completedChecklist} de {checklistItems.length} concluidos
                   </p>
                 </CardContent>
               </Card>
 
-              <Card className="shadow-card border-amber-200">
+              <Card className="border-amber-200 shadow-card">
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-2">
                     <AlertTriangle className="h-4 w-4 text-amber-600" />
@@ -273,14 +346,14 @@ export default async function IntegrationsPage() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="rounded-lg bg-amber-50 p-3">
-                    <p className="text-sm text-amber-800 font-medium">Dependência ativa</p>
-                    <p className="text-xs text-amber-700 mt-1">
+                    <p className="text-sm font-medium text-amber-800">Dependência ativa</p>
+                    <p className="mt-1 text-xs text-amber-700">
                       A sincronização do Airbnb depende da URL iCal estar sempre atualizada.
                     </p>
                   </div>
                   <div className="rounded-lg bg-amber-50 p-3">
-                    <p className="text-sm text-amber-800 font-medium">Risco de conflito</p>
-                    <p className="text-xs text-amber-700 mt-1">
+                    <p className="text-sm font-medium text-amber-800">Risco de conflito</p>
+                    <p className="mt-1 text-xs text-amber-700">
                       Reservas manuais podem conflitar com importações automáticas.
                     </p>
                   </div>
@@ -291,13 +364,13 @@ export default async function IntegrationsPage() {
         </TabsContent>
 
         <TabsContent value="whatsapp" className="space-y-6">
-          <div className="grid lg:grid-cols-3 gap-6">
+          <div className="grid gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2">
               <Card className="shadow-card">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-green-500 text-white flex items-center justify-center">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500 text-white">
                         <Wifi className="h-5 w-5" />
                       </div>
                       <div>
@@ -305,26 +378,31 @@ export default async function IntegrationsPage() {
                         <CardDescription>Envio de guias via WhatsApp</CardDescription>
                       </div>
                     </div>
-                    <StatusBadge status={integrations.find((i) => i.id === 'whatsapp')?.status || 'disconnected'} />
+                    <StatusBadge
+                      status={
+                        integrations.find((integration) => integration.id === 'whatsapp')?.status.toUpperCase() ||
+                        'DISCONNECTED'
+                      }
+                    />
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="rounded-lg bg-muted p-4">
-                    <h4 className="font-medium mb-2">Modo Atual: Links wa.me</h4>
+                    <h4 className="mb-2 font-medium">Modo atual: links wa.me</h4>
                     <p className="text-sm text-muted-foreground">
-                      O sistema gera links diretos para WhatsApp (wa.me) que abrem automaticamente
-                      uma conversa com a mensagem pré-preenchida.
+                      O sistema gera links diretos para WhatsApp que abrem uma conversa com a
+                      mensagem pré-preenchida.
                     </p>
                   </div>
 
                   <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
                     <div className="flex items-start gap-3">
-                      <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                      <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
                       <div>
-                        <h4 className="font-medium text-amber-800">WhatsApp Cloud API (Em Breve)</h4>
-                        <p className="text-sm text-amber-700 mt-1">
-                          A arquitetura está preparada para integração com a WhatsApp Cloud API.
-                          Quando disponível, será possível enviar mensagens diretamente pela plataforma.
+                        <h4 className="font-medium text-amber-800">WhatsApp Cloud API em breve</h4>
+                        <p className="mt-1 text-sm text-amber-700">
+                          A arquitetura está pronta para integração com a WhatsApp Cloud API.
+                          Quando ela entrar, será possível enviar mensagens diretamente pela plataforma.
                         </p>
                       </div>
                     </div>
@@ -340,15 +418,22 @@ export default async function IntegrationsPage() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {[
-                    { label: 'Número de WhatsApp configurado', done: integrations.find((i) => i.id === 'whatsapp')?.status === 'connected' },
+                    {
+                      label: 'Número de WhatsApp configurado',
+                      done:
+                        integrations.find((integration) => integration.id === 'whatsapp')?.status ===
+                        'connected',
+                    },
                     { label: 'Teste de envio realizado', done: false },
                     { label: 'Cloud API ativada', done: false },
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-3">
-                      <div className={cn(
-                        'h-5 w-5 rounded-full flex items-center justify-center shrink-0',
-                        item.done ? 'bg-emerald-500' : 'border-2 border-muted-foreground/30'
-                      )}>
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-center gap-3">
+                      <div
+                        className={cn(
+                          'flex h-5 w-5 shrink-0 items-center justify-center rounded-full',
+                          item.done ? 'bg-emerald-500' : 'border-2 border-muted-foreground/30',
+                        )}
+                      >
                         {item.done && <Check className="h-3 w-3 text-white" />}
                       </div>
                       <span className={cn('text-sm', item.done ? 'text-muted-foreground line-through' : 'text-foreground')}>
@@ -356,7 +441,7 @@ export default async function IntegrationsPage() {
                       </span>
                     </div>
                   ))}
-                  <Progress value={0} className="h-1.5 mt-2" />
+                  <Progress value={0} className="mt-2 h-1.5" />
                 </CardContent>
               </Card>
             </div>
@@ -364,13 +449,13 @@ export default async function IntegrationsPage() {
         </TabsContent>
 
         <TabsContent value="email" className="space-y-6">
-          <div className="grid lg:grid-cols-3 gap-6">
+          <div className="grid gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2">
               <Card className="shadow-card">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-blue-500 text-white flex items-center justify-center">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500 text-white">
                         <Mail className="h-5 w-5" />
                       </div>
                       <div>
@@ -378,37 +463,55 @@ export default async function IntegrationsPage() {
                         <CardDescription>Envio de guias por e-mail</CardDescription>
                       </div>
                     </div>
-                    <StatusBadge status={integrations.find((i) => i.id === 'email')?.status || 'disconnected'} />
+                    <StatusBadge
+                      status={
+                        integrations.find((integration) => integration.id === 'email')?.status.toUpperCase() ||
+                        'DISCONNECTED'
+                      }
+                    />
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="rounded-lg bg-muted p-4 space-y-4">
-                    <h4 className="font-medium text-sm">Configuração SMTP</h4>
-                    <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-4 rounded-lg bg-muted p-4">
+                    <h4 className="text-sm font-medium">Configuração SMTP</h4>
+                    <div className="grid gap-4 md:grid-cols-2">
                       <div>
-                        <Label className="text-sm">SMTP Host</Label>
-                        <Input readOnly value={process.env.SMTP_HOST || 'Não configurado'} className="bg-background mt-1.5" />
+                        <Label className="text-sm">SMTP host</Label>
+                        <Input
+                          readOnly
+                          value={process.env.SMTP_HOST || 'Não configurado'}
+                          className="mt-1.5 bg-background"
+                        />
                       </div>
                       <div>
                         <Label className="text-sm">Porta</Label>
-                        <Input readOnly value={process.env.SMTP_PORT || '587'} className="bg-background mt-1.5" />
+                        <Input
+                          readOnly
+                          value={process.env.SMTP_PORT || '587'}
+                          className="mt-1.5 bg-background"
+                        />
                       </div>
                       <div className="md:col-span-2">
-                        <Label className="text-sm">E-mail de Envio</Label>
-                        <Input readOnly value={process.env.SMTP_FROM || 'Não configurado'} className="bg-background mt-1.5" />
+                        <Label className="text-sm">E-mail de envio</Label>
+                        <Input
+                          readOnly
+                          value={process.env.EMAIL_FROM || process.env.SMTP_FROM || 'Não configurado'}
+                          className="mt-1.5 bg-background"
+                        />
                       </div>
                     </div>
                   </div>
 
                   <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
                     <div className="flex items-start gap-3">
-                      <CheckCircle className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+                      <CheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
                       <div>
                         <p className="text-sm font-medium text-emerald-800">Status</p>
-                        <p className="text-xs text-emerald-700 mt-1">
-                          {integrations.find((i) => i.id === 'email')?.status === 'connected'
+                        <p className="mt-1 text-xs text-emerald-700">
+                          {integrations.find((integration) => integration.id === 'email')?.status ===
+                          'connected'
                             ? 'E-mail configurado e funcionando.'
-                            : 'Configure as variáveis SMTP no arquivo .env para ativar o envio de e-mails.'}
+                            : 'Configure as variáveis SMTP no ambiente para ativar o envio de e-mails.'}
                         </p>
                       </div>
                     </div>
@@ -424,16 +527,23 @@ export default async function IntegrationsPage() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {[
-                    { label: 'SMTP configurado', done: integrations.find((i) => i.id === 'email')?.status === 'connected' },
+                    {
+                      label: 'SMTP configurado',
+                      done:
+                        integrations.find((integration) => integration.id === 'email')?.status ===
+                        'connected',
+                    },
                     { label: 'E-mail de envio validado', done: false },
                     { label: 'Teste de entrega realizado', done: false },
                     { label: 'Templates de e-mail ativos', done: true },
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-3">
-                      <div className={cn(
-                        'h-5 w-5 rounded-full flex items-center justify-center shrink-0',
-                        item.done ? 'bg-emerald-500' : 'border-2 border-muted-foreground/30'
-                      )}>
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-center gap-3">
+                      <div
+                        className={cn(
+                          'flex h-5 w-5 shrink-0 items-center justify-center rounded-full',
+                          item.done ? 'bg-emerald-500' : 'border-2 border-muted-foreground/30',
+                        )}
+                      >
                         {item.done && <Check className="h-3 w-3 text-white" />}
                       </div>
                       <span className={cn('text-sm', item.done ? 'text-muted-foreground line-through' : 'text-foreground')}>
@@ -441,7 +551,7 @@ export default async function IntegrationsPage() {
                       </span>
                     </div>
                   ))}
-                  <Progress value={25} className="h-1.5 mt-2" />
+                  <Progress value={25} className="mt-2 h-1.5" />
                 </CardContent>
               </Card>
             </div>
@@ -449,29 +559,34 @@ export default async function IntegrationsPage() {
         </TabsContent>
 
         <TabsContent value="storage" className="space-y-6">
-          <div className="grid lg:grid-cols-3 gap-6">
+          <div className="grid gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2">
               <Card className="shadow-card">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-slate-600 text-white flex items-center justify-center">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-600 text-white">
                         <HardDrive className="h-5 w-5" />
                       </div>
                       <div>
                         <CardTitle className="text-lg">Armazenamento</CardTitle>
-                        <CardDescription>Armazenamento de mídia e arquivos</CardDescription>
+                        <CardDescription>Armazenamento de midia e arquivos</CardDescription>
                       </div>
                     </div>
-                    <StatusBadge status={integrations.find((i) => i.id === 'storage')?.status || 'disconnected'} />
+                    <StatusBadge
+                      status={
+                        integrations.find((integration) => integration.id === 'storage')?.status.toUpperCase() ||
+                        'DISCONNECTED'
+                      }
+                    />
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="rounded-lg bg-muted p-4">
-                    <h4 className="font-medium mb-2">Modo Atual: Local</h4>
+                    <h4 className="mb-2 font-medium">Modo atual: local</h4>
                     <p className="text-sm text-muted-foreground">
-                      As imagens e arquivos são armazenados localmente. A arquitetura está preparada
-                      para integração com S3, Cloudinary ou outros provedores de armazenamento.
+                      As imagens e arquivos são armazenados localmente. A arquitetura já está pronta
+                      para integração com S3, Cloudinary ou outros provedores.
                     </p>
                   </div>
                 </CardContent>
@@ -487,13 +602,15 @@ export default async function IntegrationsPage() {
                   {[
                     { label: 'Armazenamento local ativo', done: true },
                     { label: 'Backup configurado', done: false },
-                    { label: 'S3/Cloudinary conectado', done: false },
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-3">
-                      <div className={cn(
-                        'h-5 w-5 rounded-full flex items-center justify-center shrink-0',
-                        item.done ? 'bg-emerald-500' : 'border-2 border-muted-foreground/30'
-                      )}>
+                    { label: 'S3 ou Cloudinary conectado', done: false },
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-center gap-3">
+                      <div
+                        className={cn(
+                          'flex h-5 w-5 shrink-0 items-center justify-center rounded-full',
+                          item.done ? 'bg-emerald-500' : 'border-2 border-muted-foreground/30',
+                        )}
+                      >
                         {item.done && <Check className="h-3 w-3 text-white" />}
                       </div>
                       <span className={cn('text-sm', item.done ? 'text-muted-foreground line-through' : 'text-foreground')}>
@@ -501,7 +618,7 @@ export default async function IntegrationsPage() {
                       </span>
                     </div>
                   ))}
-                  <Progress value={33} className="h-1.5 mt-2" />
+                  <Progress value={33} className="mt-2 h-1.5" />
                 </CardContent>
               </Card>
             </div>
