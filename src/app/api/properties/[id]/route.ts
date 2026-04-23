@@ -9,7 +9,7 @@ export async function GET(
     const { id } = await params
 
     const property = await db.property.findUnique({
-      where: { id },
+      where: { id, deletedAt: null },
       include: {
         checkIn: true,
         checkOut: true,

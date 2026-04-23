@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { unstable_cache } from 'next/cache'
 import {
   ArrowRight,
   BookOpen,
@@ -11,10 +12,9 @@ import {
   MessageCircle,
   Plus,
   Share2,
-  TrendingUp,
-  Users,
 } from 'lucide-react'
 import { db } from '@/lib/db'
+import { getSession } from '@/lib/session'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/shared/empty-state'
@@ -23,194 +23,178 @@ import { DashboardAlerts, type DashboardAlert } from '@/components/dashboard/das
 import { DashboardMetricCard } from '@/components/dashboard/dashboard-metric-card'
 import { cn } from '@/lib/utils'
 
-async function getDashboardData() {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const tomorrow = new Date(today)
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  const dayAfterTomorrow = new Date(today)
-  dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2)
+const getDashboardData = unstable_cache(
+  async function getDashboardData(organizationId: string) {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    const dayAfterTomorrow = new Date(today)
+    dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2)
 
-  const [
-    totalProperties,
-    totalGuides,
-    publishedGuides,
-    draftGuides,
-    recentShares,
-    totalShares,
-    whatsappShares,
-    emailShares,
-    totalReservations,
-    upcomingReservations,
-    activeGuests,
-    checkInsToday,
-    checkOutsToday,
-    checkInsTomorrow,
-    checkInsTodayNotDone,
-    checkOutsTodayNotDone,
-    unpublishedGuides,
-    upcomingConfirmedReservations,
-  ] = await Promise.all([
-    db.property.count(),
-    db.guide.count(),
-    db.guide.count({ where: { status: 'PUBLISHED' } }),
-    db.guide.count({ where: { status: 'DRAFT' } }),
-    db.shareLog.findMany({
-      take: 5,
-      orderBy: { sentAt: 'desc' },
-      include: { guide: { include: { property: true } } },
-    }),
-    db.shareLog.count(),
-    db.shareLog.count({ where: { channel: 'WHATSAPP' } }),
-    db.shareLog.count({ where: { channel: 'EMAIL' } }),
-    db.reservation.count(),
-    db.reservation.findMany({
-      where: {
-        checkInDate: { gte: today },
-        status: { not: 'CANCELLED' },
-      },
-      orderBy: { checkInDate: 'asc' },
-      take: 5,
-      include: { property: { select: { id: true, name: true } } },
-    }),
-    db.reservation.count({ where: { status: 'CHECKED_IN' } }),
-    db.reservation.findMany({
-      where: {
-        checkInDate: { gte: today, lt: tomorrow },
-        status: { not: 'CANCELLED' },
-      },
-      orderBy: { checkInDate: 'asc' },
-      include: { property: { select: { id: true, name: true } } },
-    }),
-    db.reservation.findMany({
-      where: {
-        checkOutDate: { gte: today, lt: tomorrow },
-        status: { not: 'CANCELLED' },
-      },
-      orderBy: { checkOutDate: 'asc' },
-      include: { property: { select: { id: true, name: true } } },
-    }),
-    db.reservation.findMany({
-      where: {
-        checkInDate: { gte: tomorrow, lt: dayAfterTomorrow },
-        status: 'CONFIRMED',
-      },
-      orderBy: { checkInDate: 'asc' },
-      include: { property: { select: { id: true, name: true } } },
-    }),
-    db.reservation.findMany({
-      where: {
-        checkInDate: { gte: today, lt: tomorrow },
-        status: 'CONFIRMED',
-      },
-      orderBy: { checkInDate: 'asc' },
-      include: { property: { select: { id: true, name: true } } },
-    }),
-    db.reservation.findMany({
-      where: {
-        checkOutDate: { gte: today, lt: tomorrow },
-        status: 'CHECKED_IN',
-      },
-      orderBy: { checkOutDate: 'asc' },
-      include: { property: { select: { id: true, name: true } } },
-    }),
-    db.property.findMany({
-      where: {
-        guide: { status: { in: ['DRAFT', 'REVIEW'] } },
-      },
-      select: { id: true, name: true, guide: { select: { status: true } } },
-      take: 5,
-    }),
-    db.reservation.findMany({
-      where: {
-        checkInDate: { gte: today, lte: dayAfterTomorrow },
-        status: 'CONFIRMED',
-      },
-      orderBy: { checkInDate: 'asc' },
-      include: {
-        property: {
-          select: { id: true, name: true },
+    const orgFilter = { organizationId, deletedAt: null }
+    const propertyOrgFilter = { property: { organizationId, deletedAt: null } }
+    const guideOrgFilter = { guide: { property: { organizationId, deletedAt: null } } }
+
+    const [
+      totalProperties,
+      publishedGuides,
+      draftGuides,
+      recentShares,
+      totalShares,
+      totalReservations,
+      upcomingReservations,
+      activeGuests,
+      checkInsToday,
+      checkOutsToday,
+      checkInsTomorrow,
+      unpublishedGuides,
+    ] = await Promise.all([
+      db.property.count({ where: orgFilter }),
+      db.guide.count({ where: { ...propertyOrgFilter, status: 'PUBLISHED' } }),
+      db.guide.count({ where: { ...propertyOrgFilter, status: 'DRAFT' } }),
+      db.shareLog.findMany({
+        where: guideOrgFilter,
+        take: 5,
+        orderBy: { sentAt: 'desc' },
+        include: { guide: { include: { property: true } } },
+      }),
+      db.shareLog.count({ where: guideOrgFilter }),
+      db.reservation.count({ where: propertyOrgFilter }),
+      db.reservation.findMany({
+        where: {
+          ...propertyOrgFilter,
+          checkInDate: { gte: today },
+          status: { not: 'CANCELLED' },
         },
-      },
-      take: 10,
-    }),
-  ])
+        orderBy: { checkInDate: 'asc' },
+        take: 5,
+        include: { property: { select: { id: true, name: true } } },
+      }),
+      db.reservation.count({ where: { ...propertyOrgFilter, status: 'CHECKED_IN' } }),
+      db.reservation.findMany({
+        where: {
+          ...propertyOrgFilter,
+          checkInDate: { gte: today, lt: tomorrow },
+          status: { not: 'CANCELLED' },
+        },
+        orderBy: { checkInDate: 'asc' },
+        include: { property: { select: { id: true, name: true } } },
+      }),
+      db.reservation.findMany({
+        where: {
+          ...propertyOrgFilter,
+          checkOutDate: { gte: today, lt: tomorrow },
+          status: { not: 'CANCELLED' },
+        },
+        orderBy: { checkOutDate: 'asc' },
+        include: { property: { select: { id: true, name: true } } },
+      }),
+      db.reservation.findMany({
+        where: {
+          ...propertyOrgFilter,
+          checkInDate: { gte: tomorrow, lt: dayAfterTomorrow },
+          status: 'CONFIRMED',
+        },
+        orderBy: { checkInDate: 'asc' },
+        include: { property: { select: { id: true, name: true } } },
+      }),
+      db.property.findMany({
+        where: {
+          organizationId,
+          guide: { status: { in: ['DRAFT', 'REVIEW'] } },
+        },
+        select: { id: true, name: true, guide: { select: { status: true } } },
+        take: 5,
+      }),
+    ])
 
-  // Build alerts
-  const alerts: DashboardAlert[] = []
+    // Deriva dados evitando queries redundantes
+    const totalGuides = publishedGuides + draftGuides
+    const checkInsTodayNotDone = checkInsToday.filter((r) => r.status === 'CONFIRMED')
+    const checkOutsTodayNotDone = checkOutsToday.filter((r) => r.status === 'CHECKED_IN')
 
-  for (const r of checkInsTomorrow) {
-    alerts.push({
-      id: `checkin-tomorrow-${r.id}`,
-      type: 'CHECKIN_TOMORROW',
-      title: `Check-in amanha: ${r.guestName}`,
-      message: `${r.property.name} · ${r.numberOfGuests} hospede${r.numberOfGuests > 1 ? 's' : ''} · Lembre-se de enviar o guia ao hospede.`,
-      severity: 'info',
-      link: `/app/reservas/${r.id}`,
-      linkLabel: 'Ver reserva',
-    })
-  }
+    // Build alerts
+    const alerts: DashboardAlert[] = []
 
-  for (const r of checkInsTodayNotDone) {
-    alerts.push({
-      id: `checkin-today-${r.id}`,
-      type: 'CHECKIN_TODAY_NOT_DONE',
-      title: `Check-in hoje pendente: ${r.guestName}`,
-      message: `${r.property.name} · A reserva ainda nao foi marcada como check-in realizado.`,
-      severity: 'warning',
-      link: `/app/reservas/${r.id}`,
-      linkLabel: 'Marcar check-in',
-    })
-  }
+    for (const r of checkInsTomorrow) {
+      alerts.push({
+        id: `check-in-tomorrow-${r.id}`,
+        type: 'CHECKIN_TOMORROW',
+        title: `Check-in amanha: ${r.guestName}`,
+        message: `${r.property.name} · ${r.numberOfGuests} hospede${r.numberOfGuests > 1 ? 's' : ''} · Lembre-se de enviar o guia ao hospede.`,
+        severity: 'info',
+        link: `/app/reservas/${r.id}`,
+        linkLabel: 'Ver reserva',
+      })
+    }
 
-  for (const r of checkOutsTodayNotDone) {
-    alerts.push({
-      id: `checkout-today-${r.id}`,
-      type: 'CHECKOUT_TODAY_NOT_DONE',
-      title: `Check-out hoje: ${r.guestName}`,
-      message: `${r.property.name} · A reserva ainda nao foi marcada como check-out realizado.`,
-      severity: 'warning',
-      link: `/app/reservas/${r.id}`,
-      linkLabel: 'Marcar check-out',
-    })
-  }
+    for (const r of checkInsTodayNotDone) {
+      alerts.push({
+        id: `check-in-today-${r.id}`,
+        type: 'CHECKIN_TODAY_NOT_DONE',
+        title: `Check-in hoje pendente: ${r.guestName}`,
+        message: `${r.property.name} · A reserva ainda não foi marcada como check-in realizado.`,
+        severity: 'warning',
+        link: `/app/reservas/${r.id}`,
+        linkLabel: 'Marcar check-in',
+      })
+    }
 
-  for (const p of unpublishedGuides) {
-    alerts.push({
-      id: `guide-unpublished-${p.id}`,
-      type: 'GUIDE_NOT_PUBLISHED',
-      title: `Guia nao publicado: ${p.name}`,
-      message: 'O guia deste imovel ainda esta em rascunho. Publique para liberar o compartilhamento.',
-      severity: 'info',
-      link: `/app/imoveis/${p.id}`,
-      linkLabel: 'Publicar guia',
-    })
-  }
+    for (const r of checkOutsTodayNotDone) {
+      alerts.push({
+        id: `check-out-today-${r.id}`,
+        type: 'CHECKOUT_TODAY_NOT_DONE',
+        title: `Check-out hoje: ${r.guestName}`,
+        message: `${r.property.name} · A reserva ainda não foi marcada como check-out realizado.`,
+        severity: 'warning',
+        link: `/app/reservas/${r.id}`,
+        linkLabel: 'Marcar check-out',
+      })
+    }
 
-  return {
-    totalProperties,
-    totalGuides,
-    publishedGuides,
-    draftGuides,
-    recentShares,
-    totalShares,
-    whatsappShares,
-    emailShares,
-    totalReservations,
-    upcomingReservations,
-    activeGuests,
-    checkInsToday,
-    checkOutsToday,
-    alerts,
-  }
-}
+    for (const p of unpublishedGuides) {
+      alerts.push({
+        id: `guide-unpublished-${p.id}`,
+        type: 'GUIDE_NOT_PUBLISHED',
+        title: `Guia não publicado: ${p.name}`,
+        message: 'O guia deste imóvel ainda esta em rascunho. Publique para liberar o compartilhamento.',
+        severity: 'info',
+        link: `/app/imóveis/${p.id}`,
+        linkLabel: 'Publicar guia',
+      })
+    }
+
+    return {
+      totalProperties,
+      totalGuides,
+      publishedGuides,
+      draftGuides,
+      recentShares,
+      totalShares,
+      totalReservations,
+      upcomingReservations,
+      activeGuests,
+      checkInsToday,
+      checkOutsToday,
+      alerts,
+    }
+  },
+  ['dashboard'],
+  { revalidate: 30, tags: ['dashboard'] }
+)
 
 export default async function DashboardPage() {
-  const data = await getDashboardData()
+  const session = await getSession()
+  if (!session) {
+    return null
+  }
+
+  const data = await getDashboardData(session.organizationId)
 
   const stats = [
     {
-      title: 'Total de imoveis',
+      title: 'Total de imóveis',
       value: data.totalProperties,
       icon: Building2,
       color: 'text-blue-600',
@@ -248,12 +232,12 @@ export default async function DashboardPage() {
       <PageHeader
         eyebrow="Painel"
         title="Visao Geral"
-        description="Acompanhe o status dos seus imoveis, identifique o que ainda falta publicar e acione os proximos passos sem sair da home."
+        description="Acompanhe o status dos seus imóveis, identifique o que ainda falta publicar e acione os proximos passos sem sair da home."
       >
-        <Link href="/app/imoveis/novo">
+        <Link href="/app/imóveis/novo">
           <Button className="gap-2">
             <Plus className="h-4 w-4" />
-            Novo imovel
+            Novo imóvel
           </Button>
         </Link>
       </PageHeader>
@@ -361,10 +345,10 @@ export default async function DashboardPage() {
             <CardTitle className="text-lg">Atalhos rapidos</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Link href="/app/imoveis/novo">
+            <Link href="/app/imóveis/novo">
               <Button variant="outline" className="w-full justify-start gap-3">
                 <Plus className="h-4 w-4" />
-                Cadastrar novo imovel
+                Cadastrar novo imóvel
               </Button>
             </Link>
             <Link href="/app/reservas/novo">
@@ -391,12 +375,12 @@ export default async function DashboardPage() {
               <EmptyState
                 icon={Share2}
                 title="Nenhum compartilhamento ainda"
-                description="Assim que voce publicar um guia e envia-lo por WhatsApp, e-mail ou link, os ultimos envios aparecerao aqui."
+                description="Assim que você publicar um guia e envia-lo por WhatsApp, e-mail ou link, os ultimos envios aparecerao aqui."
                 hint="Publique um guia e faca o primeiro envio"
                 actionLabel="Ir para compartilhamento"
                 actionHref="/app/compartilhamento"
-                secondaryActionLabel="Ver imoveis"
-                secondaryActionHref="/app/imoveis"
+                secondaryActionLabel="Ver imóveis"
+                secondaryActionHref="/app/imóveis"
                 className="border-none bg-transparent p-0 shadow-none sm:p-2"
               />
             ) : (
@@ -408,7 +392,7 @@ export default async function DashboardPage() {
                   >
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">
-                        {share.guide?.property?.name || 'Imovel'}
+                        {share.guide?.property?.name || 'Imóvel'}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {share.channel === 'WHATSAPP'

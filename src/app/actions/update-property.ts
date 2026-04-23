@@ -1,6 +1,8 @@
 'use server'
 
+import { PropertyType, DeviceType, ContactRole, RecommendationCategory } from '@prisma/client'
 import { db } from '@/lib/db'
+import { requirePropertyAccess } from '@/lib/authorization'
 import { revalidatePath } from 'next/cache'
 
 interface UpdatePropertyInput {
@@ -43,10 +45,7 @@ export async function updateProperty(input: UpdatePropertyInput) {
   try {
     const { id, ...data } = input
 
-    const existing = await db.property.findUnique({ where: { id } })
-    if (!existing) {
-      throw new Error('Imóvel não encontrado')
-    }
+    await requirePropertyAccess(id)
 
     await db.$transaction(async (tx) => {
       // Atualiza propriedades básicas
@@ -55,7 +54,7 @@ export async function updateProperty(input: UpdatePropertyInput) {
         data: {
           name: data.name,
           internalCode: data.internalCode ?? null,
-          type: data.type as any,
+          type: data.type as PropertyType,
           address: data.address ?? null,
           city: data.city ?? null,
           state: data.state ?? null,
@@ -142,56 +141,121 @@ export async function updateProperty(input: UpdatePropertyInput) {
         })
       }
 
-      // Atualiza dispositivos: deleta todos e recria
+      // Atualiza dispositivos com merge inteligente (preserva IDs)
       if (data.devices !== undefined) {
-        await tx.propertyDevice.deleteMany({ where: { propertyId: id } })
-        if (data.devices.length > 0) {
-          await tx.propertyDevice.createMany({
-            data: data.devices.map((d) => ({
-              propertyId: id,
-              name: d.name,
-              type: d.type as any,
-              instructions: d.instructions || null,
-              brand: d.brand || null,
-            })),
+        const existingDevices = await tx.propertyDevice.findMany({
+          where: { propertyId: id },
+        })
+        const incomingKeys = new Set(data.devices.map((d) => `${d.name}|${d.type}`))
+        const toDelete = existingDevices.filter((ed) => !incomingKeys.has(`${ed.name}|${ed.type}`))
+        if (toDelete.length > 0) {
+          await tx.propertyDevice.deleteMany({
+            where: { id: { in: toDelete.map((d) => d.id) } },
           })
+        }
+        for (const d of data.devices) {
+          const existing = existingDevices.find((ed) => ed.name === d.name && ed.type === d.type)
+          if (existing) {
+            await tx.propertyDevice.update({
+              where: { id: existing.id },
+              data: {
+                instructions: d.instructions || null,
+                brand: d.brand || null,
+              },
+            })
+          } else {
+            await tx.propertyDevice.create({
+              data: {
+                propertyId: id,
+                name: d.name,
+                type: d.type as DeviceType,
+                instructions: d.instructions || null,
+                brand: d.brand || null,
+              },
+            })
+          }
         }
       }
 
-      // Atualiza contatos: deleta todos e recria
+      // Atualiza contatos com merge inteligente (preserva IDs)
       if (data.contacts !== undefined) {
-        await tx.propertyContact.deleteMany({ where: { propertyId: id } })
-        if (data.contacts.length > 0) {
-          await tx.propertyContact.createMany({
-            data: data.contacts.map((c) => ({
-              propertyId: id,
-              name: c.name,
-              role: c.role as any,
-              phone: c.phone || null,
-              email: c.email || null,
-              whatsapp: c.whatsapp || null,
-            })),
+        const existingContacts = await tx.propertyContact.findMany({
+          where: { propertyId: id },
+        })
+        const incomingKeys = new Set(data.contacts.map((c) => `${c.name}|${c.role}`))
+        const toDelete = existingContacts.filter((ec) => !incomingKeys.has(`${ec.name}|${ec.role}`))
+        if (toDelete.length > 0) {
+          await tx.propertyContact.deleteMany({
+            where: { id: { in: toDelete.map((c) => c.id) } },
           })
+        }
+        for (const c of data.contacts) {
+          const existing = existingContacts.find((ec) => ec.name === c.name && ec.role === c.role)
+          if (existing) {
+            await tx.propertyContact.update({
+              where: { id: existing.id },
+              data: {
+                phone: c.phone || null,
+                email: c.email || null,
+                whatsapp: c.whatsapp || null,
+              },
+            })
+          } else {
+            await tx.propertyContact.create({
+              data: {
+                propertyId: id,
+                name: c.name,
+                role: c.role as ContactRole,
+                phone: c.phone || null,
+                email: c.email || null,
+                whatsapp: c.whatsapp || null,
+              },
+            })
+          }
         }
       }
 
-      // Atualiza recomendações: deleta todos e recria
+      // Atualiza recomendações com merge inteligente (preserva IDs)
       if (data.recommendations !== undefined) {
-        await tx.localRecommendation.deleteMany({ where: { propertyId: id } })
-        if (data.recommendations.length > 0) {
-          await tx.localRecommendation.createMany({
-            data: data.recommendations.map((r) => ({
-              propertyId: id,
-              name: r.name,
-              category: r.category as any,
-              description: r.description || null,
-              address: r.address || null,
-              mapUrl: r.mapUrl || null,
-              instagram: r.instagram || null,
-              image: r.image || null,
-              distance: r.distance || null,
-            })),
+        const existingRecs = await tx.localRecommendation.findMany({
+          where: { propertyId: id },
+        })
+        const incomingKeys = new Set(data.recommendations.map((r) => `${r.name}|${r.category}`))
+        const toDelete = existingRecs.filter((er) => !incomingKeys.has(`${er.name}|${er.category}`))
+        if (toDelete.length > 0) {
+          await tx.localRecommendation.deleteMany({
+            where: { id: { in: toDelete.map((r) => r.id) } },
           })
+        }
+        for (const r of data.recommendations) {
+          const existing = existingRecs.find((er) => er.name === r.name && er.category === r.category)
+          if (existing) {
+            await tx.localRecommendation.update({
+              where: { id: existing.id },
+              data: {
+                description: r.description || null,
+                address: r.address || null,
+                mapUrl: r.mapUrl || null,
+                instagram: r.instagram || null,
+                image: r.image || null,
+                distance: r.distance || null,
+              },
+            })
+          } else {
+            await tx.localRecommendation.create({
+              data: {
+                propertyId: id,
+                name: r.name,
+                category: r.category as RecommendationCategory,
+                description: r.description || null,
+                address: r.address || null,
+                mapUrl: r.mapUrl || null,
+                instagram: r.instagram || null,
+                image: r.image || null,
+                distance: r.distance || null,
+              },
+            })
+          }
         }
       }
     })

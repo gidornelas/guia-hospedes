@@ -4,7 +4,7 @@ import SharingClient from './sharing-client'
 
 async function getPropertiesWithGuides() {
   return db.property.findMany({
-    where: { guide: { status: 'PUBLISHED' } },
+    where: { deletedAt: null, guide: { status: 'PUBLISHED' } },
     include: {
       guide: {
         select: { id: true, slug: true, status: true },

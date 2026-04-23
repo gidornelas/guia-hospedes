@@ -2,26 +2,37 @@ import Link from 'next/link'
 import { CalendarDays, Grid3X3, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { db } from '@/lib/db'
+import { getSession } from '@/lib/session'
 import { EmptyState } from '@/components/shared/empty-state'
 import { PageHeader } from '@/components/shared/page-header'
 import { ReservationsClient } from './reservations-client'
 
-async function getReservations() {
+async function getReservations(organizationId: string) {
   return db.reservation.findMany({
+    where: { property: { organizationId } },
     orderBy: { checkInDate: 'asc' },
     include: { property: { select: { id: true, name: true } } },
   })
 }
 
-async function getProperties() {
+async function getProperties(organizationId: string) {
   return db.property.findMany({
+    where: { organizationId, deletedAt: null },
     orderBy: { name: 'asc' },
     select: { id: true, name: true },
   })
 }
 
 export default async function ReservationsPage() {
-  const [reservations, properties] = await Promise.all([getReservations(), getProperties()])
+  const session = await getSession()
+  if (!session) {
+    return null
+  }
+
+  const [reservations, properties] = await Promise.all([
+    getReservations(session.organizationId),
+    getProperties(session.organizationId),
+  ])
 
   return (
     <div className="space-y-6 md:space-y-8">

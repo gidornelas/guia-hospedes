@@ -75,7 +75,7 @@ export function GuidesClient({ guides }: GuidesClientProps) {
       {
         title: 'Total de guias',
         value: guides.length,
-        hint: 'Biblioteca ativa da operacao',
+        hint: 'Biblioteca ativa da operação',
         icon: BookOpen,
         tone: 'brand' as const,
       },
@@ -108,7 +108,7 @@ export function GuidesClient({ guides }: GuidesClientProps) {
       <PageHeader
         eyebrow="Biblioteca"
         title="Guias"
-        description="Gerencie todos os guias digitais dos seus imoveis com foco em status, preview e proximos passos de compartilhamento."
+        description="Gerencie todos os guias digitais dos seus imóveis com foco em status, preview e proximos passos de compartilhamento."
         meta={
           <>
             <Badge className="bg-brand-100 text-brand-700 hover:bg-brand-100">
@@ -136,11 +136,11 @@ export function GuidesClient({ guides }: GuidesClientProps) {
 
       <DashboardSectionCard
         title="Biblioteca de guias"
-        description="Busque rapidamente um guia pelo nome do imovel e acompanhe status, versao e compartilhamentos no mesmo padrao visual das outras telas."
+        description="Busque rapidamente um guia pelo nome do imóvel e acompanhe status, versao e compartilhamentos no mesmo padrao visual das outras telas."
         action={
           <div className="relative w-full sm:w-[280px]">
             <label htmlFor={searchInputId} className="sr-only">
-              Buscar guias por nome do imovel ou status
+              Buscar guias por nome do imóvel ou status
             </label>
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -149,7 +149,7 @@ export function GuidesClient({ guides }: GuidesClientProps) {
               className="pl-9"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              aria-label="Buscar guias por nome do imovel ou status"
+              aria-label="Buscar guias por nome do imóvel ou status"
             />
           </div>
         }
@@ -159,10 +159,10 @@ export function GuidesClient({ guides }: GuidesClientProps) {
           <EmptyState
             icon={BookOpen}
             title="Nenhum guia criado ainda"
-            description="Assim que voce concluir o cadastro de um imovel, o guia passa a ficar disponivel aqui para preview e compartilhamento."
-            hint="Comece criando um imovel completo"
-            actionLabel="Criar imovel"
-            actionHref="/app/imoveis/novo"
+            description="Assim que você concluir o cadastro de um imóvel, o guia passa a ficar disponivel aqui para preview e compartilhamento."
+            hint="Comece criando um imóvel completo"
+            actionLabel="Criar imóvel"
+            actionHref="/app/imóveis/novo"
             secondaryActionLabel="Ver demo publica"
             secondaryActionHref="/g/flat-elegance-paulista"
           />
@@ -218,7 +218,7 @@ export function GuidesClient({ guides }: GuidesClientProps) {
 
                   <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
                     <Link
-                      href={`/app/imoveis/${guide.propertyId}/preview`}
+                      href={`/app/imóveis/${guide.propertyId}/preview`}
                       className="w-full sm:w-auto"
                     >
                       <Button variant="outline" size="sm" className="w-full gap-2 sm:w-auto">

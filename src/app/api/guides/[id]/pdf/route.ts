@@ -15,7 +15,7 @@ export async function GET(
   const locale = getLocaleFromSearchParams(searchParams)
 
   const property = await db.property.findUnique({
-    where: { id },
+    where: { id, deletedAt: null },
     include: {
       checkIn: true,
       checkOut: true,

@@ -1,8 +1,8 @@
 'use client'
 
-import { Suspense, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Chrome, Eye, EyeOff, LoaderCircle } from 'lucide-react'
 import { AuthShell } from '@/components/auth/auth-shell'
 import { AuthFormSkeleton } from '@/components/auth/auth-form-skeleton'
@@ -21,11 +21,11 @@ function safeCallbackUrl(value?: string | null) {
 function getFriendlyErrorMessage(error: string | null) {
   switch (error) {
     case 'google_not_configured':
-      return 'O login com Google ainda nao foi configurado neste ambiente.'
+      return 'O login com Google ainda não foi configurado neste ambiente.'
     case 'google_callback':
     case 'google_state':
     case 'google_auth':
-      return 'Nao foi possivel concluir a autenticacao com Google. Tente novamente.'
+      return 'Não foi possível concluir a autenticação com Google. Tente novamente.'
     default:
       return ''
   }
@@ -41,12 +41,24 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [formError, setFormError] = useState('')
+  const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = safeCallbackUrl(searchParams.get('callbackUrl'))
   const queryError = useMemo(
     () => getFriendlyErrorMessage(searchParams.get('error')),
     [searchParams],
   )
+  const justRegistered = searchParams.get('registered') === '1'
+
+  useEffect(() => {
+    fetch('/api/auth/session')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.user) {
+          window.location.href = callbackUrl
+        }
+      })
+  }, [callbackUrl])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -105,6 +117,15 @@ function LoginForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
+        {justRegistered ? (
+          <div
+            role="alert"
+            className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"
+          >
+            Conta criada com sucesso! Faça login para continuar.
+          </div>
+        ) : null}
+
         {queryError ? (
           <div
             id={queryErrorId}
@@ -130,7 +151,7 @@ function LoginForm() {
           <Input
             id="email"
             type="email"
-            placeholder="voce@empresa.com"
+            placeholder="você@empresa.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             autoComplete="email"
@@ -207,10 +228,10 @@ export default function LoginPage() {
     <AuthShell
       eyebrow="Entrar"
       title="Acesse sua conta"
-      description="Entre com e-mail e senha ou use seu Google para abrir o dashboard e continuar a operacao da sua hospedagem."
+      description="Entre com e-mail e senha ou use seu Google para abrir o dashboard e continuar a operação da sua hospedagem."
       footer={
         <p className="text-sm text-muted-foreground">
-          Ainda nao tem conta?{' '}
+          Ainda não tem conta?{' '}
           <Link href="/cadastro" className="font-medium text-primary hover:underline">
             Criar conta
           </Link>

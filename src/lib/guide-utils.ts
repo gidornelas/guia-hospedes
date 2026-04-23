@@ -1,5 +1,22 @@
 import { db } from '@/lib/db'
 
+// Tipos inferidos para uso no guia público
+export type GuideContact = Awaited<ReturnType<typeof getGuideProperty>> extends infer R
+  ? R extends { contacts: (infer C)[] } ? C : never
+  : never
+
+export type GuideDevice = Awaited<ReturnType<typeof getGuideProperty>> extends infer R
+  ? R extends { devices: (infer D)[] } ? D : never
+  : never
+
+export type GuideRecommendation = Awaited<ReturnType<typeof getGuideProperty>> extends infer R
+  ? R extends { recommendations: (infer Rec)[] } ? Rec : never
+  : never
+
+export type GuideLink = Awaited<ReturnType<typeof getGuideProperty>> extends infer R
+  ? R extends { links: (infer L)[] } ? L : never
+  : never
+
 interface GuideFetchOptions {
   slug: string
   allowPreview?: boolean
@@ -36,7 +53,7 @@ export async function getGuideProperty(options: GuideFetchOptions) {
     },
   })
 
-  if (!guide) return null
+  if (!guide || guide.property.deletedAt) return null
 
   // Em modo preview (dashboard), ignora verificação de status
   if (allowPreview) {
@@ -52,8 +69,9 @@ export async function getGuideProperty(options: GuideFetchOptions) {
 export async function getGuideIdBySlug(slug: string) {
   const guide = await db.guide.findUnique({
     where: { slug: `guia-${slug}` },
-    select: { id: true, status: true },
+    select: { id: true, status: true, property: { select: { deletedAt: true } } },
   })
+  if (guide?.property?.deletedAt) return null
   return guide
 }
 

@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils'
 
 async function getPropertyWithGuide(id: string) {
   return db.property.findUnique({
-    where: { id },
+    where: { id, deletedAt: null },
     include: {
       checkIn: true,
       checkOut: true,

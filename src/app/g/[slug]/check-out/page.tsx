@@ -8,8 +8,8 @@ import {
   InfoRow,
   TimelineItem,
 } from '@/components/shared/guide-page-template'
-import { getGuideProperty, buildGuideQuery } from '@/lib/guide-utils'
-import { getLocaleFromSearchParams, getDictionary } from '@/lib/i18n'
+import { getGuideProperty, buildGuideQuery, GuideContact, GuideDevice, GuideRecommendation, GuideLink } from '@/lib/guide-utils'
+import { getLocaleFromSearchParams, loadDictionary } from '@/lib/i18n'
 import { getPropertyTranslations, translateField, translatePath } from '@/lib/translate'
 
 export default async function CheckOutPage({
@@ -22,7 +22,7 @@ export default async function CheckOutPage({
   const { slug } = await params
   const sp = await searchParams
   const locale = getLocaleFromSearchParams(sp)
-  const d = getDictionary(locale)
+  const d = await loadDictionary(locale)
   const query = buildGuideQuery(sp)
 
   const property = await getGuideProperty({
@@ -32,7 +32,7 @@ export default async function CheckOutPage({
   })
   if (!property || !property.checkOut) notFound()
 
-  const hostContact = property.contacts.find((c: any) => c.role === 'HOST')
+  const hostContact = property.contacts.find((c: GuideContact) => c.role === 'HOST')
   const translations = getPropertyTranslations(property.translations, locale)
   const t = (path: string) => translatePath(translations, path)
 
@@ -40,7 +40,7 @@ export default async function CheckOutPage({
   const exitChecklist = translateField(property.checkOut.exitChecklist, t('checkOut.exitChecklist'))
 
   const checklistItems = exitChecklist
-    ? exitChecklist.split('.').filter(Boolean)
+    ? exitChecklist.split('\n').map(s => s.trim()).filter(Boolean)
     : []
 
   return (
@@ -84,7 +84,7 @@ export default async function CheckOutPage({
           <TimelineItem
             step={1}
             title={d.checkOut.onCheckoutDay}
-            description="Organize suas malas com antecedencia e verifique se nao esqueceu nada."
+            description="Organize suas malas com antecedencia e verifique se não esqueceu nada."
             isActive
           />
           <TimelineItem
@@ -115,7 +115,7 @@ export default async function CheckOutPage({
             </div>
             <InteractiveChecklist
               items={checklistItems}
-              storageKey={`checkout-checklist-${slug}`}
+              storageKey={`check-out-checklist-${slug}`}
             />
           </PrimaryCard>
         )}

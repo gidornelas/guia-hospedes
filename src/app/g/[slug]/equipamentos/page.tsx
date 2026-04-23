@@ -28,8 +28,8 @@ import {
   GuidePageTemplate,
   PrimaryCard,
 } from '@/components/shared/guide-page-template'
-import { getGuideProperty, buildGuideQuery } from '@/lib/guide-utils'
-import { getLocaleFromSearchParams, getDictionary } from '@/lib/i18n'
+import { getGuideProperty, buildGuideQuery, GuideContact, GuideDevice, GuideRecommendation, GuideLink } from '@/lib/guide-utils'
+import { getLocaleFromSearchParams, loadDictionary } from '@/lib/i18n'
 import { getPropertyTranslations, translateField, translatePath, getTranslatedLabels } from '@/lib/translate'
 
 // Map device types to semantic icons
@@ -109,7 +109,7 @@ export default async function DevicesPage({
   const { slug } = await params
   const sp = await searchParams
   const locale = getLocaleFromSearchParams(sp)
-  const d = getDictionary(locale)
+  const d = await loadDictionary(locale)
   const query = buildGuideQuery(sp)
 
   const property = await getGuideProperty({
@@ -119,7 +119,7 @@ export default async function DevicesPage({
   })
   if (!property || property.devices.length === 0) notFound()
 
-  const hostContact = property.contacts.find((c: any) => c.role === 'HOST')
+  const hostContact = property.contacts.find((c: GuideContact) => c.role === 'HOST')
 
   return (
     <GuidePageTemplate
@@ -147,7 +147,7 @@ export default async function DevicesPage({
 
         {/* Devices */}
         <div className="space-y-3">
-          {property.devices.map((device: any) => (
+          {property.devices.map((device: GuideDevice) => (
             <DeviceCard key={device.id} device={{ ...device, _parentTranslations: property.translations }} locale={locale} />
           ))}
         </div>

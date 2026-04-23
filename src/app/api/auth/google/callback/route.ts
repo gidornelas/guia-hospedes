@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createSessionPayload, upsertGoogleUser } from '@/lib/auth'
 import { env } from '@/lib/env'
 import { createSessionToken, setSessionCookie } from '@/lib/session'
+import { verifyGoogleIdToken } from '@/lib/google-auth'
 
 const GOOGLE_STATE_COOKIE = 'google-oauth-state'
 
@@ -55,24 +56,36 @@ export async function GET(request: NextRequest) {
       throw new Error('Falha ao obter token do Google.')
     }
 
-    const tokenData = (await tokenResponse.json()) as { access_token?: string }
+    const tokenData = (await tokenResponse.json()) as {
+      access_token?: string
+      id_token?: string
+    }
     if (!tokenData.access_token) {
-      throw new Error('Access token nao retornado pelo Google.')
+      throw new Error('Access token não retornado pelo Google.')
     }
 
-    const profileResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-      headers: { Authorization: `Bearer ${tokenData.access_token}` },
-    })
+    let profile: { id?: string; email?: string; name?: string; picture?: string }
 
-    if (!profileResponse.ok) {
-      throw new Error('Falha ao carregar perfil do Google.')
-    }
+    // Se houver id_token, valida assinatura, aud e iss antes de confiar nos dados
+    if (tokenData.id_token && env.googleClientId) {
+      const verified = await verifyGoogleIdToken(tokenData.id_token, env.googleClientId)
+      profile = {
+        id: verified.sub,
+        email: verified.email,
+        name: verified.name,
+        picture: verified.picture,
+      }
+    } else {
+      // Fallback: busca perfil via access_token (fluxo já seguro por si só)
+      const profileResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+        headers: { Authorization: `Bearer ${tokenData.access_token}` },
+      })
 
-    const profile = (await profileResponse.json()) as {
-      id?: string
-      email?: string
-      name?: string
-      picture?: string
+      if (!profileResponse.ok) {
+        throw new Error('Falha ao carregar perfil do Google.')
+      }
+
+      profile = await profileResponse.json()
     }
 
     if (!profile.id || !profile.email || !profile.name) {

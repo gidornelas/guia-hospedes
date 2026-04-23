@@ -92,7 +92,7 @@ export async function registerUser(input: RegisterUserInput) {
   }
 
   if (!email) {
-    throw new Error('Informe um e-mail valido.')
+    throw new Error('Informe um e-mail válido.')
   }
 
   if (password.length < 8) {
@@ -101,7 +101,7 @@ export async function registerUser(input: RegisterUserInput) {
 
   const existingUser = await db.user.findUnique({ where: { email } })
   if (existingUser) {
-    throw new Error('Ja existe uma conta com este e-mail.')
+    throw new Error('Já existe uma conta com este e-mail.')
   }
 
   const organization = await createOrganizationForUser(name, input.organizationName)
@@ -224,7 +224,7 @@ export async function createPasswordResetToken(email: string) {
 
 export async function resetPassword(token: string, newPassword: string) {
   if (!token) {
-    throw new Error('Token invalido.')
+    throw new Error('Token inválido.')
   }
 
   if (newPassword.length < 8) {
@@ -239,7 +239,7 @@ export async function resetPassword(token: string, newPassword: string) {
   })
 
   if (!resetToken || resetToken.usedAt || resetToken.expiresAt < new Date()) {
-    throw new Error('Este link de redefinicao e invalido ou expirou.')
+    throw new Error('Este link de redefinição é inválido ou expirou.')
   }
 
   const passwordHash = await bcrypt.hash(newPassword, 10)

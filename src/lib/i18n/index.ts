@@ -1,7 +1,5 @@
 import { Locale, TranslationDictionary } from './types'
 import { ptBR } from './pt-BR'
-import { en } from './en'
-import { es } from './es'
 
 export const locales: Locale[] = ['pt-BR', 'en', 'es']
 
@@ -11,14 +9,34 @@ export const localeLabels: Record<Locale, string> = {
   'es': 'Español',
 }
 
-const dictionaries: Record<Locale, TranslationDictionary> = {
-  'pt-BR': ptBR,
-  'en': en,
-  'es': es,
+const dictionaryCache = new Map<Locale, TranslationDictionary>([['pt-BR', ptBR]])
+
+/** Síncrono — retorna do cache ou pt-BR como fallback */
+export function getDictionary(locale: Locale): TranslationDictionary {
+  return dictionaryCache.get(locale) || ptBR
 }
 
-export function getDictionary(locale: Locale): TranslationDictionary {
-  return dictionaries[locale] || ptBR
+/** Assíncrono — carrega dicionários sob demanda com lazy loading */
+export async function loadDictionary(locale: Locale): Promise<TranslationDictionary> {
+  const cached = dictionaryCache.get(locale)
+  if (cached) return cached
+
+  let dictionary: TranslationDictionary
+  switch (locale) {
+    case 'en':
+      dictionary = (await import('./en')).en
+      break
+    case 'es':
+      dictionary = (await import('./es')).es
+      break
+    case 'pt-BR':
+    default:
+      dictionary = (await import('./pt-BR')).ptBR
+      break
+  }
+
+  dictionaryCache.set(locale, dictionary)
+  return dictionary
 }
 
 export function t(

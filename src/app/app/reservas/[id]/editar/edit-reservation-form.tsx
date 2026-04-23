@@ -7,6 +7,13 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { updateReservation } from '@/app/actions/reservations'
 import { PageHeader } from '@/components/shared/page-header'
@@ -77,20 +84,18 @@ export function EditReservationForm({
           <form action={formAction} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="propertyId">Imóvel *</Label>
-              <select
-                id="propertyId"
-                name="propertyId"
-                required
-                defaultValue={reservation.propertyId}
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
-              >
-                <option value="">Selecione um imóvel</option>
-                {properties.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
+              <Select name="propertyId" required defaultValue={reservation.propertyId}>
+                <SelectTrigger id="propertyId">
+                  <SelectValue placeholder="Selecione um imóvel" />
+                </SelectTrigger>
+                <SelectContent>
+                  {properties.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {state?.error?.propertyId && (
                 <p className="text-sm text-red-600">{state.error.propertyId[0]}</p>
               )}
@@ -152,7 +157,7 @@ export function EditReservationForm({
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-4 min-[480px]:grid-cols-2 sm:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="numberOfGuests">Hospedes *</Label>
                 <Input
@@ -169,34 +174,34 @@ export function EditReservationForm({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="status">Status</Label>
-                <select
-                  id="status"
-                  name="status"
-                  defaultValue={reservation.status}
-                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
-                >
-                  <option value="CONFIRMED">Confirmada</option>
-                  <option value="PENDING">Pendente</option>
-                  <option value="CHECKED_IN">Check-in realizado</option>
-                  <option value="CHECKED_OUT">Check-out realizado</option>
-                  <option value="CANCELLED">Cancelada</option>
-                </select>
+                <Select name="status" defaultValue={reservation.status}>
+                  <SelectTrigger id="status">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="CONFIRMED">Confirmada</SelectItem>
+                    <SelectItem value="PENDING">Pendente</SelectItem>
+                    <SelectItem value="CHECKED_IN">Check-in realizado</SelectItem>
+                    <SelectItem value="CHECKED_OUT">Check-out realizado</SelectItem>
+                    <SelectItem value="CANCELLED">Cancelada</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="source">Origem</Label>
-                <select
-                  id="source"
-                  name="source"
-                  defaultValue={reservation.source}
-                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
-                >
-                  <option value="DIRECT">Direto</option>
-                  <option value="AIRBNB">Airbnb</option>
-                  <option value="BOOKING">Booking.com</option>
-                  <option value="WHATSAPP">WhatsApp</option>
-                  <option value="EMAIL">E-mail</option>
-                  <option value="OTHER">Outro</option>
-                </select>
+                <Select name="source" defaultValue={reservation.source}>
+                  <SelectTrigger id="source">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="DIRECT">Direto</SelectItem>
+                    <SelectItem value="AIRBNB">Airbnb</SelectItem>
+                    <SelectItem value="BOOKING">Booking.com</SelectItem>
+                    <SelectItem value="WHATSAPP">WhatsApp</SelectItem>
+                    <SelectItem value="EMAIL">E-mail</SelectItem>
+                    <SelectItem value="OTHER">Outro</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 

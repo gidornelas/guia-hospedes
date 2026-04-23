@@ -7,7 +7,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Rotas públicas
-  const publicRoutes = ['/', '/precos', '/contato', '/login', '/cadastro', '/esqueci-senha', '/redefinir-senha']
+  const publicRoutes = ['/', '/login', '/cadastro', '/esqueci-senha', '/redefinir-senha']
   const isPublicRoute = publicRoutes.includes(pathname) || pathname.startsWith('/g/')
 
   // API routes públicas

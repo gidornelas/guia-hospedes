@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import Image from 'next/image'
 import {
   UtensilsCrossed,
   MapPin,
@@ -6,14 +7,15 @@ import {
   ExternalLink,
   Info,
   Instagram,
+  Ruler,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, sanitizeHref } from '@/lib/utils'
 import {
   GuidePageTemplate,
   PrimaryCard,
 } from '@/components/shared/guide-page-template'
-import { getGuideProperty, buildGuideQuery } from '@/lib/guide-utils'
-import { getLocaleFromSearchParams, getDictionary } from '@/lib/i18n'
+import { getGuideProperty, buildGuideQuery, GuideContact, GuideDevice, GuideRecommendation, GuideLink } from '@/lib/guide-utils'
+import { getLocaleFromSearchParams, loadDictionary } from '@/lib/i18n'
 import { getPropertyTranslations, translateField, translatePath, getTranslatedLabels } from '@/lib/translate'
 
 const categoryColors: Record<string, { bg: string; text: string; border: string; iconBg: string }> = {
@@ -43,7 +45,7 @@ export default async function TipsPage({
   const { slug } = await params
   const sp = await searchParams
   const locale = getLocaleFromSearchParams(sp)
-  const d = getDictionary(locale)
+  const d = await loadDictionary(locale)
   const query = buildGuideQuery(sp)
 
   const property = await getGuideProperty({
@@ -53,7 +55,7 @@ export default async function TipsPage({
   })
   if (!property || property.recommendations.length === 0) notFound()
 
-  const hostContact = property.contacts.find((c: any) => c.role === 'HOST')
+  const hostContact = property.contacts.find((c: GuideContact) => c.role === 'HOST')
   const categoryLabels = getTranslatedLabels(locale).categoryLabels
   const translations = getPropertyTranslations(property.translations, locale)
 
@@ -111,12 +113,14 @@ export default async function TipsPage({
                     <div key={item.id} className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
                       {/* Foto */}
                       {item.image && (
-                        <div className="h-40 overflow-hidden">
-                          <img
+                        <div className="relative h-40 overflow-hidden">
+                          <Image
                             src={item.image}
-                            alt={name || undefined}
-                            className="h-full w-full object-cover"
+                            alt={name || ''}
+                            fill
+                            className="object-cover"
                             loading="lazy"
+                            unoptimized
                           />
                         </div>
                       )}
@@ -137,7 +141,7 @@ export default async function TipsPage({
                               )}
                               {item.distance && (
                                 <div className="flex items-center gap-1 text-xs text-slate-500">
-                                  <MapPin className="h-3.5 w-3.5" />
+                                  <Ruler className="h-3.5 w-3.5" />
                                   <span>{item.distance}</span>
                                 </div>
                               )}
@@ -147,9 +151,9 @@ export default async function TipsPage({
 
                         {/* Actions */}
                         <div className="flex flex-wrap gap-2 mt-3">
-                          {item.mapUrl && (
+                          {sanitizeHref(item.mapUrl) && (
                             <a
-                              href={item.mapUrl}
+                              href={sanitizeHref(item.mapUrl)!}
                               target="_blank"
                               rel="noopener noreferrer"
                               aria-label={`${d.common.seeOnMaps}: ${name}`}
@@ -161,11 +165,11 @@ export default async function TipsPage({
                           )}
                           {item.instagram && (
                             <a
-                              href={
+                              href={sanitizeHref(
                                 item.instagram.startsWith('http')
                                   ? item.instagram
                                   : `https://instagram.com/${item.instagram.replace('@', '')}`
-                              }
+                              ) || '#'}
                               target="_blank"
                               rel="noopener noreferrer"
                               aria-label={`${d.common.seeOnInstagram}: ${name}`}
@@ -175,9 +179,9 @@ export default async function TipsPage({
                               {d.common.seeOnInstagram}
                             </a>
                           )}
-                          {item.link && !item.mapUrl && (
+                          {item.link && !item.mapUrl && sanitizeHref(item.link) && (
                             <a
-                              href={item.link}
+                              href={sanitizeHref(item.link)!}
                               target="_blank"
                               rel="noopener noreferrer"
                               aria-label={`${d.common.viewMore}: ${name}`}

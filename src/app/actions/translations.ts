@@ -2,11 +2,54 @@
 
 import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
+import { requirePropertyAccess } from '@/lib/authorization'
+import { z } from 'zod'
 import { translateText, getApiLangCode } from '@/lib/translation-api'
 import { Locale } from '@/lib/i18n/types'
 import { AllTranslations, PropertyTranslations } from '@/lib/translate'
 
 const targetLocales: Locale[] = ['en', 'es']
+
+const translationsSchema = z.record(
+  z.string(),
+  z.object({
+    welcomeMessage: z.string().optional(),
+    shortDescription: z.string().optional(),
+    checkIn: z.object({
+      instructions: z.string().optional(),
+      accessMethod: z.string().optional(),
+      notes: z.string().optional(),
+    }).optional(),
+    checkOut: z.object({
+      instructions: z.string().optional(),
+      exitChecklist: z.string().optional(),
+    }).optional(),
+    wifi: z.object({
+      notes: z.string().optional(),
+    }).optional(),
+    rules: z.object({
+      silence: z.string().optional(),
+      visits: z.string().optional(),
+      trash: z.string().optional(),
+      equipmentUse: z.string().optional(),
+      notes: z.string().optional(),
+    }).optional(),
+    devices: z.record(z.string(), z.object({
+      name: z.string().optional(),
+      instructions: z.string().optional(),
+    })).optional(),
+    contacts: z.record(z.string(), z.object({
+      name: z.string().optional(),
+    })).optional(),
+    recommendations: z.record(z.string(), z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+    })).optional(),
+    links: z.record(z.string(), z.object({
+      label: z.string().optional(),
+    })).optional(),
+  }).passthrough()
+)
 
 interface TranslationBatch {
   path: string
@@ -106,8 +149,10 @@ function setNestedValue(obj: any, path: string, value: string) {
  * Traduz do português para inglês e espanhol.
  */
 export async function generateTranslations(propertyId: string) {
+  await requirePropertyAccess(propertyId)
+
   const property = await db.property.findUnique({
-    where: { id: propertyId },
+    where: { id: propertyId, deletedAt: null },
     include: {
       checkIn: true,
       checkOut: true,
@@ -188,9 +233,16 @@ export async function updatePropertyTranslations(
   propertyId: string,
   translations: AllTranslations
 ) {
+  await requirePropertyAccess(propertyId)
+
+  const validation = translationsSchema.safeParse(translations)
+  if (!validation.success) {
+    return { success: false, error: 'Formato de traduções inválido.' }
+  }
+
   await db.property.update({
     where: { id: propertyId },
-    data: { translations: translations as any },
+    data: { translations: validation.data as any },
   })
 
   revalidatePath(`/app/imoveis/${propertyId}`)

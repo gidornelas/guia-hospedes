@@ -9,13 +9,13 @@ import {
   Video,
   Globe,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, sanitizeHref } from '@/lib/utils'
 import {
   GuidePageTemplate,
   PrimaryCard,
 } from '@/components/shared/guide-page-template'
-import { getGuideProperty, buildGuideQuery } from '@/lib/guide-utils'
-import { getLocaleFromSearchParams, getDictionary } from '@/lib/i18n'
+import { getGuideProperty, buildGuideQuery, GuideContact, GuideDevice, GuideRecommendation, GuideLink } from '@/lib/guide-utils'
+import { getLocaleFromSearchParams, loadDictionary } from '@/lib/i18n'
 import { getPropertyTranslations, translateField } from '@/lib/translate'
 
 const typeConfig: Record<string, { icon: React.ElementType; color: string; bgColor: string; labelColor: string }> = {
@@ -38,7 +38,7 @@ export default async function LinksPage({
   const { slug } = await params
   const sp = await searchParams
   const locale = getLocaleFromSearchParams(sp)
-  const d = getDictionary(locale)
+  const d = await loadDictionary(locale)
   const query = buildGuideQuery(sp)
 
   const property = await getGuideProperty({
@@ -48,9 +48,22 @@ export default async function LinksPage({
   })
   if (!property || property.links.length === 0) notFound()
 
-  const hostContact = property.contacts.find((c: any) => c.role === 'HOST')
+  const hostContact = property.contacts.find((c: GuideContact) => c.role === 'HOST')
   const typeLabels = d.links.typeLabels
   const translations = getPropertyTranslations(property.translations, locale)
+
+  interface SafeLink extends GuideLink {
+    safeUrl: string
+  }
+
+  const safeLinks = property.links
+    .map((link: GuideLink) => {
+      const linkTranslations = translations.links?.[link.id]
+      const label = translateField(link.label, linkTranslations?.label)
+      const safeUrl = sanitizeHref(link.url)
+      return safeUrl ? ({ ...link, label, safeUrl } as SafeLink) : null
+    })
+    .filter((l): l is SafeLink => l !== null)
 
   return (
     <GuidePageTemplate
@@ -67,26 +80,24 @@ export default async function LinksPage({
     >
       <div className="space-y-5">
         <div className="space-y-3">
-          {property.links.map((link: any) => {
+          {safeLinks.map((link) => {
             const config = typeConfig[link.type] || typeConfig.OTHER
             const Icon = config.icon
-            const linkTranslations = translations.links?.[link.id]
-            const label = translateField(link.label, linkTranslations?.label)
 
             return (
               <a
                 key={link.id}
-                href={link.url}
+                href={link.safeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={`${label}. ${typeLabels[link.type] || link.type}`}
+                aria-label={`${link.label}. ${typeLabels[link.type] || link.type}`}
                 className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:border-slate-300 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
               >
                 <div className={cn('h-11 w-11 rounded-xl flex items-center justify-center shrink-0', config.bgColor)}>
                   <Icon className={cn('h-5 w-5', config.color)} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-slate-900 text-sm">{label}</p>
+                  <p className="font-semibold text-slate-900 text-sm">{link.label}</p>
                   <p className="text-xs text-slate-500">{typeLabels[link.type] || link.type}</p>
                 </div>
                 <ExternalLink className="h-4 w-4 text-slate-400 shrink-0" />

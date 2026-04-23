@@ -58,7 +58,7 @@ const typeDescriptions: Record<string, string> = {
   PRE_CHECKIN: 'Ideal para lembrar horarios, acesso e orientacoes finais.',
   DURING_STAY: 'Util para mensagens curtas durante a estadia.',
   POST_CHECKOUT: 'Funciona bem para fechamento e pedido de avaliacao.',
-  CUSTOM: 'Use para fluxos proprios da operacao.',
+  CUSTOM: 'Use para fluxos próprios da operação.',
 }
 
 function parseVariables(value: string): string[] {
@@ -105,7 +105,7 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
       {
         title: 'Total de modelos',
         value: templates.length,
-        hint: 'Biblioteca atual da operacao',
+        hint: 'Biblioteca atual da operação',
         icon: MessageSquare,
         tone: 'brand' as const,
       },
@@ -198,7 +198,7 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
 
       <DashboardSectionCard
         title="Biblioteca de templates"
-        description="Busque modelos, revise o melhor uso de cada mensagem e mantenha a operacao pronta para compartilhar sem retrabalho."
+        description="Busque modelos, revise o melhor uso de cada mensagem e mantenha a operação pronta para compartilhar sem retrabalho."
         action={
           <div className="relative w-full sm:w-[280px]">
             <label htmlFor={searchInputId} className="sr-only">
@@ -298,7 +298,7 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
                                 </p>
                                 <p className="mt-2 text-sm text-muted-foreground">
                                   {typeDescriptions[template.type] ||
-                                    'Template flexivel para adaptar a operacao.'}
+                                    'Template flexivel para adaptar a operação.'}
                                 </p>
                               </div>
 
@@ -326,7 +326,7 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
                                     Variaveis disponiveis
                                   </p>
                                   <p className="mt-2 text-sm text-muted-foreground">
-                                    Este template ainda nao usa placeholders dinamicos.
+                                    Este template ainda não usa placeholders dinamicos.
                                   </p>
                                 </div>
                               )}
@@ -381,7 +381,7 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
             <DialogTitle>Excluir template</DialogTitle>
             <DialogDescription>
               Tem certeza que deseja excluir o template &quot;{deletingTemplate?.name}&quot;?
-              Esta acao nao pode ser desfeita.
+              Esta ação não pode ser desfeita.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

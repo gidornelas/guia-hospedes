@@ -38,7 +38,7 @@ export function GuidePageTemplate({
   const d = getDictionary(locale)
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen bg-slate-50 pb-28 overflow-x-hidden">
       {/* Skip to content */}
       <a
         href="#guide-content"
@@ -77,7 +77,7 @@ export function GuidePageTemplate({
 
       {/* Bottom Bar */}
       {showBottomBar && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200">
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 pb-[env(safe-area-inset-bottom)]">
           <div className="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
             <Link
               href={`/g/${slug}${previewQuery}`}

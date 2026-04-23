@@ -50,13 +50,13 @@ export function LandingHero() {
             </div>
 
             <div className="flex flex-col gap-4 sm:flex-row">
-              <Link href="/login">
+              <Link href="/cadastro">
                 <Button size="lg" className="gap-2">
                   Criar meu primeiro guia
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
-              <Link href="/g/flat-elegance-paulista" target="_blank">
+              <Link href="/g/demo" target="_blank">
                 <Button size="lg" variant="outline">
                   Ver demo publicada
                 </Button>

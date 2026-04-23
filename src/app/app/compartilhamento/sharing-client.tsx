@@ -199,7 +199,7 @@ export default function SharingClient({
 
     if (!message) {
       message =
-        'Ola {{guestName}}! Seja bem-vindo(a) ao nosso espaco. Aqui esta o guia com todas as informacoes do imovel: {{guideLink}}'
+        'Ola {{guestName}}! Seja bem-vindo(a) ao nosso espaco. Aqui esta o guia com todas as informacoes do imóvel: {{guideLink}}'
     }
 
     return message
@@ -231,7 +231,7 @@ export default function SharingClient({
     {
       title: 'Guias prontos',
       value: properties.length,
-      hint: 'Imoveis com guia pronto para envio',
+      hint: 'Imóveis com guia pronto para envio',
       icon: Globe,
       tone: 'emerald',
     },
@@ -245,7 +245,7 @@ export default function SharingClient({
     {
       title: 'Envios registrados',
       value: logs.length,
-      hint: 'Historico total desta operacao',
+      hint: 'Historico total desta operação',
       icon: Send,
       tone: 'blue',
     },
@@ -339,13 +339,13 @@ export default function SharingClient({
       await registerQrShare()
       toast.success('QR Code copiado como imagem SVG!')
     } catch {
-      toast.error('Seu navegador nao suporta copiar imagem do QR diretamente')
+      toast.error('Seu navegador não suporta copiar imagem do QR diretamente')
     }
   }
 
   const handleWhatsApp = async () => {
     if (!guideUrl || !selectedProperty?.guide) {
-      toast.error('Selecione um imovel com guia publicado')
+      toast.error('Selecione um imóvel com guia publicado')
       return
     }
 
@@ -375,7 +375,7 @@ export default function SharingClient({
 
   const handleEmail = async () => {
     if (!guideUrl || !selectedProperty?.guide) {
-      toast.error('Selecione um imovel com guia publicado')
+      toast.error('Selecione um imóvel com guia publicado')
       return
     }
 
@@ -392,7 +392,7 @@ export default function SharingClient({
       appendShareLog('EMAIL')
       toast.success('Compartilhamento registrado!')
 
-      const subject = encodeURIComponent(`Guia do imovel - ${selectedProperty.name}`)
+      const subject = encodeURIComponent(`Guia do imóvel - ${selectedProperty.name}`)
       const body = encodeURIComponent(generatedMessage)
       window.location.href = `mailto:${guestContact}?subject=${subject}&body=${body}`
     } else {
@@ -415,7 +415,7 @@ export default function SharingClient({
                 variant={isPublished ? 'default' : 'destructive'}
                 className={cn(isPublished ? 'bg-emerald-600 hover:bg-emerald-700' : '')}
               >
-                {isPublished ? 'Publicado' : 'Nao publicado'}
+                {isPublished ? 'Publicado' : 'Não publicado'}
               </Badge>
               {isPublished ? (
                 <Badge variant="outline" className="bg-background">
@@ -425,7 +425,7 @@ export default function SharingClient({
             </>
           ) : (
             <Badge variant="outline" className="bg-background">
-              Selecione um imovel para comecar
+              Selecione um imóvel para comecar
             </Badge>
           )
         }
@@ -436,10 +436,10 @@ export default function SharingClient({
           icon={Share2}
           title="Nenhum guia pronto para compartilhar"
           description="Publique pelo menos um guia para liberar envio por WhatsApp, e-mail, link ou QR Code."
-          actionLabel="Ver imoveis"
-          actionHref="/app/imoveis"
-          secondaryActionLabel="Novo imovel"
-          secondaryActionHref="/app/imoveis/novo"
+          actionLabel="Ver imóveis"
+          actionHref="/app/imóveis"
+          secondaryActionLabel="Novo imóvel"
+          secondaryActionHref="/app/imóveis/novo"
         />
       ) : (
         <>
@@ -458,13 +458,13 @@ export default function SharingClient({
 
           <DashboardSectionCard
             title="Escolha o guia para enviar"
-            description="Defina primeiro o imovel e depois personalize a mensagem, o canal e o historico do envio."
+            description="Defina primeiro o imóvel e depois personalize a mensagem, o canal e o historico do envio."
           >
             <div className="space-y-4">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex-1">
                   <label htmlFor={propertySelectId} className="mb-1.5 block text-sm font-medium">
-                    Imovel
+                    Imóvel
                   </label>
                   <Select
                     value={selectedPropertyId}
@@ -473,9 +473,9 @@ export default function SharingClient({
                     <SelectTrigger
                       id={propertySelectId}
                       className="w-full"
-                      aria-label="Selecionar imovel para compartilhar"
+                      aria-label="Selecionar imóvel para compartilhar"
                     >
-                      <SelectValue placeholder="Escolha um imovel..." />
+                      <SelectValue placeholder="Escolha um imóvel..." />
                     </SelectTrigger>
                     <SelectContent>
                       {properties.map((property) => (
@@ -493,7 +493,7 @@ export default function SharingClient({
                       variant={isPublished ? 'default' : 'destructive'}
                       className={cn(isPublished ? 'bg-emerald-600 hover:bg-emerald-700' : '')}
                     >
-                      {isPublished ? 'Publicado' : 'Nao publicado'}
+                      {isPublished ? 'Publicado' : 'Não publicado'}
                     </Badge>
                     {isPublished ? (
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -509,18 +509,18 @@ export default function SharingClient({
                 <div className="mt-4 flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
                   <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
                   <div>
-                    <p className="text-sm font-medium text-amber-800">Guia nao publicado</p>
+                    <p className="text-sm font-medium text-amber-800">Guia não publicado</p>
                     <p className="mt-0.5 text-sm text-amber-700">
-                      Este imovel ainda nao possui um guia publico. Publique-o antes de compartilhar.
+                      Este imóvel ainda não possui um guia publico. Publique-o antes de compartilhar.
                     </p>
                     <Button
                       variant="outline"
                       size="sm"
                       className="mt-2 border-amber-300 bg-white text-amber-800 hover:bg-amber-100"
-                      onClick={() => window.open(`/app/imoveis/${selectedProperty.id}`, '_blank')}
+                      onClick={() => window.open(`/app/imóveis/${selectedProperty.id}`, '_blank')}
                     >
                       <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
-                      Ir para o imovel
+                      Ir para o imóvel
                     </Button>
                   </div>
                 </div>
@@ -785,7 +785,7 @@ export default function SharingClient({
                                 <MessageCircle className="h-4 w-4 text-green-600" />
                               </div>
                               <div>
-                                <p className="text-xs font-medium">Guia do imovel</p>
+                                <p className="text-xs font-medium">Guia do imóvel</p>
                                 <p className="text-[10px] text-muted-foreground">Agora</p>
                               </div>
                             </div>
@@ -896,9 +896,9 @@ export default function SharingClient({
                         <SelectTrigger
                           id={historyPropertyId}
                           className="h-8 text-xs"
-                          aria-label="Filtrar historico por imovel"
+                          aria-label="Filtrar historico por imóvel"
                         >
-                          <SelectValue placeholder="Imovel" />
+                          <SelectValue placeholder="Imóvel" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value={ALL_FILTER}>Todos</SelectItem>
@@ -973,13 +973,13 @@ export default function SharingClient({
 
           {!selectedProperty ? (
             <DashboardSectionCard
-              title="Selecione um imovel para continuar"
-              description="Assim que voce escolher um guia publicado, a tela libera configuracao, preview e historico no mesmo fluxo visual."
+              title="Selecione um imóvel para continuar"
+              description="Assim que você escolher um guia publicado, a tela libera configuracao, preview e historico no mesmo fluxo visual."
             >
               <EmptyState
                 icon={Share2}
                 title="Nenhum guia selecionado ainda"
-                description="Escolha um imovel publicado para abrir o preview da mensagem e usar os canais disponiveis."
+                description="Escolha um imóvel publicado para abrir o preview da mensagem e usar os canais disponiveis."
                 actionLabel="Selecionar primeiro guia"
                 onAction={() => setSelectedPropertyId(properties[0]?.id || '')}
               />

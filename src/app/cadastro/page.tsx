@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Chrome, Eye, EyeOff, LoaderCircle } from 'lucide-react'
 import { AuthShell } from '@/components/auth/auth-shell'
@@ -36,12 +36,34 @@ export default function RegisterPage() {
     return safeCallbackUrl(new URLSearchParams(window.location.search).get('callbackUrl'))
   }, [])
 
+  useEffect(() => {
+    fetch('/api/auth/session')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.user) {
+          window.location.href = callbackUrl
+        }
+      })
+  }, [callbackUrl])
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
 
     if (password !== confirmPassword) {
-      setError('As senhas nao conferem.')
+      setError('As senhas não conferem.')
+      return
+    }
+
+    const passwordErrors = []
+    if (password.length < 8) passwordErrors.push('pelo menos 8 caracteres')
+    if (!/[A-Z]/.test(password)) passwordErrors.push('uma letra maiúscula')
+    if (!/[a-z]/.test(password)) passwordErrors.push('uma letra minúscula')
+    if (!/[0-9]/.test(password)) passwordErrors.push('um número')
+    if (!/[^A-Za-z0-9]/.test(password)) passwordErrors.push('um caractere especial')
+
+    if (passwordErrors.length > 0) {
+      setError(`A senha deve conter ${passwordErrors.join(', ')}.`)
       return
     }
 
@@ -62,12 +84,17 @@ export default function RegisterPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        setError(data.error || 'Nao foi possivel criar sua conta.')
+        setError(data.error || 'Não foi possivel criar sua conta.')
         setIsLoading(false)
         return
       }
 
-      window.location.href = callbackUrl
+      const loginUrl = new URL('/login', window.location.origin)
+      loginUrl.searchParams.set('registered', '1')
+      if (callbackUrl && callbackUrl !== '/app') {
+        loginUrl.searchParams.set('callbackUrl', callbackUrl)
+      }
+      window.location.href = loginUrl.toString()
     } catch {
       setError('Erro ao criar a conta. Tente novamente.')
       setIsLoading(false)
@@ -78,7 +105,7 @@ export default function RegisterPage() {
     <AuthShell
       eyebrow="Criar conta"
       title="Cadastre sua conta real"
-      description="Crie seu acesso para entrar no dashboard, publicar guias e gerenciar sua operacao sem depender de usuarios de demonstracao."
+      description="Crie seu acesso para entrar no dashboard, publicar guias e gerenciar sua operação sem depender de usuarios de demonstracao."
       footer={
         <p className="text-sm text-muted-foreground">
           Ja tem conta?{' '}
@@ -145,7 +172,7 @@ export default function RegisterPage() {
           </div>
 
           <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="organizationName">Nome da operacao ou empresa</Label>
+            <Label htmlFor="organizationName">Nome da operação ou empresa</Label>
             <Input
               id="organizationName"
               value={organizationName}
@@ -161,7 +188,7 @@ export default function RegisterPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="voce@empresa.com"
+              placeholder="você@empresa.com"
               autoComplete="email"
               aria-invalid={Boolean(error)}
               aria-describedby={error ? formErrorId : undefined}

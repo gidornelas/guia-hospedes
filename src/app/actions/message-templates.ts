@@ -1,7 +1,7 @@
 'use server'
 
 import { db } from '@/lib/db'
-import { getSession } from '@/lib/session'
+import { requireSession } from '@/lib/authorization'
 import { revalidatePath } from 'next/cache'
 
 interface CreateTemplateInput {
@@ -14,10 +14,7 @@ interface CreateTemplateInput {
 
 export async function createMessageTemplate(input: CreateTemplateInput) {
   try {
-    const session = await getSession()
-    if (!session) {
-      return { success: false, error: 'Não autenticado' }
-    }
+    const session = await requireSession()
 
     const template = await db.messageTemplate.create({
       data: {
@@ -49,10 +46,7 @@ interface UpdateTemplateInput {
 
 export async function updateMessageTemplate(input: UpdateTemplateInput) {
   try {
-    const session = await getSession()
-    if (!session) {
-      return { success: false, error: 'Não autenticado' }
-    }
+    const session = await requireSession()
 
     const existing = await db.messageTemplate.findFirst({
       where: { id: input.id, organizationId: session.organizationId },
@@ -83,10 +77,7 @@ export async function updateMessageTemplate(input: UpdateTemplateInput) {
 
 export async function deleteMessageTemplate(id: string) {
   try {
-    const session = await getSession()
-    if (!session) {
-      return { success: false, error: 'Não autenticado' }
-    }
+    const session = await requireSession()
 
     const existing = await db.messageTemplate.findFirst({
       where: { id, organizationId: session.organizationId },

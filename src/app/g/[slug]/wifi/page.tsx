@@ -2,8 +2,8 @@ import { notFound } from 'next/navigation'
 import { Wifi, Smartphone } from 'lucide-react'
 import { CopyButton } from '@/components/shared/copy-button'
 import { GuidePageTemplate, PrimaryCard } from '@/components/shared/guide-page-template'
-import { getGuideProperty, buildGuideQuery } from '@/lib/guide-utils'
-import { getLocaleFromSearchParams, getDictionary } from '@/lib/i18n'
+import { getGuideProperty, buildGuideQuery, GuideContact, GuideDevice, GuideRecommendation, GuideLink } from '@/lib/guide-utils'
+import { getLocaleFromSearchParams, loadDictionary } from '@/lib/i18n'
 import { getPropertyTranslations, translateField, translatePath } from '@/lib/translate'
 
 export default async function WiFiPage({
@@ -16,7 +16,7 @@ export default async function WiFiPage({
   const { slug } = await params
   const sp = await searchParams
   const locale = getLocaleFromSearchParams(sp)
-  const d = getDictionary(locale)
+  const d = await loadDictionary(locale)
   const query = buildGuideQuery(sp)
 
   const property = await getGuideProperty({
@@ -26,7 +26,7 @@ export default async function WiFiPage({
   })
   if (!property || !property.wifi) notFound()
 
-  const hostContact = property.contacts.find((c: any) => c.role === 'HOST')
+  const hostContact = property.contacts.find((c: GuideContact) => c.role === 'HOST')
   const translations = getPropertyTranslations(property.translations, locale)
   const notes = translateField(property.wifi.notes, translatePath(translations, 'wifi.notes'))
 

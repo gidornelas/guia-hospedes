@@ -34,7 +34,7 @@ export default function ForgotPasswordPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        setError(data.error || 'Nao foi possivel enviar o link de redefinicao.')
+        setError(data.error || 'Não foi possivel enviar o link de redefinição.')
         setIsLoading(false)
         return
       }
@@ -83,12 +83,12 @@ export default function ForgotPasswordPage() {
           >
             <div className="mb-2 flex items-center gap-2 font-medium text-primary">
               <MailCheck className="h-4 w-4" />
-              Link de redefinicao solicitado
+              Link de redefinição solicitado
             </div>
             <p className="leading-6 text-muted-foreground">{success}</p>
             {previewUrl ? (
               <p className="mt-3 leading-6 text-muted-foreground">
-                Como o SMTP ainda nao esta configurado neste ambiente, voce pode abrir o link de desenvolvimento aqui:{' '}
+                Como o SMTP ainda não esta configurado neste ambiente, você pode abrir o link de desenvolvimento aqui:{' '}
                 <a href={previewUrl} className="font-medium text-primary hover:underline">
                   redefinir senha
                 </a>
@@ -104,7 +104,7 @@ export default function ForgotPasswordPage() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="voce@empresa.com"
+            placeholder="você@empresa.com"
             autoComplete="email"
             aria-invalid={Boolean(error)}
             aria-describedby={error ? errorId : success ? successId : undefined}
@@ -119,7 +119,7 @@ export default function ForgotPasswordPage() {
               Enviando link...
             </>
           ) : (
-            'Enviar link de redefinicao'
+            'Enviar link de redefinição'
           )}
         </Button>
       </form>

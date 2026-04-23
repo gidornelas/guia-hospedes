@@ -3,6 +3,7 @@ import { NewReservationForm } from './new-reservation-form'
 
 async function getProperties() {
   return db.property.findMany({
+    where: { deletedAt: null },
     orderBy: { name: 'asc' },
     select: { id: true, name: true },
   })

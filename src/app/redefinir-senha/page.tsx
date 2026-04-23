@@ -32,12 +32,12 @@ function ResetPasswordForm() {
     setSuccess('')
 
     if (!hasToken) {
-      setError('O link de redefinicao esta incompleto ou invalido.')
+      setError('O link de redefinição esta incompleto ou invalido.')
       return
     }
 
     if (password !== confirmPassword) {
-      setError('As senhas nao conferem.')
+      setError('As senhas não conferem.')
       return
     }
 
@@ -56,7 +56,7 @@ function ResetPasswordForm() {
       const data = await response.json()
 
       if (!response.ok) {
-        setError(data.error || 'Nao foi possivel redefinir a senha.')
+        setError(data.error || 'Não foi possivel redefinir a senha.')
         setIsLoading(false)
         return
       }
@@ -75,7 +75,7 @@ function ResetPasswordForm() {
     <AuthShell
       eyebrow="Nova senha"
       title="Defina sua nova senha"
-      description="Escolha uma senha segura para voltar ao dashboard. O link de redefinicao so pode ser usado uma vez."
+      description="Escolha uma senha segura para voltar ao dashboard. O link de redefinição so pode ser usado uma vez."
       footer={
         <p className="text-sm text-muted-foreground">
           Lembrou da senha?{' '}
@@ -90,7 +90,7 @@ function ResetPasswordForm() {
           role="alert"
           className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-4 text-sm text-destructive"
         >
-          Este link de redefinicao esta invalido. Solicite um novo link em{' '}
+          Este link de redefinição esta invalido. Solicite um novo link em{' '}
           <Link href="/esqueci-senha" className="font-medium underline">
             Esqueci minha senha
           </Link>

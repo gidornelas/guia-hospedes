@@ -1,6 +1,8 @@
 'use server'
 
+import { revalidateTag } from 'next/cache'
 import { db } from '@/lib/db'
+import { requireSession, requireGuideAccess } from '@/lib/authorization'
 
 interface ShareGuideInput {
   guideId: string
@@ -11,6 +13,8 @@ interface ShareGuideInput {
 
 export async function shareGuide(input: ShareGuideInput) {
   try {
+    await requireGuideAccess(input.guideId)
+
     const shareLog = await db.shareLog.create({
       data: {
         guideId: input.guideId,
@@ -21,6 +25,7 @@ export async function shareGuide(input: ShareGuideInput) {
       },
     })
 
+    revalidateTag('dashboard', {})
     return { success: true, shareLog }
   } catch (error: any) {
     console.error('Erro ao registrar compartilhamento:', error)
@@ -30,8 +35,17 @@ export async function shareGuide(input: ShareGuideInput) {
 
 export async function getShareHistory(guideId?: string) {
   try {
+    const session = await requireSession()
+
     const logs = await db.shareLog.findMany({
-      where: guideId ? { guideId } : undefined,
+      where: guideId
+        ? {
+            guideId,
+            guide: { property: { organizationId: session.organizationId } },
+          }
+        : {
+            guide: { property: { organizationId: session.organizationId } },
+          },
       include: {
         guide: {
           include: {

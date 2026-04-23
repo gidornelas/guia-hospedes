@@ -1,8 +1,9 @@
 'use server'
 
+import { PropertyType, DeviceType, ContactRole, RecommendationCategory } from '@prisma/client'
 import { db } from '@/lib/db'
-import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
+import { requireSession } from '@/lib/authorization'
+import { revalidatePath, revalidateTag } from 'next/cache'
 
 function generateSlug(name: string): string {
   return name
@@ -51,22 +52,13 @@ interface CreatePropertyInput {
 
 export async function createProperty(input: CreatePropertyInput) {
   try {
-    // Busca a primeira organização ou cria uma padrão
-    let organization = await db.organization.findFirst()
-    
-    if (!organization) {
-      organization = await db.organization.create({
-        data: {
-          name: 'Minha Organização',
-          slug: 'minha-organizacao',
-        },
-      })
-    }
+    const session = await requireSession()
+    const organizationId = session.organizationId
 
     const slug = generateSlug(input.name)
     const guideSlug = `guia-${slug}`
 
-    // Verifica se o slug já existe
+    // Verifica se o slug do imóvel já existe
     const existingProperty = await db.property.findUnique({
       where: { slug },
     })
@@ -75,18 +67,27 @@ export async function createProperty(input: CreatePropertyInput) {
       throw new Error('Já existe um imóvel com esse nome. Escolha um nome diferente.')
     }
 
+    // Verifica se o slug do guia já existe
+    const existingGuide = await db.guide.findUnique({
+      where: { slug: guideSlug },
+    })
+
+    if (existingGuide) {
+      throw new Error('Já existe um guia com slug similar. Escolha um nome diferente.')
+    }
+
     // Cria o imóvel e todas as relações em uma transação
     const property = await db.property.create({
       data: {
         name: input.name,
         internalCode: input.internalCode || null,
-        type: input.type as any,
+        type: input.type as PropertyType,
         address: input.address || null,
         city: input.city || null,
         state: input.state || null,
         welcomeMessage: input.welcomeMessage || null,
         shortDescription: input.shortDescription || null,
-        organizationId: organization.id,
+        organizationId,
         slug,
         status: 'DRAFT',
         checkIn: input.checkInTime || input.checkInInstructions || input.checkInAccessMethod
@@ -127,7 +128,7 @@ export async function createProperty(input: CreatePropertyInput) {
           ? {
               create: input.devices.map((d) => ({
                 name: d.name,
-                type: d.type as any,
+                type: d.type as DeviceType,
                 instructions: d.instructions || null,
                 brand: d.brand || null,
               })),
@@ -137,7 +138,7 @@ export async function createProperty(input: CreatePropertyInput) {
           ? {
               create: input.contacts.map((c) => ({
                 name: c.name,
-                role: c.role as any,
+                role: c.role as ContactRole,
                 phone: c.phone || null,
                 email: c.email || null,
                 whatsapp: c.whatsapp || null,
@@ -148,7 +149,7 @@ export async function createProperty(input: CreatePropertyInput) {
           ? {
               create: input.recommendations.map((r) => ({
                 name: r.name,
-                category: r.category as any,
+                category: r.category as RecommendationCategory,
                 description: r.description || null,
                 address: r.address || null,
                 mapUrl: r.mapUrl || null,
@@ -169,7 +170,8 @@ export async function createProperty(input: CreatePropertyInput) {
     })
 
     revalidatePath('/app/imoveis')
-    
+    revalidateTag('dashboard', {})
+
     return { success: true, propertyId: property.id }
   } catch (error: any) {
     console.error('Erro ao criar imóvel:', error)

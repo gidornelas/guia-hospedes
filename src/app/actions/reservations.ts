@@ -1,7 +1,8 @@
 'use server'
 
 import { db } from '@/lib/db'
-import { revalidatePath } from 'next/cache'
+import { requireSession, requirePropertyAccess, requireReservationAccess } from '@/lib/authorization'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 
@@ -18,6 +19,14 @@ const reservationSchema = z.object({
   totalAmount: z.coerce.number().optional(),
   notes: z.string().optional().or(z.literal('')),
 })
+
+const VALID_STATUS_TRANSITIONS: Record<string, string[]> = {
+  PENDING: ['CONFIRMED', 'CANCELLED'],
+  CONFIRMED: ['CHECKED_IN', 'CANCELLED'],
+  CHECKED_IN: ['CHECKED_OUT', 'CANCELLED'],
+  CHECKED_OUT: [],
+  CANCELLED: [],
+}
 
 export async function createReservation(_prevState: unknown, formData: FormData) {
   const data = Object.fromEntries(formData.entries())
@@ -41,6 +50,9 @@ export async function createReservation(_prevState: unknown, formData: FormData)
     notes,
   } = parsed.data
 
+  // Verifica se o imóvel pertence à organização do usuário logado
+  await requirePropertyAccess(propertyId)
+
   await db.reservation.create({
     data: {
       propertyId,
@@ -58,6 +70,7 @@ export async function createReservation(_prevState: unknown, formData: FormData)
   })
 
   revalidatePath('/app/reservas')
+  revalidateTag('dashboard', {})
   redirect('/app/reservas')
 }
 
@@ -87,6 +100,12 @@ export async function updateReservation(
     notes,
   } = parsed.data
 
+  // Verifica ownership da reserva existente e do novo imóvel (se alterado)
+  const { reservation } = await requireReservationAccess(id)
+  if (propertyId !== reservation.propertyId) {
+    await requirePropertyAccess(propertyId)
+  }
+
   await db.reservation.update({
     where: { id },
     data: {
@@ -106,21 +125,36 @@ export async function updateReservation(
 
   revalidatePath('/app/reservas')
   revalidatePath(`/app/reservas/${id}`)
+  revalidateTag('dashboard', {})
   redirect('/app/reservas')
 }
 
 export async function deleteReservation(id: string) {
+  await requireReservationAccess(id)
+
   await db.reservation.delete({ where: { id } })
   revalidatePath('/app/reservas')
+  revalidateTag('dashboard', {})
 }
 
 export async function updateReservationStatus(
   id: string,
   status: 'PENDING' | 'CONFIRMED' | 'CHECKED_IN' | 'CHECKED_OUT' | 'CANCELLED'
 ) {
+  const { reservation } = await requireReservationAccess(id)
+
+  // Valida transição de status
+  const allowedTransitions = VALID_STATUS_TRANSITIONS[reservation.status] || []
+  if (!allowedTransitions.includes(status)) {
+    throw new Error(
+      `Transição inválida: não é possível alterar de "${reservation.status}" para "${status}".`
+    )
+  }
+
   await db.reservation.update({
     where: { id },
     data: { status },
   })
   revalidatePath('/app/reservas')
+  revalidateTag('dashboard', {})
 }

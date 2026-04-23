@@ -20,7 +20,7 @@ import { LandingFooter } from '@/components/landing/footer'
 
 export default function LandingPage() {
   return (
-    <div className="flex min-h-screen flex-col pb-24 md:pb-0">
+    <div className="flex min-h-screen flex-col pb-28 md:pb-0">
       <LandingHeader />
       <LandingHero />
       <LandingProblem />
@@ -42,7 +42,7 @@ export default function LandingPage() {
               Contato e demonstracao
             </p>
             <h2 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl">
-              Quer validar o produto com a sua operacao?
+              Quer validar o produto com a sua operação?
             </h2>
             <p className="max-w-2xl text-lg text-muted-foreground">
               Fale com a equipe, teste a demo publica e entenda como organizar onboarding, compartilhamento e experiencia do hospede sem depender de mensagens repetidas.
@@ -53,7 +53,7 @@ export default function LandingPage() {
                   Comecar agora
                 </Button>
               </Link>
-              <Link href="/g/flat-elegance-paulista" target="_blank">
+              <Link href="/g/demo" target="_blank">
                 <Button size="lg" variant="outline">
                   Abrir demonstracao
                 </Button>
@@ -75,13 +75,13 @@ export default function LandingPage() {
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Ideal para</p>
                 <p className="mt-1 text-sm text-foreground">
-                  anfitrioes individuais, gestores com multiplos imoveis e times de operacao.
+                  anfitrioes individuais, gestores com multiplos imóveis e times de operação.
                 </p>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Proximo passo sugerido</p>
                 <p className="mt-1 text-sm text-foreground">
-                  Criar o primeiro imovel, publicar o guia e testar o envio por WhatsApp.
+                  Criar o primeiro imóvel, publicar o guia e testar o envio por WhatsApp.
                 </p>
               </div>
             </div>
@@ -97,7 +97,7 @@ export default function LandingPage() {
           <Link href="/login" className="flex-1">
             <Button className="w-full">Comecar gratis</Button>
           </Link>
-          <Link href="/g/flat-elegance-paulista" target="_blank" className="flex-1">
+          <Link href="/g/demo" target="_blank" className="flex-1">
             <Button variant="outline" className="w-full">
               Ver demo
             </Button>

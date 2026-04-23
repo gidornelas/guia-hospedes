@@ -1,12 +1,15 @@
 'use server'
 
 import { db } from '@/lib/db'
-import { revalidatePath } from 'next/cache'
+import { requirePropertyAccess } from '@/lib/authorization'
+import { revalidatePath, revalidateTag } from 'next/cache'
 
 export async function toggleGuideStatus(propertyId: string) {
   try {
+    await requirePropertyAccess(propertyId)
+
     const property = await db.property.findUnique({
-      where: { id: propertyId },
+      where: { id: propertyId, deletedAt: null },
       include: { guide: true },
     })
 
@@ -41,6 +44,7 @@ export async function toggleGuideStatus(propertyId: string) {
 
     revalidatePath('/app/imoveis')
     revalidatePath(`/app/imoveis/${propertyId}`)
+    revalidateTag('dashboard', {})
 
     return { success: true, status: newStatus }
   } catch (error: any) {

@@ -1,6 +1,7 @@
 'use server'
 
 import { db } from '@/lib/db'
+import { requireOrganizationAccess, requireSession } from '@/lib/authorization'
 import { revalidatePath } from 'next/cache'
 
 interface UpdateOrganizationInput {
@@ -13,9 +14,21 @@ interface UpdateOrganizationInput {
 
 export async function updateOrganization(input: UpdateOrganizationInput) {
   try {
+    await requireOrganizationAccess(input.id)
+
     const existing = await db.organization.findUnique({ where: { id: input.id } })
     if (!existing) {
       throw new Error('Organização não encontrada')
+    }
+
+    // Verifica unicidade de slug se estiver sendo alterado
+    if (input.slug && input.slug !== existing.slug) {
+      const slugExists = await db.organization.findUnique({
+        where: { slug: input.slug },
+      })
+      if (slugExists) {
+        throw new Error('Este slug já está em uso. Escolha outro.')
+      }
     }
 
     await db.organization.update({
@@ -39,7 +52,10 @@ export async function updateOrganization(input: UpdateOrganizationInput) {
 
 export async function getOrganization() {
   try {
-    const organization = await db.organization.findFirst()
+    const session = await requireSession()
+    const organization = await db.organization.findUnique({
+      where: { id: session.organizationId },
+    })
     return { success: true, organization }
   } catch (error: any) {
     console.error('Erro ao buscar organização:', error)

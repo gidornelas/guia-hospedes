@@ -1,15 +1,14 @@
 'use server'
 
-import { writeFile, mkdir } from 'fs/promises'
-import { existsSync } from 'fs'
-import path from 'path'
 import { db } from '@/lib/db'
+import { requirePropertyAccess } from '@/lib/authorization'
+import { uploadFile } from '@/lib/storage'
 import { revalidatePath } from 'next/cache'
-
-const UPLOAD_DIR = path.join(process.cwd(), 'public', 'images', 'properties')
 
 export async function uploadPropertyCover(propertyId: string, formData: FormData) {
   try {
+    await requirePropertyAccess(propertyId)
+
     const file = formData.get('image') as File
 
     if (!file || file.size === 0) {
@@ -28,22 +27,13 @@ export async function uploadPropertyCover(propertyId: string, formData: FormData
       return { success: false, error: 'Imagem muito grande. Máximo 5MB.' }
     }
 
-    // Cria pasta se não existir
-    if (!existsSync(UPLOAD_DIR)) {
-      await mkdir(UPLOAD_DIR, { recursive: true })
-    }
-
     // Gera nome único
     const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg'
     const fileName = `${propertyId}-${Date.now()}.${ext}`
-    const filePath = path.join(UPLOAD_DIR, fileName)
 
-    // Salva arquivo
+    // Converte para buffer e faz upload
     const buffer = Buffer.from(await file.arrayBuffer())
-    await writeFile(filePath, buffer)
-
-    // URL pública
-    const publicUrl = `/images/properties/${fileName}`
+    const publicUrl = await uploadFile(buffer, fileName, file.type)
 
     // Atualiza no banco
     await db.property.update({

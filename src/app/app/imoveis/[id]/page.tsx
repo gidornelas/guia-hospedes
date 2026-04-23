@@ -45,7 +45,7 @@ import RecommendationsManager from '@/components/dashboard/recommendations-manag
 
 async function getProperty(id: string) {
   return db.property.findUnique({
-    where: { id },
+    where: { id, deletedAt: null },
     include: {
       checkIn: true,
       checkOut: true,

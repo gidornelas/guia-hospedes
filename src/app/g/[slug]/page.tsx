@@ -20,8 +20,8 @@ import {
 import { cn } from '@/lib/utils'
 import { CopyButton } from '@/components/shared/copy-button'
 import { GuideAccessTracker } from '@/components/shared/guide-access-tracker'
-import { getGuideProperty, buildGuideQuery } from '@/lib/guide-utils'
-import { getLocaleFromSearchParams, getDictionary } from '@/lib/i18n'
+import { getGuideProperty, buildGuideQuery, GuideContact, GuideDevice, GuideRecommendation, GuideLink } from '@/lib/guide-utils'
+import { getLocaleFromSearchParams, loadDictionary } from '@/lib/i18n'
 import { getPropertyTranslations, translateField } from '@/lib/translate'
 
 interface SectionDef {
@@ -53,7 +53,7 @@ export default async function GuideHubPage({
   const { slug } = await params
   const sp = await searchParams
   const locale = getLocaleFromSearchParams(sp)
-  const d = getDictionary(locale)
+  const d = await loadDictionary(locale)
   const query = buildGuideQuery(sp)
 
   const property = await getGuideProperty({
@@ -74,7 +74,7 @@ export default async function GuideHubPage({
   if (!property) notFound()
 
   const isPreview = sp.preview === '1'
-  const hostContact = property.contacts.find((c: any) => c.role === 'HOST')
+  const hostContact = property.contacts.find((c: GuideContact) => c.role === 'HOST')
   const hasWiFi = !!property.wifi?.networkName
   const hasCheckIn = !!property.checkIn
 
@@ -120,7 +120,7 @@ export default async function GuideHubPage({
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 overflow-x-hidden">
       {/* Access Tracker */}
       {!isPreview && 'guideId' in property && (
         <GuideAccessTracker guideId={(property as any).guideId} />
@@ -128,10 +128,10 @@ export default async function GuideHubPage({
 
       {/* Preview Banner */}
       {isPreview && (
-        <div className="bg-amber-100 border-b border-amber-200 px-4 py-2">
+        <div className="bg-amber-100 border-b border-amber-200 px-4 py-2 z-20 relative">
           <div className="max-w-lg mx-auto flex items-center gap-2 text-amber-800">
             <Eye className="h-4 w-4 shrink-0" />
-            <p className="text-xs font-medium">Modo preview - apenas voce ve esta versao</p>
+            <p className="text-xs font-medium">Modo preview - apenas você ve esta versao</p>
           </div>
         </div>
       )}
@@ -191,21 +191,19 @@ export default async function GuideHubPage({
               </Link>
             )}
             {hasWiFi && (
-              <div className="flex flex-col items-center gap-2 rounded-xl bg-white border border-slate-200 p-3 shadow-sm">
+              <Link
+                href={`/g/${slug}/wifi${query}`}
+                aria-label={`${d.hub.wifi}. ${d.common.available}`}
+                className="flex flex-col items-center gap-2 rounded-xl bg-white border border-slate-200 p-3 shadow-sm transition-all hover:border-emerald-300 hover:shadow-md active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+              >
                 <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center">
                   <Wifi className="h-5 w-5 text-emerald-600" />
                 </div>
                 <span className="text-xs font-medium text-slate-700 text-center leading-tight">{d.hub.wifi}</span>
                 <div className="flex items-center gap-1 text-[10px] text-muted-foreground bg-muted rounded-md px-1.5 py-0.5">
-                  <span className="truncate max-w-[60px]">{property.wifi?.networkName}</span>
-                  <CopyButton
-                    text={property.wifi?.networkName || ''}
-                    className="h-3 w-3"
-                    ariaLabel="Copiar nome da rede Wi-Fi"
-                    successMessage="Nome da rede copiado!"
-                  />
+                  <span className="truncate max-w-[80px]">{property.wifi?.networkName}</span>
                 </div>
-              </div>
+              </Link>
             )}
             {hostContact?.whatsapp && (
               <a
@@ -234,16 +232,16 @@ export default async function GuideHubPage({
               const hasData = getHasData(section.id)
 
               return (
-                <Link
+                <div
                   key={section.id}
-                  href={hasData ? `/g/${slug}/${section.id}${query}` : '#'}
                   aria-label={`${sectionLabels[section.id]}. ${hasData ? d.common.available : d.common.noInfo}`}
                   className={cn(
                     'flex items-center gap-3 rounded-xl border bg-white p-3 shadow-sm transition-all',
                     hasData
-                      ? 'border-slate-200 active:scale-95 hover:shadow-md hover:border-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+                      ? 'border-slate-200 active:scale-95 hover:shadow-md hover:border-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 cursor-pointer'
                       : 'border-slate-100 opacity-60 cursor-not-allowed'
                   )}
+                  {...(hasData ? { onClick: () => window.location.href = `/g/${slug}/${section.id}${query}` } : {})}
                 >
                   <div className={cn('h-10 w-10 rounded-lg flex items-center justify-center shrink-0', section.bgColor)}>
                     <section.icon className={cn('h-5 w-5', section.color)} />
@@ -255,7 +253,7 @@ export default async function GuideHubPage({
                     </span>
                   </div>
                   {hasData && <ArrowRight className="h-4 w-4 text-slate-300 ml-auto shrink-0" />}
-                </Link>
+                </div>
               )
             })}
           </div>
@@ -279,7 +277,7 @@ export default async function GuideHubPage({
 
       {/* Floating Bottom Bar */}
       {hostContact?.whatsapp && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-t border-slate-200">
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-t border-slate-200 pb-[env(safe-area-inset-bottom)]">
           <div className="max-w-lg mx-auto px-4 py-3">
             <a
               href={`https://wa.me/${hostContact.whatsapp}`}
@@ -296,7 +294,7 @@ export default async function GuideHubPage({
       )}
 
       {/* Footer */}
-      <footer className="py-6 text-center space-y-1 pb-24">
+      <footer className="py-6 text-center space-y-1 pb-28">
         <p className="text-xs text-slate-400">{d.common.poweredBy}</p>
         <p className="text-[10px] text-slate-300">{d.common.guideSubtitle}</p>
       </footer>

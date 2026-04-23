@@ -6,8 +6,8 @@ import {
   PrimaryCard,
   SecondaryCard,
 } from '@/components/shared/guide-page-template'
-import { getGuideProperty, buildGuideQuery } from '@/lib/guide-utils'
-import { getLocaleFromSearchParams, getDictionary } from '@/lib/i18n'
+import { getGuideProperty, buildGuideQuery, GuideContact, GuideDevice, GuideRecommendation, GuideLink } from '@/lib/guide-utils'
+import { getLocaleFromSearchParams, loadDictionary } from '@/lib/i18n'
 import { getPropertyTranslations, translateField, translatePath, getTranslatedLabels } from '@/lib/translate'
 
 const rolePriority: Record<string, number> = {
@@ -132,7 +132,7 @@ export default async function ContactsPage({
   const { slug } = await params
   const sp = await searchParams
   const locale = getLocaleFromSearchParams(sp)
-  const d = getDictionary(locale)
+  const d = await loadDictionary(locale)
   const query = buildGuideQuery(sp)
 
   const property = await getGuideProperty({
@@ -142,7 +142,7 @@ export default async function ContactsPage({
   })
   if (!property || property.contacts.length === 0) notFound()
 
-  const hostContact = property.contacts.find((c: any) => c.role === 'HOST')
+  const hostContact = property.contacts.find((c: GuideContact) => c.role === 'HOST')
 
   // Sort by priority
   const sortedContacts = [...property.contacts].sort((a: any, b: any) => {
@@ -151,9 +151,9 @@ export default async function ContactsPage({
     return pa - pb
   })
 
-  const host = sortedContacts.find((c: any) => c.role === 'HOST')
-  const emergency = sortedContacts.filter((c: any) => c.role === 'EMERGENCY')
-  const others = sortedContacts.filter((c: any) => c.role !== 'HOST' && c.role !== 'EMERGENCY')
+  const host = sortedContacts.find((c: GuideContact) => c.role === 'HOST')
+  const emergency = sortedContacts.filter((c: GuideContact) => c.role === 'EMERGENCY')
+  const others = sortedContacts.filter((c: GuideContact) => c.role !== 'HOST' && c.role !== 'EMERGENCY')
 
   return (
     <GuidePageTemplate
@@ -191,7 +191,7 @@ export default async function ContactsPage({
                 {d.contacts.emergency}
               </span>
             </div>
-            {emergency.map((contact: any) => (
+            {emergency.map((contact: GuideContact) => (
               <ContactCard key={contact.id} contact={{ ...contact, _parentTranslations: property.translations }} priority="emergency" locale={locale} />
             ))}
           </div>
@@ -207,7 +207,7 @@ export default async function ContactsPage({
               </span>
             </div>
             <div className="space-y-3">
-              {others.map((contact: any) => (
+              {others.map((contact: GuideContact) => (
                 <ContactCard key={contact.id} contact={{ ...contact, _parentTranslations: property.translations }} priority="normal" locale={locale} />
               ))}
             </div>

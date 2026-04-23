@@ -126,14 +126,30 @@ export function ReservationsClient({
   async function handleDelete(id: string) {
     await deleteReservation(id)
     toast.success('Reserva excluida')
+    window.location.reload()
+  }
+
+  const VALID_TRANSITIONS: Record<string, string[]> = {
+    PENDING: ['CONFIRMED', 'CANCELLED'],
+    CONFIRMED: ['CHECKED_IN', 'CANCELLED'],
+    CHECKED_IN: ['CHECKED_OUT', 'CANCELLED'],
+    CHECKED_OUT: [],
+    CANCELLED: [],
   }
 
   async function handleStatusChange(
     id: string,
-    status: 'PENDING' | 'CONFIRMED' | 'CHECKED_IN' | 'CHECKED_OUT' | 'CANCELLED',
+    newStatus: 'PENDING' | 'CONFIRMED' | 'CHECKED_IN' | 'CHECKED_OUT' | 'CANCELLED',
+    currentStatus: string
   ) {
-    await updateReservationStatus(id, status)
+    const allowed = VALID_TRANSITIONS[currentStatus] || []
+    if (!allowed.includes(newStatus)) {
+      toast.error(`Não é possível alterar de "${STATUS_LABELS[currentStatus]}" para "${STATUS_LABELS[newStatus]}"`)
+      return
+    }
+    await updateReservationStatus(id, newStatus)
     toast.success('Status atualizado')
+    window.location.reload()
   }
 
   return (
@@ -171,7 +187,7 @@ export function ReservationsClient({
 
       <DashboardSectionCard
         title="Reservas cadastradas"
-        description="Filtre por hospede, status ou imovel sem sair do mesmo ritmo visual usado nas telas principais do dashboard."
+        description="Filtre por hospede, status ou imóvel sem sair do mesmo ritmo visual usado nas telas principais do dashboard."
         action={
           <Badge variant="outline" className="bg-background">
             {filtered.length} resultado{filtered.length === 1 ? '' : 's'}
@@ -221,17 +237,17 @@ export function ReservationsClient({
             onValueChange={(value) => setPropertyFilter(value || 'ALL')}
           >
             <label htmlFor={propertyFilterId} className="sr-only">
-              Filtrar reservas por imovel
+              Filtrar reservas por imóvel
             </label>
             <SelectTrigger
               id={propertyFilterId}
               className="w-full lg:w-[240px]"
-              aria-label="Filtrar reservas por imovel"
+              aria-label="Filtrar reservas por imóvel"
             >
-              <SelectValue placeholder="Todos os imoveis" />
+              <SelectValue placeholder="Todos os imóveis" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">Todos os imoveis</SelectItem>
+              <SelectItem value="ALL">Todos os imóveis</SelectItem>
               {properties.map((property) => (
                 <SelectItem key={property.id} value={property.id}>
                   {property.name}
@@ -348,28 +364,28 @@ export function ReservationsClient({
                         <div className="my-1 h-px bg-border" />
                         {reservation.status !== 'CHECKED_IN' ? (
                           <DropdownMenuItem
-                            onClick={() => handleStatusChange(reservation.id, 'CHECKED_IN')}
+                            onClick={() => handleStatusChange(reservation.id, 'CHECKED_IN', reservation.status)}
                           >
                             Marcar check-in
                           </DropdownMenuItem>
                         ) : null}
                         {reservation.status !== 'CHECKED_OUT' ? (
                           <DropdownMenuItem
-                            onClick={() => handleStatusChange(reservation.id, 'CHECKED_OUT')}
+                            onClick={() => handleStatusChange(reservation.id, 'CHECKED_OUT', reservation.status)}
                           >
                             Marcar check-out
                           </DropdownMenuItem>
                         ) : null}
                         {reservation.status !== 'CONFIRMED' ? (
                           <DropdownMenuItem
-                            onClick={() => handleStatusChange(reservation.id, 'CONFIRMED')}
+                            onClick={() => handleStatusChange(reservation.id, 'CONFIRMED', reservation.status)}
                           >
                             Confirmar reserva
                           </DropdownMenuItem>
                         ) : null}
                         {reservation.status !== 'CANCELLED' ? (
                           <DropdownMenuItem
-                            onClick={() => handleStatusChange(reservation.id, 'CANCELLED')}
+                            onClick={() => handleStatusChange(reservation.id, 'CANCELLED', reservation.status)}
                             className="text-rose-600"
                           >
                             Cancelar reserva
@@ -388,7 +404,7 @@ export function ReservationsClient({
                               <DialogTitle>Excluir reserva</DialogTitle>
                               <DialogDescription>
                                 Tem certeza que deseja excluir a reserva de{' '}
-                                <strong>{reservation.guestName}</strong>? Esta acao nao
+                                <strong>{reservation.guestName}</strong>? Esta ação não
                                 pode ser desfeita.
                               </DialogDescription>
                             </DialogHeader>

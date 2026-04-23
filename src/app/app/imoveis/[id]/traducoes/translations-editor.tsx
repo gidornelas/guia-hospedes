@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Sparkles, Save, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Sparkles, Save, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -96,12 +96,20 @@ export function TranslationsEditor({ property, hasApiKey }: TranslationsEditorPr
               onClick={handleGenerate}
               disabled={generating}
             >
-              <Sparkles className="h-4 w-4 mr-1" />
+              {generating ? (
+                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4 mr-1" />
+              )}
               {generating ? 'Gerando...' : 'Gerar automaticamente'}
             </Button>
           )}
           <Button size="sm" onClick={handleSave} disabled={saving}>
-            <Save className="h-4 w-4 mr-1" />
+            {saving ? (
+              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+            ) : (
+              <Save className="h-4 w-4 mr-1" />
+            )}
             {saving ? 'Salvando...' : 'Salvar traduções'}
           </Button>
         </div>

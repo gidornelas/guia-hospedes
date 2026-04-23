@@ -34,11 +34,20 @@ function ensureUrlProtocol(url: string): string {
   return `https://${url}`
 }
 
+function requireEnv(key: string, value: string | undefined, allowEmpty = false): string {
+  const isProd = process.env.NODE_ENV === 'production'
+  if (!value && (!allowEmpty || isProd)) {
+    throw new Error(`Missing required environment variable: ${key}`)
+  }
+  return value || ''
+}
+
 function loadEnv(): EnvConfig {
+  const isProd = process.env.NODE_ENV === 'production'
   return {
-    databaseUrl: process.env.DATABASE_URL || 'file:./dev.db',
+    databaseUrl: requireEnv('DATABASE_URL', process.env.DATABASE_URL, false),
     nextauthUrl: ensureUrlProtocol(process.env.NEXTAUTH_URL || 'http://localhost:3000'),
-    nextauthSecret: process.env.NEXTAUTH_SECRET || 'dev-secret-change-in-production',
+    nextauthSecret: requireEnv('NEXTAUTH_SECRET', process.env.NEXTAUTH_SECRET, !isProd),
     googleClientId: process.env.GOOGLE_CLIENT_ID || '',
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
     smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',

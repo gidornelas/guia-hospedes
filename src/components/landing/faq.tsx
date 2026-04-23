@@ -7,48 +7,12 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
+import { faqs, trustPoints } from '@/lib/data/faq'
 
-const faqs = [
-  {
-    value: 'tempo',
-    question: 'Vou demorar para montar o primeiro guia?',
-    answer:
-      'Não. O fluxo foi pensado para tirar o guia do papel rápido: você cadastra o imóvel, preenche os pontos principais e já consegue revisar o preview antes de publicar.',
-  },
-  {
-    value: 'hospede',
-    question: 'O hóspede precisa instalar aplicativo ou criar conta?',
-    answer:
-      'Não. O guia abre direto no navegador pelo link, WhatsApp, e-mail ou QR Code. Isso reduz atrito e facilita o acesso durante a estadia.',
-  },
-  {
-    value: 'operacao',
-    question: 'Isso funciona para vários imóveis e para equipe?',
-    answer:
-      'Sim. O produto foi desenhado para anfitriões individuais e também para operações com vários imóveis, mantendo padrão visual, organização e compartilhamento centralizado.',
-  },
-  {
-    value: 'publicacao',
-    question: 'Consigo revisar antes de enviar ao hóspede?',
-    answer:
-      'Sim. O dashboard mostra preview do guia e o status de publicação, para você identificar o que ainda falta e compartilhar só quando estiver pronto.',
-  },
-]
-
-const trustPoints = [
-  {
-    icon: Sparkles,
-    title: 'Menos improviso',
-    description:
-      'Centralize informações importantes sem depender de mensagens espalhadas ou textos copiados a cada reserva.',
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Mais controle',
-    description:
-      'Veja o que já foi publicado, compartilhe no canal certo e reduza ruído operacional no dia a dia.',
-  },
-]
+const iconMap = {
+  Sparkles,
+  ShieldCheck,
+} as const
 
 export function LandingFaq() {
   return (
@@ -72,18 +36,21 @@ export function LandingFaq() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-            {trustPoints.map((point) => (
+            {trustPoints.map((point) => {
+              const Icon = iconMap[point.iconName]
+              return (
               <div
                 key={point.title}
                 className="rounded-2xl border border-border/70 bg-background/90 p-5 shadow-card"
               >
                 <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                  <point.icon className="h-5 w-5" />
+                  <Icon className="h-5 w-5" />
                 </div>
                 <h3 className="text-base font-semibold text-foreground">{point.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">{point.description}</p>
               </div>
-            ))}
+              )
+            })}
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2, Power, Trash2 } from 'lucide-react'
+import type { GuideStatus } from '@prisma/client'
 import {
   Dialog,
   DialogContent,
@@ -15,11 +16,12 @@ import {
 import { Button } from '@/components/ui/button'
 import { deleteProperty } from '@/app/actions/delete-property'
 import { toggleGuideStatus } from '@/app/actions/toggle-guide-status'
+import { ROUTES } from '@/lib/constants'
 import { toast } from 'sonner'
 
 interface PropertyActionsProps {
   propertyId: string
-  guideStatus?: string
+  guideStatus?: GuideStatus
 }
 
 export function PropertyActions({
@@ -37,7 +39,7 @@ export function PropertyActions({
       const result = await deleteProperty(propertyId)
       if (result.success) {
         toast.success('Imóvel excluído com sucesso')
-        router.push('/app/imoveis')
+        router.push(ROUTES.imoveis)
       } else {
         toast.error(result.error || 'Erro ao excluir imóvel')
       }
@@ -91,15 +93,17 @@ export function PropertyActions({
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger>
-          <Button
-            variant="outline"
-            className="w-full gap-2 text-destructive hover:text-destructive sm:w-auto"
-          >
-            <Trash2 className="h-4 w-4" />
-            Excluir
-          </Button>
-        </DialogTrigger>
+        <DialogTrigger
+          render={
+            <Button
+              variant="outline"
+              className="w-full gap-2 text-destructive hover:text-destructive sm:w-auto"
+            >
+              <Trash2 className="h-4 w-4" />
+              Excluir
+            </Button>
+          }
+        />
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Excluir imóvel</DialogTitle>

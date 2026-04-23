@@ -97,6 +97,24 @@ export const LINK_TYPES = {
   OTHER: 'Outro',
 } as const
 
+export const ROUTES = {
+  login: '/login',
+  cadastro: '/cadastro',
+  esqueciSenha: '/esqueci-senha',
+  redefinirSenha: '/redefinir-senha',
+  app: '/app',
+  imoveis: '/app/imoveis',
+  novoImovel: '/app/imoveis/novo',
+  reservas: '/app/reservas',
+  guias: '/app/guias',
+  compartilhamento: '/app/compartilhamento',
+  modelosMensagem: '/app/modelos-mensagem',
+  integracoes: '/app/integracoes',
+  analytics: '/app/analytics',
+  configuracoes: '/app/configuracoes',
+  demoGuide: '/g/demo',
+} as const
+
 export const DASHBOARD_NAV = [
   { label: 'Visão Geral', href: '/app', icon: 'LayoutDashboard' },
   { label: 'Imóveis', href: '/app/imoveis', icon: 'Building2' },
