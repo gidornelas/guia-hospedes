@@ -77,3 +77,6 @@ next-env.d.ts
 
 # Infisical (removed)
 infisical.json
+
+# OpenCode skills (ambiente local)
+/.opencode/
