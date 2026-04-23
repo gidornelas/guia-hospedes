@@ -24,7 +24,7 @@ export function NewReservationForm({ properties }: { properties: Property[] }) {
       <PageHeader
         eyebrow="Nova reserva"
         title="Cadastre uma reserva manualmente"
-        description="Preencha os dados do hospede, periodo da estadia e origem da reserva para manter a operacao organizada."
+        description="Preencha os dados do hóspede, período da estadia e origem da reserva para manter a operação organizada."
       >
         <Link href="/app/reservas">
           <Button variant="outline" className="gap-2">
@@ -36,19 +36,19 @@ export function NewReservationForm({ properties }: { properties: Property[] }) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Informacoes da reserva</CardTitle>
+          <CardTitle>Informações da reserva</CardTitle>
         </CardHeader>
         <CardContent>
           <form action={formAction} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="propertyId">Imovel *</Label>
+              <Label htmlFor="propertyId">Imóvel *</Label>
               <select
                 id="propertyId"
                 name="propertyId"
                 required
                 className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
               >
-                <option value="">Selecione um imovel</option>
+                <option value="">Selecione um imóvel</option>
                 {properties.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name}
@@ -168,7 +168,7 @@ export function NewReservationForm({ properties }: { properties: Property[] }) {
                 id="notes"
                 name="notes"
                 rows={3}
-                placeholder="Informacoes adicionais sobre a reserva..."
+                placeholder="Informações adicionais sobre a reserva..."
               />
             </div>
 

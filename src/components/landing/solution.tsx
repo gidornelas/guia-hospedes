@@ -3,17 +3,17 @@ import { CheckCircle, Eye, Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 const features = [
-  'Formulario estruturado por imovel',
+  'Formulário estruturado por imóvel',
   'Template padronizado e profissional',
   'Preview real antes de publicar',
   'Compartilhamento por WhatsApp, e-mail, link e QR',
-  'Historico de envios e proximos passos claros',
+  'Histórico de envios e próximos passos claros',
 ]
 
 const mockupFields = [
-  { label: 'Nome do imovel', value: 'Casa Serra Azul' },
+  { label: 'Nome do imóvel', value: 'Casa Serra Azul' },
   { label: 'Check-in', value: '15:00 com fechadura digital' },
-  { label: 'Wi-Fi', value: 'Rede principal e senha do hospede' },
+  { label: 'Wi-Fi', value: 'Rede principal e senha do hóspede' },
 ]
 
 export function LandingSolution() {
@@ -27,12 +27,12 @@ export function LandingSolution() {
                 Fluxo operacional
               </span>
               <h2 className="font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                Um guia para cada imovel.
+                Um guia para cada imóvel.
                 <br />
                 <span className="text-primary">Criado uma vez, enviado sempre.</span>
               </h2>
               <p className="text-lg leading-8 text-muted-foreground">
-                A plataforma tira o processo do improviso: voce estrutura as informacoes do imovel, revisa o preview e compartilha com seguranca no momento certo.
+                A plataforma tira o processo do improviso: você estrutura as informações do imóvel, revisa o preview e compartilha com segurança no momento certo.
               </p>
             </div>
 
@@ -62,10 +62,10 @@ export function LandingSolution() {
               <div className="flex flex-col gap-4 border-b border-border/70 pb-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-                    Editor do imovel
+                    Editor do imóvel
                   </p>
                   <h3 className="mt-1 font-heading text-2xl font-semibold text-foreground">
-                    Formulario guiado
+                    Formulário guiado
                   </h3>
                 </div>
                 <div className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
@@ -91,7 +91,7 @@ export function LandingSolution() {
                     <span className="text-sm font-semibold">Preview em tempo real</span>
                   </div>
                   <p className="mt-2 text-sm leading-6 text-[#6b4e48]">
-                    Veja como o hospede vai navegar antes de publicar o guia.
+                    Veja como o hóspede vai navegar antes de publicar o guia.
                   </p>
                 </div>
 
@@ -101,12 +101,12 @@ export function LandingSolution() {
                     <span className="text-sm font-semibold">Pronto para envio</span>
                   </div>
                   <p className="mt-2 text-sm leading-6 text-emerald-800">
-                    Quando estiver completo, o guia ja segue para compartilhamento sem retrabalho.
+                    Quando estiver completo, o guia já segue para compartilhamento sem retrabalho.
                   </p>
                 </div>
               </div>
 
-              <Button className="mt-5 w-full">Proximo passo</Button>
+              <Button className="mt-5 w-full">Próximo passo</Button>
             </div>
           </div>
         </div>

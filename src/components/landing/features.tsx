@@ -13,48 +13,48 @@ import {
 const features = [
   {
     icon: BookOpen,
-    title: 'Formulario estruturado',
+    title: 'Formulário estruturado',
     desc: 'Preencha check-in, Wi-Fi, regras, contatos e dicas locais de forma organizada.',
   },
   {
     icon: Zap,
-    title: 'Guia automatico',
-    desc: 'Transforme informacoes operacionais em um guia profissional em poucos passos.',
+    title: 'Guia automático',
+    desc: 'Transforme informações operacionais em um guia profissional em poucos passos.',
   },
   {
     icon: MessageCircle,
     title: 'Compartilhamento por WhatsApp',
-    desc: 'Envie o guia rapidamente no canal mais usado pelo hospede.',
+    desc: 'Envie o guia rapidamente no canal mais usado pelo hóspede.',
   },
   {
     icon: Mail,
     title: 'Envio por e-mail',
-    desc: 'Mantenha um fluxo mais formal para reservas corporativas ou operacoes com equipe.',
+    desc: 'Mantenha um fluxo mais formal para reservas corporativas ou operações com equipe.',
   },
   {
     icon: Smartphone,
     title: 'Preview em tempo real',
-    desc: 'Revise a experiencia mobile do hospede antes de colocar o guia no ar.',
+    desc: 'Revise a experiência mobile do hóspede antes de colocar o guia no ar.',
   },
   {
     icon: Building2,
-    title: 'Multiplos imoveis',
-    desc: 'Padronize a operacao de varios imoveis sem perder clareza nem identidade.',
+    title: 'Múltiplos imóveis',
+    desc: 'Padronize a operação de vários imóveis sem perder clareza nem identidade.',
   },
   {
     icon: Share2,
-    title: 'Links e QR dinamicos',
+    title: 'Links e QR dinâmicos',
     desc: 'Compartilhe por link direto, QR Code e outros canais conforme o contexto.',
   },
   {
     icon: Plug,
-    title: 'Integracao com Airbnb',
-    desc: 'Conecte rotinas da operacao e reduza trabalho manual em cadastros repetidos.',
+    title: 'Integração com Airbnb',
+    desc: 'Conecte rotinas da operação e reduza trabalho manual em cadastros repetidos.',
   },
   {
     icon: BarChart3,
     title: 'Analytics operacional',
-    desc: 'Acompanhe publicacao, compartilhamento e sinais de uso com mais contexto.',
+    desc: 'Acompanhe publicação, compartilhamento e sinais de uso com mais contexto.',
   },
 ]
 
@@ -67,10 +67,10 @@ export function LandingFeatures() {
             Recursos principais
           </span>
           <h2 className="mt-4 font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Tudo que voce precisa para sair do improviso
+            Tudo que você precisa para sair do improviso
           </h2>
           <p className="mt-4 text-lg leading-8 text-muted-foreground">
-            A plataforma combina cadastro guiado, preview, publicacao e distribuicao para transformar o guia em parte real da operacao.
+            A plataforma combina cadastro guiado, preview, publicação e distribuição para transformar o guia em parte real da operação.
           </p>
         </div>
 

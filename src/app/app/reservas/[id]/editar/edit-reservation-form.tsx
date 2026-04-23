@@ -71,12 +71,12 @@ export function EditReservationForm({
 
       <Card>
         <CardHeader>
-          <CardTitle>Informacoes da reserva</CardTitle>
+          <CardTitle>Informações da reserva</CardTitle>
         </CardHeader>
         <CardContent>
           <form action={formAction} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="propertyId">Imovel *</Label>
+              <Label htmlFor="propertyId">Imóvel *</Label>
               <select
                 id="propertyId"
                 name="propertyId"
@@ -84,7 +84,7 @@ export function EditReservationForm({
                 defaultValue={reservation.propertyId}
                 className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
               >
-                <option value="">Selecione um imovel</option>
+                <option value="">Selecione um imóvel</option>
                 {properties.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name}

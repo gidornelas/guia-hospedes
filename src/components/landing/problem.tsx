@@ -4,27 +4,27 @@ const problems = [
   {
     icon: Clock,
     title: 'Toda reserva, a mesma mensagem',
-    desc: 'Voce digita as instrucoes manualmente a cada check-in e perde tempo em repeticao.',
+    desc: 'Você digita as instruções manualmente a cada check-in e perde tempo em repetição.',
   },
   {
     icon: MessageCircle,
     title: 'O Wi-Fi ficou para depois?',
-    desc: 'Informacoes importantes somem no meio da correria e viram nova mensagem de suporte.',
+    desc: 'Informações importantes somem no meio da correria e viram nova mensagem de suporte.',
   },
   {
     icon: Shield,
-    title: 'Cada imovel com um formato diferente',
-    desc: 'Sem padronizacao, a experiencia muda demais entre imoveis e entre pessoas da equipe.',
+    title: 'Cada imóvel com um formato diferente',
+    desc: 'Sem padronização, a experiência muda demais entre imóveis e entre pessoas da equipe.',
   },
   {
     icon: Smartphone,
-    title: 'O hospede pergunta sempre as mesmas coisas',
-    desc: 'Endereco, acesso, regras e contatos voltam como duvida toda semana.',
+    title: 'O hóspede pergunta sempre as mesmas coisas',
+    desc: 'Endereço, acesso, regras e contatos voltam como dúvida toda semana.',
   },
   {
     icon: BarChart3,
     title: 'Sem controle do que foi enviado',
-    desc: 'Fica dificil saber o que foi publicado, compartilhado ou revisado antes da chegada.',
+    desc: 'Fica difícil saber o que foi publicado, compartilhado ou revisado antes da chegada.',
   },
 ]
 
@@ -37,10 +37,10 @@ export function LandingProblem() {
             O problema atual
           </span>
           <h2 className="mt-4 font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Voce ainda manda instrucoes manualmente?
+            Você ainda manda instruções manualmente?
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Muitos gestores ainda gastam energia repetindo as mesmas orientacoes para cada hospede e cada reserva.
+            Muitos gestores ainda gastam energia repetindo as mesmas orientações para cada hóspede e cada reserva.
           </p>
         </div>
 

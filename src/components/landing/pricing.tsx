@@ -4,20 +4,20 @@ import { Button } from '@/components/ui/button'
 
 const plans = [
   {
-    name: 'Gratis',
+    name: 'Grátis',
     price: 'R$ 0',
     period: '/mes',
-    desc: 'Ideal para testar e para anfitrioes individuais',
-    features: ['1 imovel', 'Guia digital completo', 'Compartilhamento via link', 'Suporte por e-mail'],
-    cta: 'Comecar gratis',
+    desc: 'Ideal para testar e para anfitriões individuais',
+    features: ['1 imóvel', 'Guia digital completo', 'Compartilhamento via link', 'Suporte por e-mail'],
+    cta: 'Começar grátis',
     popular: false,
   },
   {
     name: 'Pro',
     price: 'R$ 49',
     period: '/mes',
-    desc: 'Para gestores com multiplos imoveis',
-    features: ['Ate 10 imoveis', 'Todos os canais de compartilhamento', 'QR Code personalizado', 'Templates de mensagem', 'Estatisticas de acesso'],
+    desc: 'Para gestores com múltiplos imóveis',
+    features: ['Até 10 imóveis', 'Todos os canais de compartilhamento', 'QR Code personalizado', 'Templates de mensagem', 'Estatísticas de acesso'],
     cta: 'Comecar Pro',
     popular: true,
   },
@@ -25,8 +25,8 @@ const plans = [
     name: 'Empresa',
     price: 'R$ 149',
     period: '/mes',
-    desc: 'Para operacoes e times de hospedagem',
-    features: ['Imoveis ilimitados', 'Multiplos usuarios', 'Integracao Airbnb', 'API de acesso', 'Suporte prioritario'],
+    desc: 'Para operações e times de hospedagem',
+    features: ['Imóveis ilimitados', 'Múltiplos usuários', 'Integração Airbnb', 'API de acesso', 'Suporte prioritário'],
     cta: 'Falar com vendas',
     popular: false,
   },
@@ -41,10 +41,10 @@ export function LandingPricing() {
             Planos
           </span>
           <h2 className="mt-4 font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Comece gratis e escale quando a operacao pedir mais
+            Comece grátis e escale quando a operação pedir mais
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Teste a plataforma sem compromisso e avance para o plano que combina com o volume da sua operacao.
+            Teste a plataforma sem compromisso e avance para o plano que combina com o volume da sua operação.
           </p>
         </div>
 

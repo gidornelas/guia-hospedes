@@ -13,7 +13,7 @@ export function LandingSharing() {
               <h2 className="font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                 Um link. Um clique.
                 <br />
-                <span className="text-primary">O hospede recebe tudo.</span>
+                <span className="text-primary">O hóspede recebe tudo.</span>
               </h2>
               <p className="text-lg leading-8 text-muted-foreground">
                 Compartilhe o guia no canal que mais faz sentido para a reserva. WhatsApp, e-mail, link direto ou QR Code, sempre com acesso imediato no celular.
@@ -34,7 +34,7 @@ export function LandingSharing() {
               <div className="rounded-2xl border border-border bg-background p-4 shadow-card">
                 <QrCode className="h-8 w-8 text-primary" />
                 <p className="mt-3 font-semibold text-foreground">QR Code</p>
-                <p className="mt-1 text-sm text-muted-foreground">Ideal para recepcao e impresso</p>
+                <p className="mt-1 text-sm text-muted-foreground">Ideal para recepção e impresso</p>
               </div>
             </div>
           </div>
@@ -52,13 +52,13 @@ export function LandingSharing() {
                   </div>
                 </div>
                 <div className="space-y-2 rounded-2xl bg-background p-4 text-sm leading-6">
-                  <p>Ola, Maria.</p>
-                  <p>Seu guia digital da estadia ja esta pronto:</p>
+                  <p>Olá, Maria.</p>
+                  <p>Seu guia digital da estadia já está pronto:</p>
                   <p className="text-primary underline underline-offset-4">
                     guiahospedes.com/g/flat-elegance...
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Wi-Fi, check-in, regras e dicas locais em um so lugar.
+                    Wi-Fi, check-in, regras e dicas locais em um só lugar.
                   </p>
                 </div>
               </div>

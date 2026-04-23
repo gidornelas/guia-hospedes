@@ -206,7 +206,7 @@ export default function SharingClient({ properties, templates, initialLogs, appU
       await registerQrShare()
       toast.success('QR Code copiado como imagem SVG!')
     } catch {
-      toast.error('Seu navegador nao suporta copiar imagem do QR diretamente')
+      toast.error('Seu navegador não suporta copiar imagem do QR diretamente')
     }
   }
 
@@ -607,7 +607,7 @@ export default function SharingClient({ properties, templates, initialLogs, appU
                             <MessageCircle className="h-4 w-4 text-green-600" />
                           </div>
                           <div>
-                            <p className="text-xs font-medium">Guia do imovel</p>
+                            <p className="text-xs font-medium">Guia do imóvel</p>
                             <p className="text-[10px] text-muted-foreground">Agora</p>
                           </div>
                         </div>
@@ -642,7 +642,7 @@ export default function SharingClient({ properties, templates, initialLogs, appU
             {/* Quick Info */}
             <Card className="shadow-card">
               <CardContent className="p-4 space-y-3">
-                <h3 className="text-sm font-medium">Informacoes do guia</h3>
+                <h3 className="text-sm font-medium">Informações do guia</h3>
                 <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
                   <div className="rounded-lg bg-muted p-3">
                     <p className="text-xs text-muted-foreground mb-1">Slug</p>
@@ -664,7 +664,7 @@ export default function SharingClient({ properties, templates, initialLogs, appU
                     onClick={() => window.open(guideUrl, '_blank')}
                   >
                     <Eye className="h-3.5 w-3.5" />
-                    Ver publico
+                    Ver público
                   </Button>
                   <Button
                     variant="outline"

@@ -283,7 +283,7 @@ export default function RecommendationsManager({
 
                 {/* Distancia */}
                 <div className="space-y-2">
-                  <Label htmlFor="distance">Distancia do imovel</Label>
+                  <Label htmlFor="distance">Distância do imóvel</Label>
                   <Input
                     id="distance"
                     placeholder="Ex: 500m, 2 min a pé"

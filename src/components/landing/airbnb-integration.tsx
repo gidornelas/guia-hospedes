@@ -1,9 +1,9 @@
 import { CheckCircle } from 'lucide-react'
 
 const airbnbFeatures = [
-  'Sincronizacao de calendario via iCal',
-  'Mapeamento entre imoveis internos e listings',
-  'Logs detalhados de cada sincronizacao',
+  'Sincronização de calendário via iCal',
+  'Mapeamento entre imóveis internos e listings',
+  'Logs detalhados de cada sincronização',
   'Arquitetura preparada para API oficial',
 ]
 
@@ -21,7 +21,7 @@ export function LandingAirbnb() {
                   </div>
                   <div>
                     <p className="font-semibold text-foreground">Airbnb</p>
-                    <p className="text-xs text-muted-foreground">Integracao ativa</p>
+                    <p className="text-xs text-muted-foreground">Integração ativa</p>
                   </div>
                 </div>
                 <div className="flex h-6 items-center rounded-full bg-emerald-100 px-3 text-xs font-medium text-emerald-700">
@@ -30,7 +30,7 @@ export function LandingAirbnb() {
               </div>
 
               <div className="space-y-3">
-                {['Sincronizacao iCal', 'Mapeamento de imoveis', 'Logs de sincronizacao'].map((item) => (
+                {['Sincronização iCal', 'Mapeamento de imóveis', 'Logs de sincronização'].map((item) => (
                   <div key={item} className="flex items-center justify-between rounded-lg bg-muted p-3">
                     <span className="text-sm text-foreground">{item}</span>
                     <CheckCircle className="h-4 w-4 text-primary" />
@@ -42,15 +42,15 @@ export function LandingAirbnb() {
 
           <div className="order-1 lg:order-2">
             <span className="inline-flex rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-              Integracao
+              Integração
             </span>
             <h2 className="mt-4 font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              Conecte sua operacao
+              Conecte sua operação
               <br />
               <span className="text-primary">ao Airbnb</span>
             </h2>
             <p className="mt-6 text-lg leading-8 text-muted-foreground">
-              Sincronize dados com seu anuncio do Airbnb via iCal, vincule listings internos e externos e mantenha a operacao mais alinhada.
+              Sincronize dados com seu anúncio do Airbnb via iCal, vincule listings internos e externos e mantenha a operação mais alinhada.
             </p>
             <div className="mt-8 space-y-4">
               {airbnbFeatures.map((item) => (

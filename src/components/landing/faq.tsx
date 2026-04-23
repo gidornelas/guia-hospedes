@@ -13,25 +13,25 @@ const faqs = [
     value: 'tempo',
     question: 'Vou demorar para montar o primeiro guia?',
     answer:
-      'Nao. O fluxo foi pensado para tirar o guia do papel rapido: voce cadastra o imovel, preenche os pontos principais e ja consegue revisar o preview antes de publicar.',
+      'Não. O fluxo foi pensado para tirar o guia do papel rápido: você cadastra o imóvel, preenche os pontos principais e já consegue revisar o preview antes de publicar.',
   },
   {
     value: 'hospede',
-    question: 'O hospede precisa instalar aplicativo ou criar conta?',
+    question: 'O hóspede precisa instalar aplicativo ou criar conta?',
     answer:
-      'Nao. O guia abre direto no navegador pelo link, WhatsApp, e-mail ou QR Code. Isso reduz atrito e facilita o acesso durante a estadia.',
+      'Não. O guia abre direto no navegador pelo link, WhatsApp, e-mail ou QR Code. Isso reduz atrito e facilita o acesso durante a estadia.',
   },
   {
     value: 'operacao',
-    question: 'Isso funciona para varios imoveis e para equipe?',
+    question: 'Isso funciona para vários imóveis e para equipe?',
     answer:
-      'Sim. O produto foi desenhado para anfitrioes individuais e tambem para operacoes com varios imoveis, mantendo padrao visual, organizacao e compartilhamento centralizado.',
+      'Sim. O produto foi desenhado para anfitriões individuais e também para operações com vários imóveis, mantendo padrão visual, organização e compartilhamento centralizado.',
   },
   {
     value: 'publicacao',
-    question: 'Consigo revisar antes de enviar ao hospede?',
+    question: 'Consigo revisar antes de enviar ao hóspede?',
     answer:
-      'Sim. O dashboard mostra preview do guia e o status de publicacao, para voce identificar o que ainda falta e compartilhar so quando estiver pronto.',
+      'Sim. O dashboard mostra preview do guia e o status de publicação, para você identificar o que ainda falta e compartilhar só quando estiver pronto.',
   },
 ]
 
@@ -39,12 +39,14 @@ const trustPoints = [
   {
     icon: Sparkles,
     title: 'Menos improviso',
-    description: 'Centralize informacoes importantes sem depender de mensagens espalhadas ou textos copiados a cada reserva.',
+    description:
+      'Centralize informações importantes sem depender de mensagens espalhadas ou textos copiados a cada reserva.',
   },
   {
     icon: ShieldCheck,
     title: 'Mais controle',
-    description: 'Veja o que ja foi publicado, compartilhe no canal certo e reduza ruído operacional no dia a dia.',
+    description:
+      'Veja o que já foi publicado, compartilhe no canal certo e reduza ruído operacional no dia a dia.',
   },
 ]
 
@@ -56,14 +58,15 @@ export function LandingFaq() {
           <div className="space-y-4">
             <span className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
               <CircleHelp className="h-3.5 w-3.5" />
-              Objecoes comuns
+              Objeções comuns
             </span>
             <div className="space-y-3">
               <h2 className="font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                O que normalmente trava a decisao de adotar o guia
+                O que normalmente trava a decisão de adotar o guia
               </h2>
               <p className="max-w-2xl text-lg leading-8 text-muted-foreground">
-                Reunimos as duvidas mais comuns de anfitrioes e gestores para deixar claro o que o produto resolve hoje e o que vale validar na sua operacao.
+                Reunimos as dúvidas mais comuns de anfitriões e gestores para deixar claro o que o
+                produto resolve hoje e o que vale validar na sua operação.
               </p>
             </div>
           </div>

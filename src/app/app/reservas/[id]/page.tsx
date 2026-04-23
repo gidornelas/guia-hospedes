@@ -173,7 +173,7 @@ export default async function ReservationDetailPage({
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <MapPin className="h-5 w-5 text-primary" />
-                Imovel
+                Imóvel
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -183,7 +183,7 @@ export default async function ReservationDetailPage({
               </div>
               {property.address && (
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Endereco</span>
+                  <span className="text-sm text-muted-foreground">Endereço</span>
                   <span className="text-sm">{property.address}</span>
                 </div>
               )}
@@ -196,7 +196,7 @@ export default async function ReservationDetailPage({
               <div className="pt-2">
                 <Link href={`/app/imoveis/${property.id}`}>
                   <Button variant="outline" size="sm" className="w-full gap-2">
-                    Ver detalhes do imovel
+                    Ver detalhes do imóvel
                   </Button>
                 </Link>
               </div>
@@ -303,7 +303,7 @@ export default async function ReservationDetailPage({
                   <Link href={publicUrl} target="_blank">
                     <Button variant="outline" className="w-full justify-start gap-2">
                       <MessageCircle className="h-4 w-4" />
-                      Abrir guia publico
+                      Abrir guia público
                     </Button>
                   </Link>
                 </>
@@ -311,11 +311,11 @@ export default async function ReservationDetailPage({
               {(!guide || guide.status !== 'PUBLISHED') && (
                 <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
                   <p className="text-xs text-amber-800">
-                    Publique o guia do imovel para liberar o compartilhamento com o hospede.
+                    Publique o guia do imóvel para liberar o compartilhamento com o hóspede.
                   </p>
                   <Link href={`/app/imoveis/${property.id}`} className="mt-2 block">
                     <Button variant="outline" size="sm" className="w-full">
-                      Ir para o imovel
+                      Ir para o imóvel
                     </Button>
                   </Link>
                 </div>

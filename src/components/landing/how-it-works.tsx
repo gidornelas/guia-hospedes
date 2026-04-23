@@ -1,7 +1,7 @@
 const steps = [
   {
     step: '01',
-    title: 'Cadastre o imovel',
+    title: 'Cadastre o imóvel',
     desc: 'Preencha check-in, Wi-Fi, regras, equipamentos, contatos e dicas locais em um fluxo estruturado.',
   },
   {
@@ -11,8 +11,8 @@ const steps = [
   },
   {
     step: '03',
-    title: 'Compartilhe com o hospede',
-    desc: 'Envie por WhatsApp, e-mail, link ou QR Code. O hospede acessa tudo no celular, sem instalar nada.',
+    title: 'Compartilhe com o hóspede',
+    desc: 'Envie por WhatsApp, e-mail, link ou QR Code. O hóspede acessa tudo no celular, sem instalar nada.',
   },
 ]
 
@@ -25,10 +25,10 @@ export function LandingHowItWorks() {
             Como funciona
           </span>
           <h2 className="mt-4 font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Tres passos simples para colocar o guia na operacao
+            Três passos simples para colocar o guia na operação
           </h2>
           <p className="mt-4 text-lg leading-8 text-muted-foreground">
-            O fluxo foi desenhado para reduzir atrito na criacao, dar seguranca na publicacao e acelerar o envio ao hospede.
+            O fluxo foi desenhado para reduzir atrito na criação, dar segurança na publicação e acelerar o envio ao hóspede.
           </p>
         </div>
 

@@ -3,18 +3,18 @@ import { Star } from 'lucide-react'
 const testimonials = [
   {
     name: 'Ana Paula R.',
-    role: 'Gestora de 12 imoveis',
+    role: 'Gestora de 12 imóveis',
     text: 'Economizo horas toda semana. Antes eu enviava tudo manualmente; agora virou um fluxo organizado e muito mais profissional.',
   },
   {
     name: 'Ricardo M.',
-    role: 'Anfitriao Airbnb',
-    text: 'O preview me da seguranca antes de publicar. O hospede recebe tudo pronto e eu deixo de responder as mesmas perguntas toda hora.',
+    role: 'Anfitrião Airbnb',
+    text: 'O preview me dá segurança antes de publicar. O hóspede recebe tudo pronto e eu deixo de responder as mesmas perguntas toda hora.',
   },
   {
     name: 'Juliana F.',
     role: 'Operadora de hospedagem',
-    text: 'Padronizamos a experiencia em varios imoveis sem perder agilidade. A equipe entende o proximo passo e o hospede percebe a diferenca.',
+    text: 'Padronizamos a experiência em vários imóveis sem perder agilidade. A equipe entende o próximo passo e o hóspede percebe a diferença.',
   },
 ]
 
@@ -27,7 +27,7 @@ export function LandingTestimonials() {
             Prova social
           </span>
           <h2 className="mt-4 font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            O que gestores e anfitrioes querem ganhar com isso
+            O que gestores e anfitriões querem ganhar com isso
           </h2>
         </div>
 

@@ -13,9 +13,9 @@ import {
 import { Button } from '@/components/ui/button'
 
 const guideHighlights = [
-  { icon: MapPin, label: 'Check-in guiado', value: 'Endereco, acesso e chegada' },
-  { icon: Wifi, label: 'Wi-Fi pronto', value: 'Rede, senha e copia rapida' },
-  { icon: Lock, label: 'Regras claras', value: 'Silencio, visitas e cuidados' },
+  { icon: MapPin, label: 'Check-in guiado', value: 'Endereço, acesso e chegada' },
+  { icon: Wifi, label: 'Wi-Fi pronto', value: 'Rede, senha e cópia rápida' },
+  { icon: Lock, label: 'Regras claras', value: 'Silêncio, visitas e cuidados' },
 ]
 
 const dashboardStats = [
@@ -33,19 +33,19 @@ export function LandingHero() {
           <div className="space-y-8">
             <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
               <Zap className="h-4 w-4" />
-              <span>Plataforma completa para anfitrioes e operacoes</span>
+              <span>Plataforma completa para anfitriões e operações</span>
             </div>
 
             <div className="space-y-5">
               <h1 className="font-heading text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-                Guie seu hospede.
+                Guie seu hóspede.
                 <br />
                 <span className="text-primary">Sem repetir.</span>
                 <br />
                 Sem esquecer.
               </h1>
               <p className="max-w-xl text-lg leading-8 text-muted-foreground sm:text-xl">
-                Crie guias digitais organizados para cada imovel, revise o preview antes de publicar e compartilhe por WhatsApp, e-mail, link ou QR Code em poucos minutos.
+                Crie guias digitais organizados para cada imóvel, revise o preview antes de publicar e compartilhe por WhatsApp, e-mail, link ou QR Code em poucos minutos.
               </p>
             </div>
 
@@ -66,15 +66,15 @@ export function LandingHero() {
             <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4 text-primary" />
-                <span>Gratis para comecar</span>
+                <span>Grátis para começar</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4 text-primary" />
-                <span>Sem cartao de credito</span>
+                <span>Sem cartão de crédito</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4 text-primary" />
-                <span>Fluxo real de publicacao e envio</span>
+                <span>Fluxo real de publicação e envio</span>
               </div>
             </div>
           </div>
@@ -94,7 +94,7 @@ export function LandingHero() {
                         </div>
                         <div>
                           <p className="font-semibold text-foreground">Flat Elegance Paulista</p>
-                          <p className="text-sm text-muted-foreground">Sao Paulo, SP</p>
+                          <p className="text-sm text-muted-foreground">São Paulo, SP</p>
                         </div>
                       </div>
                       <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
@@ -125,7 +125,7 @@ export function LandingHero() {
                         <span className="text-sm font-semibold">Mensagem pronta para enviar</span>
                       </div>
                       <p className="mt-2 text-sm leading-6 text-[#6b4e48]">
-                        Ola, Maria. Aqui esta o guia da sua estadia com acesso, Wi-Fi, regras e dicas da regiao.
+                        Olá, Maria. Aqui está o guia da sua estadia com acesso, Wi-Fi, regras e dicas da região.
                       </p>
                     </div>
                   </div>
@@ -139,7 +139,7 @@ export function LandingHero() {
                           Dashboard
                         </p>
                         <h3 className="mt-1 font-heading text-2xl font-semibold text-foreground">
-                          Operacao organizada
+                          Operação organizada
                         </h3>
                       </div>
                       <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
@@ -162,13 +162,13 @@ export function LandingHero() {
 
                   <div className="rounded-[2rem] border border-border/70 bg-[#2c0703] p-5 text-white shadow-[0_24px_80px_-48px_rgba(44,7,3,0.5)]">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#f6d8df]">
-                      Proximo melhor passo
+                      Próximo melhor passo
                     </p>
                     <h3 className="mt-2 font-heading text-2xl font-semibold">
                       Publicar, compartilhar e acompanhar
                     </h3>
                     <p className="mt-3 text-sm leading-6 text-[#f7e8eb]">
-                      O fluxo ja nasce preparado para producao: cadastro, preview, publicacao e envio no canal certo.
+                      O fluxo já nasce preparado para produção: cadastro, preview, publicação e envio no canal certo.
                     </p>
                   </div>
                 </div>

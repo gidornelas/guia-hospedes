@@ -299,7 +299,7 @@ export function ReservationsClient({
                         <DialogHeader>
                           <DialogTitle>Excluir reserva</DialogTitle>
                           <DialogDescription>
-                            Tem certeza que deseja excluir a reserva de <strong>{reservation.guestName}</strong>? Esta acao nao pode ser desfeita.
+                            Tem certeza que deseja excluir a reserva de <strong>{reservation.guestName}</strong>? Esta ação não pode ser desfeita.
                           </DialogDescription>
                         </DialogHeader>
                         <DialogFooter>

@@ -181,7 +181,7 @@ export function ShareModal({
       await registerQrShare()
       toast.success('QR Code copiado como imagem SVG!')
     } catch {
-      toast.error('Seu navegador nao suporta copiar imagem do QR diretamente')
+      toast.error('Seu navegador não suporta copiar imagem do QR diretamente')
     }
   }
 

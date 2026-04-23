@@ -10,12 +10,12 @@ export function LandingCtaFinal() {
           Crie seu primeiro guia agora
         </h2>
         <p className="mt-4 text-lg text-slate-400">
-          Gratis para comecar. Sem cartao de credito. Configure seu primeiro imovel em poucos minutos.
+          Grátis para começar. Sem cartão de crédito. Configure seu primeiro imóvel em poucos minutos.
         </p>
         <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
           <Link href="/login">
             <Button size="lg" className="gap-2 bg-primary hover:bg-primary/90">
-              Comecar gratis
+              Começar grátis
               <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
@@ -25,7 +25,7 @@ export function LandingCtaFinal() {
               variant="outline"
               className="border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white"
             >
-              Ver demonstracao
+              Ver demonstração
             </Button>
           </Link>
         </div>

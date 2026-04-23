@@ -38,7 +38,7 @@ function getBreadcrumbs(pathname: string): BreadcrumbItem[] {
     breadcrumbs.push({ label: 'Imoveis', href: '/app/imoveis' })
 
     if (parts[2] === 'novo') {
-      breadcrumbs.push({ label: 'Novo imovel' })
+      breadcrumbs.push({ label: 'Novo imóvel' })
       return breadcrumbs
     }
 
@@ -46,7 +46,7 @@ function getBreadcrumbs(pathname: string): BreadcrumbItem[] {
       breadcrumbs.push({ label: 'Detalhes', href: `/app/imoveis/${parts[2]}` })
 
       if (parts[3] === 'editar') {
-        breadcrumbs.push({ label: 'Editar imovel' })
+        breadcrumbs.push({ label: 'Editar imóvel' })
       }
 
       if (parts[3] === 'preview') {
@@ -84,9 +84,9 @@ function getBreadcrumbs(pathname: string): BreadcrumbItem[] {
   if (parts[1] === 'guias') breadcrumbs.push({ label: 'Guias' })
   if (parts[1] === 'compartilhamento') breadcrumbs.push({ label: 'Compartilhamento' })
   if (parts[1] === 'modelos-mensagem') breadcrumbs.push({ label: 'Modelos de mensagem' })
-  if (parts[1] === 'integracoes') breadcrumbs.push({ label: 'Integracoes' })
+  if (parts[1] === 'integracoes') breadcrumbs.push({ label: 'Integrações' })
   if (parts[1] === 'analytics') breadcrumbs.push({ label: 'Analytics' })
-  if (parts[1] === 'configuracoes') breadcrumbs.push({ label: 'Configuracoes' })
+  if (parts[1] === 'configuracoes') breadcrumbs.push({ label: 'Configurações' })
 
   return breadcrumbs
 }
@@ -206,7 +206,7 @@ export function Topbar() {
               <DropdownMenuItem
                 onClick={() => (window.location.href = '/app/configuracoes')}
               >
-                Configuracoes
+                Configurações
               </DropdownMenuItem>
               <DropdownMenuItem onClick={logout}>Sair</DropdownMenuItem>
             </DropdownMenuContent>

@@ -1,7 +1,7 @@
 const benefits = [
-  { value: '90%', label: 'Menos tempo em instrucoes', desc: 'Automatize o que hoje ainda nasce em conversa manual.' },
-  { value: '100%', label: 'Padronizacao', desc: 'Mesma clareza e mesma qualidade em todos os seus imoveis.' },
-  { value: '5x', label: 'Mais profissionalismo', desc: 'Uma experiencia mais premium para o hospede e para a operacao.' },
+  { value: '90%', label: 'Menos tempo em instruções', desc: 'Automatize o que hoje ainda nasce em conversa manual.' },
+  { value: '100%', label: 'Padronização', desc: 'Mesma clareza e mesma qualidade em todos os seus imóveis.' },
+  { value: '5x', label: 'Mais profissionalismo', desc: 'Uma experiência mais premium para o hóspede e para a operação.' },
   { value: '24/7', label: 'Controle centralizado', desc: 'Saiba o que foi publicado, revisado e compartilhado.' },
 ]
 
@@ -24,13 +24,13 @@ export function LandingBenefits() {
 
           <div className="order-1 lg:order-2">
             <span className="inline-flex rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-              Beneficios
+              Benefícios
             </span>
             <h2 className="mt-4 font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              Beneficios que aparecem na rotina
+              Benefícios que aparecem na rotina
             </h2>
             <p className="mt-6 text-lg leading-8 text-muted-foreground">
-              Nao e so sobre economizar tempo. E sobre entregar uma experiencia mais consistente, profissional e memoravel para cada hospede, em cada imovel.
+              Não é só sobre economizar tempo. É sobre entregar uma experiência mais consistente, profissional e memorável para cada hóspede, em cada imóvel.
             </p>
           </div>
         </div>

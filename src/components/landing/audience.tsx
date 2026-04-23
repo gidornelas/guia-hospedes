@@ -2,17 +2,17 @@ import { Building, Hotel, House } from 'lucide-react'
 
 const audiences = [
   {
-    title: 'Anfitrioes do Airbnb',
-    desc: 'Automatize as boas-vindas e pare de repetir as mesmas orientacoes em toda reserva.',
+    title: 'Anfitriões do Airbnb',
+    desc: 'Automatize as boas-vindas e pare de repetir as mesmas orientações em toda reserva.',
     icon: House,
   },
   {
-    title: 'Gestores de imoveis',
-    desc: 'Padronize a experiencia em varios imoveis com guias profissionais e centralizados.',
+    title: 'Gestores de imóveis',
+    desc: 'Padronize a experiência em vários imóveis com guias profissionais e centralizados.',
     icon: Building,
   },
   {
-    title: 'Operacoes de hospedagem',
+    title: 'Operações de hospedagem',
     desc: 'Reduza perguntas repetidas e ganhe escala sem sacrificar clareza nem qualidade.',
     icon: Hotel,
   },
@@ -24,13 +24,13 @@ export function LandingAudience() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto mb-16 max-w-3xl text-center">
           <span className="inline-flex rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-            Para quem e
+            Para quem é
           </span>
           <h2 className="mt-4 font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Feito para quem recebe hospedes
+            Feito para quem recebe hóspedes
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Do anfitriao individual a operacoes com multiplos imoveis e equipe.
+            Do anfitrião individual a operações com múltiplos imóveis e equipe.
           </p>
         </div>
 
