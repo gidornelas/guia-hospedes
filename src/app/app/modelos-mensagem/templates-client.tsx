@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import {
   Dialog,
@@ -16,16 +16,19 @@ import {
 import { EmptyState } from '@/components/shared/empty-state'
 import { PageHeader } from '@/components/shared/page-header'
 import { TemplateFormDialog } from '@/components/shared/template-form-dialog'
+import { DashboardMetricCard } from '@/components/dashboard/dashboard-metric-card'
+import { DashboardSectionCard } from '@/components/dashboard/dashboard-section-card'
 import { deleteMessageTemplate } from '@/app/actions/message-templates'
 import { toast } from 'sonner'
 import {
   Edit,
+  FileCode2,
+  Loader2,
   MessageSquare,
   Plus,
   Search,
   Sparkles,
   Trash2,
-  Loader2,
 } from 'lucide-react'
 
 interface MessageTemplate {
@@ -55,21 +58,80 @@ const typeDescriptions: Record<string, string> = {
   PRE_CHECKIN: 'Ideal para lembrar horarios, acesso e orientacoes finais.',
   DURING_STAY: 'Util para mensagens curtas durante a estadia.',
   POST_CHECKOUT: 'Funciona bem para fechamento e pedido de avaliacao.',
-  CUSTOM: 'Use para fluxos próprios da operação.',
+  CUSTOM: 'Use para fluxos proprios da operacao.',
+}
+
+function parseVariables(value: string): string[] {
+  try {
+    const parsed = JSON.parse(value)
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
 }
 
 export default function TemplatesClient({ templates }: TemplatesClientProps) {
+  const searchInputId = 'message-templates-search'
   const [search, setSearch] = useState('')
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingTemplate, setEditingTemplate] = useState<MessageTemplate | null>(null)
   const [deletingTemplate, setDeletingTemplate] = useState<MessageTemplate | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  const filteredTemplates = templates.filter((template) =>
-    template.name.toLowerCase().includes(search.toLowerCase()) ||
-    template.body.toLowerCase().includes(search.toLowerCase()) ||
-    (typeLabels[template.type] || '').toLowerCase().includes(search.toLowerCase())
-  )
+  const filteredTemplates = useMemo(() => {
+    const query = search.trim().toLowerCase()
+
+    if (!query) return templates
+
+    return templates.filter((template) => {
+      return (
+        template.name.toLowerCase().includes(query) ||
+        template.body.toLowerCase().includes(query) ||
+        (typeLabels[template.type] || '').toLowerCase().includes(query)
+      )
+    })
+  }, [search, templates])
+
+  const metrics = useMemo(() => {
+    const templatesWithVariables = templates.filter(
+      (template) => parseVariables(template.variables).length > 0,
+    ).length
+    const recurringTemplates = templates.filter((template) =>
+      ['WELCOME', 'PRE_CHECKIN', 'POST_CHECKOUT'].includes(template.type),
+    ).length
+    const customTemplates = templates.filter((template) => template.type === 'CUSTOM').length
+
+    return [
+      {
+        title: 'Total de modelos',
+        value: templates.length,
+        hint: 'Biblioteca atual da operacao',
+        icon: MessageSquare,
+        tone: 'brand' as const,
+      },
+      {
+        title: 'Com variaveis',
+        value: templatesWithVariables,
+        hint: 'Prontos para personalizacao automatica',
+        icon: FileCode2,
+        tone: 'blue' as const,
+      },
+      {
+        title: 'Fluxos recorrentes',
+        value: recurringTemplates,
+        hint: 'Boas-vindas, pre-check-in e pos-check-out',
+        icon: Sparkles,
+        tone: 'emerald' as const,
+      },
+      {
+        title: 'Customizados',
+        value: customTemplates,
+        hint: 'Templates livres para casos especiais',
+        icon: Edit,
+        tone: 'amber' as const,
+      },
+    ]
+  }, [templates])
 
   const handleEdit = (template: MessageTemplate) => {
     setEditingTemplate(template)
@@ -83,6 +145,7 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
 
   const handleDelete = async () => {
     if (!deletingTemplate) return
+
     setIsDeleting(true)
 
     const result = await deleteMessageTemplate(deletingTemplate.id)
@@ -120,172 +183,185 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
         </Button>
       </PageHeader>
 
-      <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-        <Card className="shadow-card">
-          <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-foreground">
-                Biblioteca de mensagens
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Padronize o tom da operação e reduza retrabalho no envio de guias.
-              </p>
-            </div>
-            <div className="relative w-full sm:w-[280px]">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Buscar templates..."
-                className="pl-9"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-brand-200 bg-brand-50/40 shadow-card">
-          <CardContent className="p-5">
-            <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-100 text-brand-700">
-                <Sparkles className="h-5 w-5" />
-              </div>
-              <div className="space-y-1">
-                <p className="font-medium text-brand-900">Próximo melhor passo</p>
-                <p className="text-sm text-brand-800">
-                  Garanta pelo menos um modelo de boas-vindas e um de pre-check-in
-                  para deixar o compartilhamento pronto sem edicao manual.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {metrics.map((metric) => (
+          <DashboardMetricCard
+            key={metric.title}
+            title={metric.title}
+            value={metric.value}
+            hint={metric.hint}
+            icon={metric.icon}
+            tone={metric.tone}
+          />
+        ))}
       </div>
 
-      <Card className="shadow-card">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-lg">Templates disponiveis</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {filteredTemplates.length === 0 ? (
-              <EmptyState
-                icon={MessageSquare}
-                title={search ? 'Nenhum template encontrado' : 'Nenhum template criado ainda'}
-                description={
-                  search
-                    ? 'Tente ajustar os termos de busca.'
-                    : 'Monte sua biblioteca de mensagens para acelerar compartilhamentos e manter o tom da marca consistente.'
-                }
-                hint={search ? undefined : 'Comece pelos momentos mais recorrentes'}
-              />
-            ) : (
-              filteredTemplates.map((template) => (
-                <div
-                  key={template.id}
-                  className="rounded-2xl border border-border p-5 transition-shadow hover:shadow-card-hover"
-                >
-                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="min-w-0 flex-1 space-y-4">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="font-semibold">{template.name}</h3>
-                        <Badge variant="outline" className="text-xs">
-                          {typeLabels[template.type] || template.type}
-                        </Badge>
-                      </div>
+      <DashboardSectionCard
+        title="Biblioteca de templates"
+        description="Busque modelos, revise o melhor uso de cada mensagem e mantenha a operacao pronta para compartilhar sem retrabalho."
+        action={
+          <div className="relative w-full sm:w-[280px]">
+            <label htmlFor={searchInputId} className="sr-only">
+              Buscar templates por nome, conteudo ou tipo
+            </label>
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              id={searchInputId}
+              placeholder="Buscar templates..."
+              className="pl-9"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              aria-label="Buscar templates por nome, conteudo ou tipo"
+            />
+          </div>
+        }
+        contentClassName="space-y-4"
+      >
+        {templates.length === 0 ? (
+          <EmptyState
+            icon={MessageSquare}
+            title="Nenhum template criado ainda"
+            description="Monte sua biblioteca de mensagens para acelerar compartilhamentos e manter o tom da marca consistente."
+            hint="Comece pelos momentos mais recorrentes"
+            actionLabel="Criar primeiro template"
+            onAction={handleCreate}
+          />
+        ) : filteredTemplates.length === 0 ? (
+          <EmptyState
+            icon={Search}
+            title="Nenhum template encontrado"
+            description="Tente ajustar os termos de busca para localizar um modelo da biblioteca."
+            actionLabel="Limpar busca"
+            onAction={() => setSearch('')}
+          />
+        ) : (
+          <>
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm text-muted-foreground" role="status" aria-live="polite">
+                {filteredTemplates.length} resultado
+                {filteredTemplates.length === 1 ? '' : 's'} no recorte atual
+              </p>
+              <Badge variant="outline" className="bg-background">
+                {templates.length} template{templates.length === 1 ? '' : 's'} no total
+              </Badge>
+            </div>
 
-                      <div className="grid gap-4 md:grid-cols-[1.15fr_0.85fr]">
-                        <div className="space-y-3">
-                          {template.subject && (
-                            <div className="space-y-1">
-                              <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                                Assunto
-                              </p>
-                              <p className="text-sm text-foreground">{template.subject}</p>
-                            </div>
-                          )}
+            <div className="space-y-3">
+              {filteredTemplates.map((template) => {
+                const variables = parseVariables(template.variables)
 
-                          <div className="rounded-xl bg-muted p-4">
-                            <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                              Previa da mensagem
-                            </p>
-                            <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-700">
-                              {template.body}
-                            </p>
+                return (
+                  <Card
+                    key={template.id}
+                    className="shadow-card transition-shadow hover:shadow-card-hover"
+                  >
+                    <CardContent className="p-5">
+                      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="min-w-0 flex-1 space-y-4">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h3 className="font-semibold">{template.name}</h3>
+                            <Badge variant="outline" className="text-xs">
+                              {typeLabels[template.type] || template.type}
+                            </Badge>
+                            {variables.length > 0 ? (
+                              <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">
+                                {variables.length} variavel{variables.length === 1 ? '' : 'eis'}
+                              </Badge>
+                            ) : null}
                           </div>
-                        </div>
 
-                        <div className="space-y-3">
-                          <div className="rounded-xl border border-border bg-background p-4">
-                            <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                              Melhor uso
-                            </p>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                              {typeDescriptions[template.type] ||
-                                'Template flexível para adaptar a operação.'}
-                            </p>
-                          </div>
+                          <div className="grid gap-4 md:grid-cols-[1.15fr_0.85fr]">
+                            <div className="space-y-3">
+                              {template.subject ? (
+                                <div className="space-y-1">
+                                  <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                                    Assunto
+                                  </p>
+                                  <p className="text-sm text-foreground">{template.subject}</p>
+                                </div>
+                              ) : null}
 
-                          {(() => {
-                            try {
-                              const vars = JSON.parse(template.variables)
-                              if (Array.isArray(vars) && vars.length > 0) {
-                                return (
-                                  <div className="rounded-xl border border-border bg-background p-4">
-                                    <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                                      Variaveis disponiveis
-                                    </p>
-                                    <div className="mt-3 flex flex-wrap gap-2">
-                                      {vars.map((variable: string) => (
-                                        <span
-                                          key={variable}
-                                          className="rounded-full bg-primary/10 px-2.5 py-1 text-xs text-primary"
-                                        >
-                                          {'{{'}
-                                          {variable}
-                                          {'}}'}
-                                        </span>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )
-                              }
-                            } catch {}
-
-                            return (
-                              <div className="rounded-xl border border-dashed border-border bg-muted/20 p-4">
+                              <div className="rounded-xl bg-muted p-4">
                                 <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                                  Variaveis disponiveis
+                                  Previa da mensagem
                                 </p>
-                                <p className="mt-2 text-sm text-muted-foreground">
-                                  Este template ainda não usa placeholders dinâmicos.
+                                <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-700">
+                                  {template.body}
                                 </p>
                               </div>
-                            )
-                          })()}
+                            </div>
+
+                            <div className="space-y-3">
+                              <div className="rounded-xl border border-border bg-background p-4">
+                                <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                                  Melhor uso
+                                </p>
+                                <p className="mt-2 text-sm text-muted-foreground">
+                                  {typeDescriptions[template.type] ||
+                                    'Template flexivel para adaptar a operacao.'}
+                                </p>
+                              </div>
+
+                              {variables.length > 0 ? (
+                                <div className="rounded-xl border border-border bg-background p-4">
+                                  <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                                    Variaveis disponiveis
+                                  </p>
+                                  <div className="mt-3 flex flex-wrap gap-2">
+                                    {variables.map((variable) => (
+                                      <span
+                                        key={variable}
+                                        className="rounded-full bg-primary/10 px-2.5 py-1 text-xs text-primary"
+                                      >
+                                        {'{{'}
+                                        {variable}
+                                        {'}}'}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="rounded-xl border border-dashed border-border bg-muted/20 p-4">
+                                  <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                                    Variaveis disponiveis
+                                  </p>
+                                  <p className="mt-2 text-sm text-muted-foreground">
+                                    Este template ainda nao usa placeholders dinamicos.
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="ml-0 flex gap-2 self-end lg:ml-4 lg:self-start">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(template)}
+                            aria-label={`Editar template ${template.name}`}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => setDeletingTemplate(template)}
+                            aria-label={`Excluir template ${template.name}`}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
-                    </div>
-
-                    <div className="ml-0 flex gap-2 self-end lg:ml-4 lg:self-start">
-                      <Button variant="ghost" size="icon" onClick={() => handleEdit(template)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive hover:text-destructive"
-                        onClick={() => setDeletingTemplate(template)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </CardContent>
-      </Card>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
+          </>
+        )}
+      </DashboardSectionCard>
 
       <TemplateFormDialog
         open={isFormOpen}
@@ -305,7 +381,7 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
             <DialogTitle>Excluir template</DialogTitle>
             <DialogDescription>
               Tem certeza que deseja excluir o template &quot;{deletingTemplate?.name}&quot;?
-              Esta ação não pode ser desfeita.
+              Esta acao nao pode ser desfeita.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -316,11 +392,7 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
             >
               Cancelar
             </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={isDeleting}
-            >
+            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
               {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               Excluir
             </Button>

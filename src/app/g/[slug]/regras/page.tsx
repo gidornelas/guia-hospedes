@@ -14,7 +14,6 @@ import { cn } from '@/lib/utils'
 import {
   GuidePageTemplate,
   PrimaryCard,
-  SecondaryCard,
 } from '@/components/shared/guide-page-template'
 import { getGuideProperty, buildGuideQuery } from '@/lib/guide-utils'
 import { getLocaleFromSearchParams, getDictionary } from '@/lib/i18n'
@@ -31,19 +30,30 @@ interface RuleItem {
 
 function RuleCard({ item }: { item: RuleItem }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <div className={cn('h-10 w-10 rounded-lg flex items-center justify-center shrink-0', item.bgColor)}>
-        <item.icon className={cn('h-5 w-5', item.color)} />
+    <article className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div
+        className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-lg', item.bgColor)}
+      >
+        <item.icon className={cn('h-5 w-5', item.color)} aria-hidden="true" />
       </div>
       <div className="flex-1 min-w-0">
         <p className="font-medium text-slate-900 text-sm">{item.label}</p>
-        <p className={cn('text-sm', item.type === 'positive' ? 'text-emerald-600' : item.type === 'negative' ? 'text-slate-600' : 'text-slate-600')}>
+        <p
+          className={cn(
+            'mt-1 text-sm leading-6',
+            item.type === 'positive' ? 'text-emerald-600' : 'text-slate-600',
+          )}
+        >
           {item.value}
         </p>
       </div>
-      {item.type === 'positive' && <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />}
-      {item.type === 'negative' && <XCircle className="h-5 w-5 text-slate-300 shrink-0" />}
-    </div>
+      {item.type === 'positive' ? (
+        <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-500" aria-hidden="true" />
+      ) : null}
+      {item.type === 'negative' ? (
+        <XCircle className="h-5 w-5 shrink-0 text-slate-300" aria-hidden="true" />
+      ) : null}
+    </article>
   )
 }
 
@@ -163,10 +173,10 @@ export default async function RulesPage({
         {/* Intro */}
         <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
           <div className="flex items-start gap-3">
-            <Shield className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+            <Shield className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" aria-hidden="true" />
             <div>
               <p className="text-sm font-medium text-amber-800">{d.rules.coexistenceRules}</p>
-              <p className="text-xs text-amber-700 mt-1 leading-relaxed">
+              <p className="mt-1 text-sm leading-6 text-amber-700">
                 {d.rules.coexistenceDesc}
               </p>
             </div>
@@ -184,7 +194,7 @@ export default async function RulesPage({
         {notes && (
           <PrimaryCard>
             <div className="flex items-start gap-3">
-              <Info className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+              <Info className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
               <div>
                 <p className="text-sm font-medium text-slate-900 mb-1">{d.common.note}</p>
                 <p className="text-sm text-slate-600 leading-relaxed">{notes}</p>

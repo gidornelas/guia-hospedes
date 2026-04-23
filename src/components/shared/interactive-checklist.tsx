@@ -60,10 +60,13 @@ export function InteractiveChecklist({ items, storageKey }: InteractiveChecklist
           const isChecked = checked.has(i)
           return (
             <button
+              type="button"
               key={i}
               onClick={() => toggle(i)}
+              aria-pressed={isChecked}
+              aria-label={`${isChecked ? 'Desmarcar' : 'Marcar'} item do checklist: ${item.trim()}`}
               className={cn(
-                'flex items-start gap-3 w-full text-left rounded-xl border p-3.5 transition-all',
+                'flex w-full items-start gap-3 rounded-xl border p-3.5 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50',
                 isChecked
                   ? 'bg-primary/5 border-primary/20'
                   : 'bg-white border-slate-200 hover:border-slate-300'

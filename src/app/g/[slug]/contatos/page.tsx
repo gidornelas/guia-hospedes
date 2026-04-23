@@ -85,7 +85,8 @@ function ContactCard({ contact, priority, locale }: ContactCardProps) {
         {contact.phone && (
           <a
             href={`tel:${contact.phone}`}
-            className="flex items-center gap-2.5 rounded-lg bg-white border border-slate-200 p-2.5 text-sm text-slate-700 hover:border-primary/30 hover:bg-primary/5 transition-colors"
+            aria-label={`Ligar para ${name}`}
+            className="flex items-center gap-2.5 rounded-lg border border-slate-200 bg-white p-2.5 text-sm text-slate-700 transition-colors hover:border-primary/30 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
           >
             <Phone className="h-4 w-4 text-slate-400 shrink-0" />
             <span className="truncate">{contact.phone}</span>
@@ -97,7 +98,8 @@ function ContactCard({ contact, priority, locale }: ContactCardProps) {
             href={`https://wa.me/${contact.whatsapp}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2.5 rounded-lg bg-green-50 border border-green-200 p-2.5 text-sm text-green-700 hover:bg-green-100 transition-colors"
+            aria-label={`Abrir WhatsApp de ${name}`}
+            className="flex items-center gap-2.5 rounded-lg border border-green-200 bg-green-50 p-2.5 text-sm text-green-700 transition-colors hover:bg-green-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
           >
             <MessageCircle className="h-4 w-4 text-green-600 shrink-0" />
             <span className="truncate">{contact.whatsapp}</span>
@@ -107,7 +109,8 @@ function ContactCard({ contact, priority, locale }: ContactCardProps) {
         {contact.email && (
           <a
             href={`mailto:${contact.email}`}
-            className="flex items-center gap-2.5 rounded-lg bg-white border border-slate-200 p-2.5 text-sm text-slate-700 hover:border-primary/30 hover:bg-primary/5 transition-colors"
+            aria-label={`Enviar e-mail para ${name}`}
+            className="flex items-center gap-2.5 rounded-lg border border-slate-200 bg-white p-2.5 text-sm text-slate-700 transition-colors hover:border-primary/30 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
           >
             <Mail className="h-4 w-4 text-slate-400 shrink-0" />
             <span className="truncate">{contact.email}</span>
@@ -166,7 +169,7 @@ export default async function ContactsPage({
       locale={locale}
     >
       <div className="space-y-5">
-        {/* Anfitrião — destaque especial */}
+        {/* Anfitriao - destaque especial */}
         {host && (
           <div className="space-y-2">
             <div className="flex items-center gap-2 px-1">
@@ -179,7 +182,7 @@ export default async function ContactsPage({
           </div>
         )}
 
-        {/* Emergência */}
+        {/* Emergencia */}
         {emergency.length > 0 && (
           <div className="space-y-2">
             <div className="flex items-center gap-2 px-1">

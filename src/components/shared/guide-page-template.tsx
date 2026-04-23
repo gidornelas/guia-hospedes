@@ -52,7 +52,7 @@ export function GuidePageTemplate({
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
           <Link
             href={`/g/${slug}${previewQuery}`}
-            className="p-2 -ml-2 rounded-full hover:bg-slate-100 transition-colors shrink-0"
+            className="shrink-0 rounded-full p-2 -ml-2 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
             aria-label={d.common.backToHome}
           >
             <ArrowLeft className="h-5 w-5 text-slate-600" aria-hidden="true" />
@@ -81,7 +81,7 @@ export function GuidePageTemplate({
           <div className="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
             <Link
               href={`/g/${slug}${previewQuery}`}
-              className="flex items-center justify-center gap-2 flex-1 rounded-xl bg-slate-100 text-slate-700 py-3 text-sm font-medium transition-colors hover:bg-slate-200 active:scale-[0.98]"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-slate-100 py-3 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
             >
               <Home className="h-4 w-4" aria-hidden="true" />
               {d.common.backToHome}
@@ -91,7 +91,8 @@ export function GuidePageTemplate({
                 href={`https://wa.me/${hostWhatsapp}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 flex-1 rounded-xl bg-green-500 text-white py-3 text-sm font-medium transition-colors hover:bg-green-600 active:scale-[0.98]"
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-green-500 py-3 text-sm font-medium text-white transition-colors hover:bg-green-600 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                aria-label={`${d.common.host} no WhatsApp`}
               >
                 <MessageCircle className="h-4 w-4" aria-hidden="true" />
                 {d.common.host}
@@ -104,7 +105,7 @@ export function GuidePageTemplate({
   )
 }
 
-/* Primary Card — info essencial, destaque */
+/* Primary Card - info essencial, destaque */
 export function PrimaryCard({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <div className={cn('bg-white rounded-2xl border border-slate-200 p-6 shadow-sm', className)}>
@@ -113,7 +114,7 @@ export function PrimaryCard({ children, className }: { children: ReactNode; clas
   )
 }
 
-/* Secondary Card — info complementar, mais compacto */
+/* Secondary Card - info complementar, mais compacto */
 export function SecondaryCard({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <div className={cn('bg-white rounded-xl border border-slate-200 p-4 shadow-sm', className)}>
@@ -122,7 +123,7 @@ export function SecondaryCard({ children, className }: { children: ReactNode; cl
   )
 }
 
-/* Info Row — label + value em linha */
+/* Info Row - label + value em linha */
 export function InfoRow({
   label,
   value,
@@ -183,17 +184,19 @@ export function TimelineItem({
   )
 }
 
-/* Action Button — CTA grande e escaneável */
+/* Action Button - CTA grande e escaneavel */
 export function ActionButton({
   href,
   icon: Icon,
   label,
   color = 'primary',
+  ariaLabel,
 }: {
   href: string
   icon: React.ElementType
   label: string
   color?: 'primary' | 'green' | 'blue' | 'slate'
+  ariaLabel?: string
 }) {
   const colors = {
     primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
@@ -207,8 +210,9 @@ export function ActionButton({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
+      aria-label={ariaLabel || label}
       className={cn(
-        'flex items-center justify-center gap-2 w-full rounded-xl py-3.5 font-medium transition-all active:scale-[0.98]',
+        'flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-medium transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50',
         colors[color]
       )}
     >

@@ -79,7 +79,8 @@ export default async function LinksPage({
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-4 bg-white rounded-xl border border-slate-200 p-4 shadow-sm active:scale-[0.98] transition-all hover:shadow-md hover:border-slate-300"
+                aria-label={`${label}. ${typeLabels[link.type] || link.type}`}
+                className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:border-slate-300 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
               >
                 <div className={cn('h-11 w-11 rounded-xl flex items-center justify-center shrink-0', config.bgColor)}>
                   <Icon className={cn('h-5 w-5', config.color)} />

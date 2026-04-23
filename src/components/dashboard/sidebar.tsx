@@ -41,7 +41,8 @@ async function logout() {
 export const navItemBase =
   'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-primary/50 active:scale-[0.98]'
 
-export const navItemActive = 'bg-sidebar-accent text-sidebar-accent-foreground'
+export const navItemActive =
+  'bg-sidebar-accent text-sidebar-accent-foreground shadow-sm ring-1 ring-sidebar-border'
 export const navItemInactive =
   'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
 
@@ -86,10 +87,7 @@ export function NavLink({
       aria-current={isActive ? 'page' : undefined}
       title={collapsed ? item.label : undefined}
     >
-      <span
-        className={cn('shrink-0', isActive && 'text-sidebar-primary')}
-        aria-hidden="true"
-      >
+      <span className={cn('shrink-0', isActive && 'text-sidebar-primary')} aria-hidden="true">
         {sidebarIcons[item.icon]}
       </span>
       {!collapsed && <span>{item.label}</span>}
@@ -138,9 +136,7 @@ export function Sidebar({
             <BookOpen className="h-4 w-4" />
           </div>
           {!collapsed && (
-            <span className="font-heading text-lg font-semibold tracking-tight">
-              GuiaHóspedes
-            </span>
+            <span className="font-heading text-lg font-semibold tracking-tight">GuiaHóspedes</span>
           )}
         </Link>
       </div>

@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
 export default function ForgotPasswordPage() {
+  const errorId = 'forgot-password-error'
+  const successId = 'forgot-password-success'
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
@@ -63,13 +65,22 @@ export default function ForgotPasswordPage() {
     >
       <form onSubmit={handleSubmit} className="space-y-5">
         {error ? (
-          <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          <div
+            id={errorId}
+            role="alert"
+            className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+          >
             {error}
           </div>
         ) : null}
 
         {success ? (
-          <div className="rounded-xl border border-primary/20 bg-primary/10 px-4 py-4 text-sm text-foreground">
+          <div
+            id={successId}
+            role="status"
+            aria-live="polite"
+            className="rounded-xl border border-primary/20 bg-primary/10 px-4 py-4 text-sm text-foreground"
+          >
             <div className="mb-2 flex items-center gap-2 font-medium text-primary">
               <MailCheck className="h-4 w-4" />
               Link de redefinicao solicitado
@@ -94,11 +105,14 @@ export default function ForgotPasswordPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="voce@empresa.com"
+            autoComplete="email"
+            aria-invalid={Boolean(error)}
+            aria-describedby={error ? errorId : success ? successId : undefined}
             required
           />
         </div>
 
-        <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
+        <Button type="submit" size="lg" className="w-full" disabled={isLoading} aria-busy={isLoading}>
           {isLoading ? (
             <>
               <LoaderCircle className="h-4 w-4 animate-spin" />

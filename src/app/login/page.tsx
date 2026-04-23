@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Chrome, Eye, EyeOff, LoaderCircle } from 'lucide-react'
 import { AuthShell } from '@/components/auth/auth-shell'
+import { AuthFormSkeleton } from '@/components/auth/auth-form-skeleton'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -31,6 +32,9 @@ function getFriendlyErrorMessage(error: string | null) {
 }
 
 function LoginForm() {
+  const queryErrorId = 'login-query-error'
+  const formErrorId = 'login-form-error'
+  const rememberHelpId = 'login-remember-help'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(true)
@@ -79,6 +83,7 @@ function LoginForm() {
           variant="outline"
           size="lg"
           className="w-full justify-center gap-2"
+          aria-label="Entrar com Google"
           onClick={() => {
             window.location.href = `/api/auth/google?callbackUrl=${encodeURIComponent(callbackUrl)}`
           }}
@@ -101,13 +106,21 @@ function LoginForm() {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {queryError ? (
-          <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          <div
+            id={queryErrorId}
+            role="alert"
+            className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+          >
             {queryError}
           </div>
         ) : null}
 
         {formError ? (
-          <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          <div
+            id={formErrorId}
+            role="alert"
+            className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+          >
             {formError}
           </div>
         ) : null}
@@ -120,6 +133,9 @@ function LoginForm() {
             placeholder="voce@empresa.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+            aria-invalid={Boolean(formError)}
+            aria-describedby={formError ? formErrorId : queryError ? queryErrorId : undefined}
             required
           />
         </div>
@@ -139,13 +155,18 @@ function LoginForm() {
               placeholder="Sua senha"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              aria-invalid={Boolean(formError)}
+              aria-describedby={
+                formError ? formErrorId : queryError ? queryErrorId : rememberHelpId
+              }
               required
               className="pr-10"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
               aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -162,8 +183,11 @@ function LoginForm() {
           />
           <span>Manter conectado neste dispositivo</span>
         </label>
+        <p id={rememberHelpId} className="text-xs leading-5 text-muted-foreground">
+          Recomendado apenas em aparelhos de uso pessoal.
+        </p>
 
-        <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
+        <Button type="submit" size="lg" className="w-full" disabled={isLoading} aria-busy={isLoading}>
           {isLoading ? (
             <>
               <LoaderCircle className="h-4 w-4 animate-spin" />
@@ -193,7 +217,7 @@ export default function LoginPage() {
         </p>
       }
     >
-      <Suspense fallback={<div className="text-center text-sm text-muted-foreground">Carregando...</div>}>
+      <Suspense fallback={<AuthFormSkeleton />}>
         <LoginForm />
       </Suspense>
     </AuthShell>

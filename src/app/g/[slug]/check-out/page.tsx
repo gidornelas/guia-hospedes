@@ -57,7 +57,7 @@ export default async function CheckOutPage({
       locale={locale}
     >
       <div className="space-y-5">
-        {/* Primary: Horário */}
+        {/* Primary: Horario */}
         <PrimaryCard>
           <div className="flex items-center gap-3 mb-4">
             <div className="h-12 w-12 rounded-xl bg-indigo-50 flex items-center justify-center">
@@ -84,7 +84,7 @@ export default async function CheckOutPage({
           <TimelineItem
             step={1}
             title={d.checkOut.onCheckoutDay}
-            description="Organize suas malas com antecedência e verifique se não esqueceu nada."
+            description="Organize suas malas com antecedencia e verifique se nao esqueceu nada."
             isActive
           />
           <TimelineItem
@@ -101,7 +101,7 @@ export default async function CheckOutPage({
           />
         </SecondaryCard>
 
-        {/* Checklist Interativo */}
+        {/* Checklist interativo */}
         {checklistItems.length > 0 && (
           <PrimaryCard>
             <div className="flex items-center gap-3 mb-4">
@@ -120,7 +120,7 @@ export default async function CheckOutPage({
           </PrimaryCard>
         )}
 
-        {/* Instruções */}
+        {/* Instrucoes */}
         {instructions && (
           <PrimaryCard>
             <InfoRow label={d.checkOut.exitInstructions} value={instructions} />

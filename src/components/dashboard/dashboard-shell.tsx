@@ -28,10 +28,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         <Topbar />
         <main
           id="main-content"
-          className="flex-1 overflow-x-hidden p-4 sm:p-6"
+          className="flex-1 overflow-x-hidden px-4 py-5 sm:px-6 sm:py-6 xl:px-8"
           tabIndex={-1}
         >
-          {children}
+          <div className="mx-auto w-full max-w-[1480px]">{children}</div>
         </main>
       </div>
     </div>

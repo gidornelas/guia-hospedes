@@ -8,6 +8,7 @@
 - Marque os itens conforme a etapa for sendo validada
 - Se surgir regressao, adicione uma observacao na etapa correspondente
 - Priorize primeiro local ou preview e depois producao
+- Sempre que houver incremento relevante de frontend, atualize este arquivo na mesma rodada
 
 ## Etapa 0 - Fundamentos visuais e consistencia
 
@@ -17,6 +18,16 @@
 - [ ] Verificar contraste minimo em botoes, badges, links e textos auxiliares
 - [ ] Procurar encoding quebrado ou caracteres estranhos na UI
 - [ ] Revisar icones repetidos ou fora de contexto
+
+### Mapa visual atual do dashboard
+
+- [x] `reservas`: metric cards, toolbar de filtros e empty state interno alinhados ao padrao visual do dashboard
+- [x] `compartilhamento`: resumo superior, estado sem guias publicados e estado sem selecao alinhados ao mesmo sistema de cards
+- [x] `dashboard home`: cards de metrica ajustados para o mesmo ritmo visual usado nas paginas internas
+- [x] `guias`: summary cards, busca e lista principal alinhados ao padrao de section card e cards de metrica
+- [x] `reservas/calendario`: header interno, legenda e densidade do grid alinhados ao mesmo nivel visual das telas principais
+- [x] `modelos de mensagem`: metric cards, section card, busca e estados vazios alinhados ao padrao compartilhado do dashboard
+- [x] Corrigir mojibake e encoding quebrado nas telas mais usadas do dashboard (`home`, `compartilhamento` e `modelos de mensagem`)
 
 ## Etapa 1 - Landing page e site publico
 
@@ -123,6 +134,9 @@
 
 ## Etapa 7 - Microcopy, estados e acessibilidade
 
+> Os itens abaixo representam o fechamento completo da etapa em todo o produto.
+> O bloco "Progresso atual da Etapa 7" registra as frentes ja cobertas por rodada.
+
 - [ ] Revisar textos em portugues do Brasil
 - [ ] Confirmar estados de loading, sucesso, erro e vazio
 - [ ] Revisar labels, aria-labels e foco visivel
@@ -130,10 +144,28 @@
 - [ ] Validar tamanho de toque e legibilidade no mobile
 - [ ] Revisar skeletons e feedbacks de carregamento
 
+### Progresso atual da Etapa 7
+
+- [x] `reservas`, `guias`, `modelos de mensagem` e `compartilhamento` com labels conectados, `aria-label` nas acoes criticas e feedback mais claro durante envio
+- [x] Skeletons de rota adicionados em `reservas`, `guias`, `modelos de mensagem` e `compartilhamento`
+- [x] `login`, `cadastro`, `esqueci-senha` e `redefinir-senha` com mensagens em `aria-live`, `aria-invalid`, `autocomplete`, dicas de formulario e fallback visual mais consistente
+- [x] Guia publico com foco visivel em acoes principais, `aria-label` em links sensiveis e botoes de copia mais claros em `hub`, `check-in` e `wifi`
+- [x] Guia publico reforcado em `check-out`, `contatos`, `dicas` e `links` com foco visivel, `aria-label` contextual e microcopy limpa para uso mobile
+- [x] Guia publico concluido em `regras` e `equipamentos` com leitura mais consistente, icones sem ruido para leitor de tela e acabamento final de contraste/legibilidade
+
 ## Etapa 8 - Entrega tecnica
 
-- [ ] Rodar `npm run typecheck`
+> O terminal atual conseguiu validar build, typecheck e status do Railway, mas nao conseguiu abrir a URL publica nem consultar logs remotos por limitacao de conexao externa deste ambiente.
+
+- [x] Rodar `npm run typecheck`
 - [x] Rodar `npm run build`
 - [ ] Validar preview ou ambiente de staging antes do deploy final
 - [ ] Validar producao apos deploy
+
+### Progresso atual da Etapa 8
+
+- [x] Projeto Railway confirmado em `production` via `railway status`
+- [x] Deploy recente com status `SUCCESS` identificado em `2026-04-22 21:53:10 -03:00`
+- [ ] Nao ha ambiente de `staging` separado documentado ate agora; falta decidir se a validacao sera em preview dedicado ou direto na URL publica
+- [ ] Validacao HTTP da URL publica ainda precisa ser concluida em navegador ou runner com acesso externo
 - [ ] Anotar regressões ou ajustes finos encontrados no QA final

@@ -152,7 +152,8 @@ export default async function TipsPage({
                               href={item.mapUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+                              aria-label={`${d.common.seeOnMaps}: ${name}`}
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-3 py-2 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
                             >
                               <Navigation className="h-3.5 w-3.5" />
                               {d.common.seeOnMaps}
@@ -167,7 +168,8 @@ export default async function TipsPage({
                               }
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 rounded-lg bg-pink-50 px-3 py-2 text-xs font-medium text-pink-700 hover:bg-pink-100 transition-colors"
+                              aria-label={`${d.common.seeOnInstagram}: ${name}`}
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-pink-50 px-3 py-2 text-xs font-medium text-pink-700 transition-colors hover:bg-pink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
                             >
                               <Instagram className="h-3.5 w-3.5" />
                               {d.common.seeOnInstagram}
@@ -178,7 +180,8 @@ export default async function TipsPage({
                               href={item.link}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-200 transition-colors"
+                              aria-label={`${d.common.viewMore}: ${name}`}
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
                             >
                               <ExternalLink className="h-3.5 w-3.5" />
                               {d.common.viewMore}

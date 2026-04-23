@@ -1,11 +1,7 @@
 import { notFound } from 'next/navigation'
 import { Wifi, Smartphone } from 'lucide-react'
 import { CopyButton } from '@/components/shared/copy-button'
-import {
-  GuidePageTemplate,
-  PrimaryCard,
-  InfoRow,
-} from '@/components/shared/guide-page-template'
+import { GuidePageTemplate, PrimaryCard } from '@/components/shared/guide-page-template'
 import { getGuideProperty, buildGuideQuery } from '@/lib/guide-utils'
 import { getLocaleFromSearchParams, getDictionary } from '@/lib/i18n'
 import { getPropertyTranslations, translateField, translatePath } from '@/lib/translate'
@@ -60,7 +56,12 @@ export default async function WiFiPage({
             <p className="text-xs font-medium uppercase tracking-wider text-slate-400">{d.wifi.networkName}</p>
             <div className="flex items-center justify-center gap-2">
               <p className="text-xl font-bold text-slate-900">{property.wifi.networkName}</p>
-              <CopyButton text={property.wifi.networkName} className="h-8 w-8" />
+              <CopyButton
+                text={property.wifi.networkName}
+                className="h-8 w-8"
+                ariaLabel="Copiar nome da rede Wi-Fi"
+                successMessage="Nome da rede copiado!"
+              />
             </div>
           </div>
 
@@ -68,7 +69,12 @@ export default async function WiFiPage({
             <p className="text-xs font-medium uppercase tracking-wider text-slate-400">{d.wifi.password}</p>
             <div className="flex items-center justify-center gap-2">
               <p className="text-xl font-bold text-slate-900 font-mono tracking-wide">{property.wifi.password}</p>
-              <CopyButton text={property.wifi.password} className="h-8 w-8" />
+              <CopyButton
+                text={property.wifi.password}
+                className="h-8 w-8"
+                ariaLabel="Copiar senha do Wi-Fi"
+                successMessage="Senha do Wi-Fi copiada!"
+              />
             </div>
           </div>
         </PrimaryCard>
@@ -84,7 +90,7 @@ export default async function WiFiPage({
           </div>
         </div>
 
-        {/* Observações */}
+        {/* Observacoes */}
         {notes && (
           <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4">
             <p className="text-sm font-medium text-emerald-800 mb-1">{d.wifi.notes}</p>

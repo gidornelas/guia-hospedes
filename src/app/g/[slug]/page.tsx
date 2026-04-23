@@ -131,7 +131,7 @@ export default async function GuideHubPage({
         <div className="bg-amber-100 border-b border-amber-200 px-4 py-2">
           <div className="max-w-lg mx-auto flex items-center gap-2 text-amber-800">
             <Eye className="h-4 w-4 shrink-0" />
-            <p className="text-xs font-medium">Modo preview — apenas você vê esta versão</p>
+            <p className="text-xs font-medium">Modo preview - apenas voce ve esta versao</p>
           </div>
         </div>
       )}
@@ -181,7 +181,8 @@ export default async function GuideHubPage({
             {hasCheckIn && (
               <Link
                 href={`/g/${slug}/check-in${query}`}
-                className="flex flex-col items-center gap-2 rounded-xl bg-white border border-slate-200 p-3 shadow-sm transition-all active:scale-95 hover:border-blue-300 hover:shadow-md"
+                aria-label={`${d.hub.checkIn}. ${d.common.available}`}
+                className="flex flex-col items-center gap-2 rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition-all hover:border-blue-300 hover:shadow-md active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
               >
                 <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
                   <KeyRound className="h-5 w-5 text-blue-600" />
@@ -197,7 +198,12 @@ export default async function GuideHubPage({
                 <span className="text-xs font-medium text-slate-700 text-center leading-tight">{d.hub.wifi}</span>
                 <div className="flex items-center gap-1 text-[10px] text-muted-foreground bg-muted rounded-md px-1.5 py-0.5">
                   <span className="truncate max-w-[60px]">{property.wifi?.networkName}</span>
-                  <CopyButton text={property.wifi?.networkName || ''} className="h-3 w-3" />
+                  <CopyButton
+                    text={property.wifi?.networkName || ''}
+                    className="h-3 w-3"
+                    ariaLabel="Copiar nome da rede Wi-Fi"
+                    successMessage="Nome da rede copiado!"
+                  />
                 </div>
               </div>
             )}
@@ -206,7 +212,8 @@ export default async function GuideHubPage({
                 href={`https://wa.me/${hostContact.whatsapp}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col items-center gap-2 rounded-xl bg-green-50 border border-green-200 p-3 shadow-sm transition-all active:scale-95 hover:bg-green-100"
+                aria-label={`${d.common.host} no WhatsApp`}
+                className="flex flex-col items-center gap-2 rounded-xl border border-green-200 bg-green-50 p-3 shadow-sm transition-all hover:bg-green-100 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
               >
                 <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center">
                   <MessageCircle className="h-5 w-5 text-green-600" />
@@ -230,10 +237,11 @@ export default async function GuideHubPage({
                 <Link
                   key={section.id}
                   href={hasData ? `/g/${slug}/${section.id}${query}` : '#'}
+                  aria-label={`${sectionLabels[section.id]}. ${hasData ? d.common.available : d.common.noInfo}`}
                   className={cn(
                     'flex items-center gap-3 rounded-xl border bg-white p-3 shadow-sm transition-all',
                     hasData
-                      ? 'border-slate-200 active:scale-95 hover:shadow-md hover:border-slate-300'
+                      ? 'border-slate-200 active:scale-95 hover:shadow-md hover:border-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
                       : 'border-slate-100 opacity-60 cursor-not-allowed'
                   )}
                 >
@@ -277,7 +285,8 @@ export default async function GuideHubPage({
               href={`https://wa.me/${hostContact.whatsapp}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full rounded-xl bg-green-500 text-white py-3 font-medium transition-colors hover:bg-green-600 active:scale-[0.98]"
+              aria-label={`${d.common.callHost} no WhatsApp`}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-500 py-3 font-medium text-white transition-colors hover:bg-green-600 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
             >
               <MessageCircle className="h-5 w-5" />
               {d.common.callHost}

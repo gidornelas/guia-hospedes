@@ -27,7 +27,6 @@ import { cn } from '@/lib/utils'
 import {
   GuidePageTemplate,
   PrimaryCard,
-  SecondaryCard,
 } from '@/components/shared/guide-page-template'
 import { getGuideProperty, buildGuideQuery } from '@/lib/guide-utils'
 import { getLocaleFromSearchParams, getDictionary } from '@/lib/i18n'
@@ -79,26 +78,24 @@ function DeviceCard({ device, locale }: { device: any; locale: string }) {
   const instructions = translateField(device.instructions, deviceTranslations?.instructions)
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="flex items-center gap-3 mb-3">
-        <div className="h-10 w-10 rounded-lg bg-purple-50 flex items-center justify-center shrink-0">
-          <Icon className="h-5 w-5 text-purple-600" />
+    <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="mb-3 flex items-center gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-purple-50">
+          <Icon className="h-5 w-5 text-purple-600" aria-hidden="true" />
         </div>
         <div className="min-w-0">
           <p className="font-semibold text-slate-900 text-sm">{name}</p>
           <p className="text-[10px] text-slate-500">{label}</p>
         </div>
       </div>
-      {device.brand && (
-        <p className="text-xs text-slate-500 mb-2">{device.brand}</p>
-      )}
+      {device.brand ? <p className="mb-2 text-xs text-slate-500">{device.brand}</p> : null}
       {instructions && (
-        <div className="flex items-start gap-2 bg-slate-50 rounded-lg p-3">
-          <Info className="h-4 w-4 text-slate-400 mt-0.5 shrink-0" />
+        <div className="flex items-start gap-2 rounded-lg bg-slate-50 p-3">
+          <Info className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
           <p className="text-sm text-slate-600 leading-relaxed">{instructions}</p>
         </div>
       )}
-    </div>
+    </article>
   )
 }
 
@@ -141,8 +138,8 @@ export default async function DevicesPage({
         {/* Intro */}
         <div className="rounded-xl bg-purple-50 border border-purple-200 p-4">
           <div className="flex items-start gap-3">
-            <Info className="h-5 w-5 text-purple-600 shrink-0 mt-0.5" />
-            <p className="text-sm text-purple-700 leading-relaxed">
+            <Info className="mt-0.5 h-5 w-5 shrink-0 text-purple-600" aria-hidden="true" />
+            <p className="text-sm leading-6 text-purple-700">
               {d.devices.intro}
             </p>
           </div>

@@ -21,13 +21,10 @@ async function getProperties() {
 }
 
 export default async function ReservationsPage() {
-  const [reservations, properties] = await Promise.all([
-    getReservations(),
-    getProperties(),
-  ])
+  const [reservations, properties] = await Promise.all([getReservations(), getProperties()])
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 md:space-y-8">
       <PageHeader
         eyebrow="Reservas"
         title="Organize check-ins, estadias e saidas"

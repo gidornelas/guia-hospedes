@@ -55,7 +55,7 @@ export default async function CheckInPage({
       locale={locale}
     >
       <div className="space-y-5">
-        {/* Primary: Horário */}
+        {/* Primary: Horario */}
         <PrimaryCard>
           <div className="flex items-center gap-3 mb-4">
             <div className="h-12 w-12 rounded-xl bg-blue-50 flex items-center justify-center">
@@ -99,7 +99,7 @@ export default async function CheckInPage({
           />
         </SecondaryCard>
 
-        {/* Método de Acesso */}
+        {/* Metodo de acesso */}
         {accessMethod && (
           <PrimaryCard>
             <div className="flex items-center gap-3 mb-3">
@@ -111,7 +111,7 @@ export default async function CheckInPage({
           </PrimaryCard>
         )}
 
-        {/* Instruções */}
+        {/* Instrucoes */}
         {instructions && (
           <PrimaryCard>
             <InfoRow label={d.checkIn.arrivalInstructions} value={instructions} />
@@ -129,17 +129,23 @@ export default async function CheckInPage({
                   icon={Navigation}
                   label={d.common.openInMaps}
                   color="blue"
+                  ariaLabel={`${d.common.openInMaps}: ${property.address}`}
                 />
               </div>
               <div className="flex items-center gap-2 rounded-lg bg-slate-50 p-3">
                 <span className="text-sm text-slate-600 truncate flex-1">{property.address}</span>
-                <CopyButton text={property.address} className="h-8 w-8 shrink-0" />
+                <CopyButton
+                  text={property.address}
+                  className="h-8 w-8 shrink-0"
+                  ariaLabel="Copiar endereco"
+                  successMessage="Endereco copiado!"
+                />
               </div>
             </div>
           </PrimaryCard>
         )}
 
-        {/* Observações */}
+        {/* Observacoes */}
         {notes && (
           <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
             <p className="text-sm font-medium text-amber-800 mb-1">{d.common.importantNote}</p>

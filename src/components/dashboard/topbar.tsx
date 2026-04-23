@@ -35,7 +35,7 @@ function getBreadcrumbs(pathname: string): BreadcrumbItem[] {
   breadcrumbs.push({ label: 'Dashboard', href: '/app' })
 
   if (parts[1] === 'imoveis') {
-    breadcrumbs.push({ label: 'Imoveis', href: '/app/imoveis' })
+    breadcrumbs.push({ label: 'Imóveis', href: '/app/imoveis' })
 
     if (parts[2] === 'novo') {
       breadcrumbs.push({ label: 'Novo imóvel' })
@@ -66,7 +66,7 @@ function getBreadcrumbs(pathname: string): BreadcrumbItem[] {
     }
 
     if (parts[2] === 'calendario') {
-      breadcrumbs.push({ label: 'Calendario' })
+      breadcrumbs.push({ label: 'Calendário' })
       return breadcrumbs
     }
 
@@ -121,8 +121,8 @@ export function Topbar() {
   const breadcrumbs = getBreadcrumbs(pathname)
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur-md">
-      <div className="flex min-h-16 flex-wrap items-center gap-3 px-4 py-3 sm:px-6 xl:flex-nowrap">
+    <header className="sticky top-0 z-30 border-b border-border/80 bg-background/85 backdrop-blur-md supports-[backdrop-filter]:bg-background/70">
+      <div className="mx-auto flex min-h-16 w-full max-w-[1480px] flex-wrap items-center gap-3 px-4 py-3 sm:px-6 xl:flex-nowrap xl:px-8">
         <div className="flex min-w-0 flex-1 items-center gap-3 xl:flex-initial">
           <MobileMenu />
 
@@ -132,10 +132,7 @@ export function Topbar() {
           >
             <ol className="flex min-w-0 items-center gap-2 overflow-x-auto whitespace-nowrap pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {breadcrumbs.map((crumb, index) => (
-                <li
-                  key={`${crumb.label}-${index}`}
-                  className="flex min-w-0 items-center gap-2"
-                >
+                <li key={`${crumb.label}-${index}`} className="flex min-w-0 items-center gap-2">
                   {index > 0 && <span className="text-border">/</span>}
                   {crumb.href ? (
                     <Link
@@ -145,9 +142,7 @@ export function Topbar() {
                       {crumb.label}
                     </Link>
                   ) : (
-                    <span className="truncate font-medium text-foreground">
-                      {crumb.label}
-                    </span>
+                    <span className="truncate font-medium text-foreground">{crumb.label}</span>
                   )}
                 </li>
               ))}
@@ -162,9 +157,9 @@ export function Topbar() {
               aria-hidden="true"
             />
             <Input
-              placeholder="Buscar imoveis, guias..."
+              placeholder="Buscar imóveis, guias..."
               className="border-none bg-muted/60 pl-9 transition-colors duration-200 focus:bg-background"
-              aria-label="Buscar imoveis e guias"
+              aria-label="Buscar imóveis e guias"
             />
           </div>
         </div>
@@ -174,7 +169,7 @@ export function Topbar() {
             variant="ghost"
             size="icon"
             className="relative hidden transition-all duration-200 ease-in-out active:scale-95 focus-visible:ring-2 focus-visible:ring-ring/50 sm:flex"
-            aria-label="Notificacoes"
+            aria-label="Notificações"
           >
             <Bell className="h-5 w-5" aria-hidden="true" />
             <span
@@ -186,7 +181,7 @@ export function Topbar() {
           <DropdownMenu>
             <DropdownMenuTrigger
               className="relative h-9 w-9 rounded-full outline-none transition-all duration-200 ease-in-out active:scale-95 focus-visible:ring-2 focus-visible:ring-ring/50"
-              aria-label={`Menu do usuario: ${user?.name || 'Usuario'}`}
+              aria-label={`Menu do usuário: ${user?.name || 'Usuário'}`}
             >
               <Avatar className="h-9 w-9 transition-opacity duration-200">
                 <AvatarImage src={user?.image || undefined} alt="" />
@@ -203,9 +198,7 @@ export function Topbar() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => (window.location.href = '/app/configuracoes')}
-              >
+              <DropdownMenuItem onClick={() => (window.location.href = '/app/configuracoes')}>
                 Configurações
               </DropdownMenuItem>
               <DropdownMenuItem onClick={logout}>Sair</DropdownMenuItem>
@@ -228,7 +221,7 @@ function MobileMenu() {
             variant="ghost"
             size="icon"
             className="shrink-0 xl:hidden"
-            aria-label="Abrir menu de navegacao"
+            aria-label="Abrir menu de navegação"
           >
             <Menu className="h-5 w-5" aria-hidden="true" />
           </Button>
@@ -246,7 +239,7 @@ function MobileMenu() {
                 <BookOpen className="h-4 w-4" />
               </div>
               <span className="font-heading text-lg font-semibold tracking-tight text-sidebar-foreground">
-                GuiaHospedes
+                GuiaHóspedes
               </span>
             </Link>
           </div>
@@ -258,9 +251,9 @@ function MobileMenu() {
                 aria-hidden="true"
               />
               <Input
-                placeholder="Buscar imoveis, guias..."
+                placeholder="Buscar imóveis, guias..."
                 className="border-sidebar-border bg-sidebar-accent pl-9 text-sidebar-foreground placeholder:text-sidebar-foreground/50"
-                aria-label="Buscar imoveis e guias"
+                aria-label="Buscar imóveis e guias"
               />
             </div>
           </div>

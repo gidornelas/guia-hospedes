@@ -17,6 +17,8 @@ function safeCallbackUrl(value?: string | null) {
 }
 
 export default function RegisterPage() {
+  const formErrorId = 'register-form-error'
+  const passwordHintId = 'register-password-hint'
   const [name, setName] = useState('')
   const [organizationName, setOrganizationName] = useState('')
   const [email, setEmail] = useState('')
@@ -95,6 +97,7 @@ export default function RegisterPage() {
           variant="outline"
           size="lg"
           className="w-full justify-center gap-2"
+          aria-label="Continuar com Google"
           onClick={() => {
             window.location.href = `/api/auth/google?callbackUrl=${encodeURIComponent(callbackUrl)}`
           }}
@@ -117,7 +120,11 @@ export default function RegisterPage() {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {error ? (
-          <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          <div
+            id={formErrorId}
+            role="alert"
+            className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+          >
             {error}
           </div>
         ) : null}
@@ -130,6 +137,9 @@ export default function RegisterPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Seu nome"
+              autoComplete="name"
+              aria-invalid={Boolean(error)}
+              aria-describedby={error ? formErrorId : undefined}
               required
             />
           </div>
@@ -152,6 +162,9 @@ export default function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="voce@empresa.com"
+              autoComplete="email"
+              aria-invalid={Boolean(error)}
+              aria-describedby={error ? formErrorId : undefined}
               required
             />
           </div>
@@ -167,12 +180,15 @@ export default function RegisterPage() {
                 placeholder="Minimo de 8 caracteres"
                 required
                 minLength={8}
+                autoComplete="new-password"
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? formErrorId : passwordHintId}
                 className="pr-10"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((value) => !value)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
                 aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -191,12 +207,15 @@ export default function RegisterPage() {
                 placeholder="Repita a senha"
                 required
                 minLength={8}
+                autoComplete="new-password"
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? formErrorId : passwordHintId}
                 className="pr-10"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword((value) => !value)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
                 aria-label={showConfirmPassword ? 'Ocultar confirmacao de senha' : 'Mostrar confirmacao de senha'}
               >
                 {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -204,8 +223,11 @@ export default function RegisterPage() {
             </div>
           </div>
         </div>
+        <p id={passwordHintId} className="text-xs leading-5 text-muted-foreground">
+          Use pelo menos 8 caracteres e combine letras, numeros e simbolos se puder.
+        </p>
 
-        <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
+        <Button type="submit" size="lg" className="w-full" disabled={isLoading} aria-busy={isLoading}>
           {isLoading ? (
             <>
               <LoaderCircle className="h-4 w-4 animate-spin" />

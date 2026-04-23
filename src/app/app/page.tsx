@@ -20,6 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/shared/empty-state'
 import { PageHeader } from '@/components/shared/page-header'
 import { DashboardAlerts, type DashboardAlert } from '@/components/dashboard/dashboard-alerts'
+import { DashboardMetricCard } from '@/components/dashboard/dashboard-metric-card'
 import { cn } from '@/lib/utils'
 
 async function getDashboardData() {
@@ -142,8 +143,8 @@ async function getDashboardData() {
     alerts.push({
       id: `checkin-tomorrow-${r.id}`,
       type: 'CHECKIN_TOMORROW',
-      title: `Check-in amanhã: ${r.guestName}`,
-      message: `${r.property.name} · ${r.numberOfGuests} hóspede${r.numberOfGuests > 1 ? 's' : ''} · Lembre-se de enviar o guia ao hóspede.`,
+      title: `Check-in amanha: ${r.guestName}`,
+      message: `${r.property.name} · ${r.numberOfGuests} hospede${r.numberOfGuests > 1 ? 's' : ''} · Lembre-se de enviar o guia ao hospede.`,
       severity: 'info',
       link: `/app/reservas/${r.id}`,
       linkLabel: 'Ver reserva',
@@ -155,7 +156,7 @@ async function getDashboardData() {
       id: `checkin-today-${r.id}`,
       type: 'CHECKIN_TODAY_NOT_DONE',
       title: `Check-in hoje pendente: ${r.guestName}`,
-      message: `${r.property.name} · A reserva ainda não foi marcada como check-in realizado.`,
+      message: `${r.property.name} · A reserva ainda nao foi marcada como check-in realizado.`,
       severity: 'warning',
       link: `/app/reservas/${r.id}`,
       linkLabel: 'Marcar check-in',
@@ -167,7 +168,7 @@ async function getDashboardData() {
       id: `checkout-today-${r.id}`,
       type: 'CHECKOUT_TODAY_NOT_DONE',
       title: `Check-out hoje: ${r.guestName}`,
-      message: `${r.property.name} · A reserva ainda não foi marcada como check-out realizado.`,
+      message: `${r.property.name} · A reserva ainda nao foi marcada como check-out realizado.`,
       severity: 'warning',
       link: `/app/reservas/${r.id}`,
       linkLabel: 'Marcar check-out',
@@ -178,8 +179,8 @@ async function getDashboardData() {
     alerts.push({
       id: `guide-unpublished-${p.id}`,
       type: 'GUIDE_NOT_PUBLISHED',
-      title: `Guia não publicado: ${p.name}`,
-      message: 'O guia deste imóvel ainda está em rascunho. Publique para liberar o compartilhamento.',
+      title: `Guia nao publicado: ${p.name}`,
+      message: 'O guia deste imovel ainda esta em rascunho. Publique para liberar o compartilhamento.',
       severity: 'info',
       link: `/app/imoveis/${p.id}`,
       linkLabel: 'Publicar guia',
@@ -209,7 +210,7 @@ export default async function DashboardPage() {
 
   const stats = [
     {
-      title: 'Total de imóveis',
+      title: 'Total de imoveis',
       value: data.totalProperties,
       icon: Building2,
       color: 'text-blue-600',
@@ -233,7 +234,7 @@ export default async function DashboardPage() {
       hint: 'Total de reservas',
     },
     {
-      title: 'Hóspedes ativos',
+      title: 'Hospedes ativos',
       value: data.activeGuests,
       icon: MessageCircle,
       color: 'text-green-600',
@@ -246,40 +247,35 @@ export default async function DashboardPage() {
     <div className="space-y-8">
       <PageHeader
         eyebrow="Painel"
-        title="Visão Geral"
-        description="Acompanhe o status dos seus imóveis, identifique o que ainda falta publicar e acione os próximos passos sem sair da home."
+        title="Visao Geral"
+        description="Acompanhe o status dos seus imoveis, identifique o que ainda falta publicar e acione os proximos passos sem sair da home."
       >
         <Link href="/app/imoveis/novo">
           <Button className="gap-2">
             <Plus className="h-4 w-4" />
-            Novo imóvel
+            Novo imovel
           </Button>
         </Link>
       </PageHeader>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
-          <Card key={stat.title} className="shadow-card">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    {stat.title}
-                  </p>
-                  <p className="text-3xl font-bold">{stat.value}</p>
-                  <p className="text-xs text-muted-foreground">{stat.hint}</p>
-                </div>
-                <div
-                  className={cn(
-                    'flex h-12 w-12 items-center justify-center rounded-xl',
-                    stat.bg,
-                  )}
-                >
-                  <stat.icon className={cn('h-6 w-6', stat.color)} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <DashboardMetricCard
+            key={stat.title}
+            title={stat.title}
+            value={stat.value}
+            hint={stat.hint}
+            icon={stat.icon}
+            tone={
+              stat.color === 'text-emerald-600'
+                ? 'emerald'
+                : stat.color === 'text-blue-600'
+                  ? 'blue'
+                  : stat.color === 'text-violet-600'
+                    ? 'brand'
+                    : 'slate'
+            }
+          />
         ))}
       </div>
 
@@ -307,7 +303,7 @@ export default async function DashboardPage() {
                         {r.guestName}
                       </p>
                       <p className="text-xs text-emerald-700">
-                        {r.property.name} · {r.numberOfGuests} hóspede
+                        {r.property.name} · {r.numberOfGuests} hospede
                         {r.numberOfGuests > 1 ? 's' : ''}
                       </p>
                     </div>
@@ -341,7 +337,7 @@ export default async function DashboardPage() {
                         {r.guestName}
                       </p>
                       <p className="text-xs text-amber-700">
-                        {r.property.name} · {r.numberOfGuests} hóspede
+                        {r.property.name} · {r.numberOfGuests} hospede
                         {r.numberOfGuests > 1 ? 's' : ''}
                       </p>
                     </div>
@@ -362,13 +358,13 @@ export default async function DashboardPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="shadow-card">
           <CardHeader>
-            <CardTitle className="text-lg">Atalhos rápidos</CardTitle>
+            <CardTitle className="text-lg">Atalhos rapidos</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <Link href="/app/imoveis/novo">
               <Button variant="outline" className="w-full justify-start gap-3">
                 <Plus className="h-4 w-4" />
-                Cadastrar novo imóvel
+                Cadastrar novo imovel
               </Button>
             </Link>
             <Link href="/app/reservas/novo">
@@ -395,11 +391,11 @@ export default async function DashboardPage() {
               <EmptyState
                 icon={Share2}
                 title="Nenhum compartilhamento ainda"
-                description="Assim que você publicar um guia e enviá-lo por WhatsApp, e-mail ou link, os últimos envios aparecerão aqui."
-                hint="Publique um guia e faça o primeiro envio"
+                description="Assim que voce publicar um guia e envia-lo por WhatsApp, e-mail ou link, os ultimos envios aparecerao aqui."
+                hint="Publique um guia e faca o primeiro envio"
                 actionLabel="Ir para compartilhamento"
                 actionHref="/app/compartilhamento"
-                secondaryActionLabel="Ver imóveis"
+                secondaryActionLabel="Ver imoveis"
                 secondaryActionHref="/app/imoveis"
                 className="border-none bg-transparent p-0 shadow-none sm:p-2"
               />
@@ -412,7 +408,7 @@ export default async function DashboardPage() {
                   >
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">
-                        {share.guide?.property?.name || 'Imóvel'}
+                        {share.guide?.property?.name || 'Imovel'}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {share.channel === 'WHATSAPP'
@@ -422,7 +418,7 @@ export default async function DashboardPage() {
                             : share.channel === 'QR'
                               ? 'QR Code'
                               : 'Link'}
-                        {' — '}
+                        {' - '}
                         {share.sentAt.toLocaleDateString('pt-BR')}
                       </p>
                     </div>
@@ -446,7 +442,7 @@ export default async function DashboardPage() {
 
         <Card className="shadow-card">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg">Próximos check-ins</CardTitle>
+            <CardTitle className="text-lg">Proximos check-ins</CardTitle>
             <Link href="/app/reservas">
               <Button variant="ghost" size="sm">
                 Ver todas
@@ -457,8 +453,8 @@ export default async function DashboardPage() {
             {data.upcomingReservations.length === 0 ? (
               <EmptyState
                 icon={CalendarDays}
-                title="Nenhuma reserva próxima"
-                description="Cadastre reservas para acompanhar os próximos check-ins."
+                title="Nenhuma reserva proxima"
+                description="Cadastre reservas para acompanhar os proximos check-ins."
                 actionLabel="Nova reserva"
                 actionHref="/app/reservas/novo"
                 className="border-none bg-transparent p-0 shadow-none sm:p-2"
@@ -478,10 +474,10 @@ export default async function DashboardPage() {
                     </div>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <Clock className="h-3.5 w-3.5" />
-                      {new Date(reservation.checkInDate).toLocaleDateString('pt-BR')} —{' '}
+                      {new Date(reservation.checkInDate).toLocaleDateString('pt-BR')} -{' '}
                       {new Date(reservation.checkOutDate).toLocaleDateString('pt-BR')}
                       {' · '}
-                      {reservation.numberOfGuests} hóspede
+                      {reservation.numberOfGuests} hospede
                       {reservation.numberOfGuests > 1 ? 's' : ''}
                     </div>
                   </div>
